@@ -11,7 +11,7 @@ import { AccountComponent } from './pages/account/account.component';
 
 @NgModule({
   declarations: [
-    HeaderComponent,
+    // HeaderComponent
   ],
   imports: [
     BrowserModule,

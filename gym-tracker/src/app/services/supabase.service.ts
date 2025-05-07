@@ -23,7 +23,7 @@ export class SupabaseService {
     this.loadUser();
     
     // Set up auth state change listener
-    this.supabase.auth.onAuthStateChange((event, session) => {
+    this.supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === 'SIGNED_IN' && session) {
         this._currentUser.next(session.user);
       } else if (event === 'SIGNED_OUT') {

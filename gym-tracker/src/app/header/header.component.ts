@@ -5,7 +5,7 @@ import { SupabaseService } from '../services/supabase.service';
 
 @Component({
   selector: 'app-header',
-  standalone: false,
+  standalone: true,
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
