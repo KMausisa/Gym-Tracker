@@ -1,1 +1,11 @@
-<p>header works!</p>
+<nav class="header-container">
+    <div class="header-content">
+      <div class="logo">GymTracker</div>
+      <ul class="nav-links">
+        <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+        <li><a routerLink="/workouts" routerLinkActive="active">Workouts</a></li>
+        <li><a routerLink="/profile" routerLinkActive="active">Profile</a></li>
+        <li><button (click)="logOut()">Logout</button></li>
+      </ul>
+    </div>
+  </nav>

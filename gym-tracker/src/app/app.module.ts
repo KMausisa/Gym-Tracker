@@ -4,17 +4,18 @@ import { AppComponent } from './app.component';
 
 // Import components
 import {HeaderComponent} from './header/header.component';
-import { HomeComponent } from './home/home.component';
-import { WorkoutComponent } from './workout/workout.component';
-import { ProgressComponent } from './progress/progress.component';
-import { AccountComponent } from './account/account.component';
+import { HomeComponent } from './pages/home/home.component';
+import { WorkoutComponent } from './pages/workout/workout.component';
+import { ProgressComponent } from './pages/progress/progress.component';
+import { AccountComponent } from './pages/account/account.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    HeaderComponent,
+  ],
   imports: [
     BrowserModule,
     AppComponent,
-    HeaderComponent,
     HomeComponent,
     WorkoutComponent,
     ProgressComponent,

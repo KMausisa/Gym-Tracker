@@ -1,15 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
-
+import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
-  selector: 'app-header',
-  standalone: false,
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  selector: 'app-home',
+  imports: [],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css'
 })
-export class HeaderComponent {
+export class HomeComponent {
   private auth = inject(SupabaseService)
   private router = inject(Router)
   
