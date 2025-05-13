@@ -41,10 +41,9 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Environment variables
+
+# Ignore all .env files
 .env*
-.env
-src/environments/environment*.ts
-src/environments/environment.ts
-src/environments/environment.prod.ts
-src/environments/environment.development.ts
+
+# Ignore all environment files in Angular
+/src/environments/*.ts
