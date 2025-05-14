@@ -1,1 +1,20 @@
 <app-header></app-header>
+<div class="home-container">
+  <div class="welcome-card">
+    <h2>Welcome to the App!</h2>
+    <p>You have successfully logged in.</p>
+    
+    <div class="loading" *ngIf="isLoading">
+      Loading user information...
+    </div>
+    
+    <div class="user-info" *ngIf="user && !isLoading">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Full Name:</strong> {{ profile?.full_name || 'Not provided' }}</p>
+      <p><strong>Birthday:</strong> {{ formatDate(profile?.birthday) }}</p>
+      <p><strong>User ID:</strong> {{ user.id }}</p>
+    </div>
+    
+    <button (click)="logout()">Logout</button>
+  </div>
+</div>
