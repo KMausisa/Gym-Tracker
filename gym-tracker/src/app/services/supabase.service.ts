@@ -157,4 +157,36 @@ export class SupabaseService {
 
     return this.getUserProfile(this.userId);
   }
+
+  // **** Workout Methods **** //
+  async addRoutine(routine: {
+    user_id: string;
+    title: string;
+    description: string;
+    days: string[];
+  }) {
+    console.log('Adding routine:', routine);
+    const { data, error } = await this.supabase
+      .from('workout_plans')
+      .insert([routine]);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async getUserWorkouts(userId: string) {
+    const { data, error } = await this.supabase
+      .from('workout_plans')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

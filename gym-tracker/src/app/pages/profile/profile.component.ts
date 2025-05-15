@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-profile',
   standalone: true,
-  imports: [],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
+  imports: [CommonModule],
+  templateUrl: './profile.component.html',
+  styleUrl: './profile.component.css',
 })
-export class HomeComponent {
+export class ProfileComponent {
   user: any;
   profile: any = {};
   isLoading = true;
@@ -58,9 +59,5 @@ export class HomeComponent {
       month: 'long',
       day: 'numeric',
     });
-  }
-
-  logout() {
-    this.supabaseService.signOut();
   }
 }
