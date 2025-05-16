@@ -20,25 +20,25 @@ export const routes: Routes = [
         path: 'new',
         canActivate: [AuthGuard],
         loadComponent: () =>
-          import('./pages/workout/workout-edit/workout-edit.component').then(
-            (m) => m.WorkoutEditComponent
-          ),
+          import(
+            './pages/workout/workout-plan-edit/workout-plan-edit.component'
+          ).then((m) => m.WorkoutEditComponent),
       },
-      // {
-      //   path: ':id',
-      //   canActivate: [AuthGuard],
-      //   loadComponent: () =>
-      //     import(
-      //       './pages/workout/workout-detail/workout-detail.component'
-      //     ).then((m) => m.WorkoutDetailComponent),
-      // },
+      {
+        path: ':id',
+        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-day-list/workout-day-list.component'
+          ).then((m) => m.WorkoutDayListComponent),
+      },
       {
         path: ':id/edit',
         canActivate: [AuthGuard],
         loadComponent: () =>
-          import('./pages/workout/workout-edit/workout-edit.component').then(
-            (m) => m.WorkoutEditComponent
-          ),
+          import(
+            './pages/workout/workout-plan-edit/workout-plan-edit.component'
+          ).then((m) => m.WorkoutEditComponent),
       },
     ],
   },

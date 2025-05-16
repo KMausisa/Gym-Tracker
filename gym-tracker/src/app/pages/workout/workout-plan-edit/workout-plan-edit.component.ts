@@ -14,8 +14,8 @@ import {
   selector: 'app-workout-edit',
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule, CommonModule],
-  templateUrl: './workout-edit.component.html',
-  styleUrl: './workout-edit.component.css',
+  templateUrl: './workout-plan-edit.component.html',
+  styleUrl: '../workout.component.css',
 })
 export class WorkoutEditComponent implements OnInit {
   workoutForm: FormGroup;

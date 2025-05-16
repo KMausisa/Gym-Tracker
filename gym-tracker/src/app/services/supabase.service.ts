@@ -165,13 +165,34 @@ export class SupabaseService {
     description: string;
     days: string[];
   }) {
-    console.log('Adding routine:', routine);
     const { data, error } = await this.supabase
       .from('workout_plans')
-      .insert([routine]);
+      .insert([routine])
+      .select()
+      .single();
 
     if (error) {
       throw error;
+    }
+
+    if (!data) {
+      throw new Error('Workout plan insertion succeeded but returned no data.');
+    }
+
+    const daysToInsert = routine.days.map((day, index) => ({
+      plan_id: data.id,
+      user_id: routine.user_id,
+      day_of_week: day,
+      position: index,
+    }));
+
+    const { error: daysError } = await this.supabase
+      .from('workout_days')
+      .insert(daysToInsert);
+
+    if (daysError) {
+      console.error(daysError);
+      return;
     }
 
     return data;
@@ -186,7 +207,6 @@ export class SupabaseService {
     if (error) {
       throw error;
     }
-
     return data;
   }
 }

@@ -1,9 +1,9 @@
 <div class="form">
-    <h1>Create Workout Routine</h1>
+    <h2>Create Workout Plan</h2>
     <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="name">Workout Name</label>
-        <input id="name" formControlName="name" required />
+        <label for="name">Plan Name</label>
+        <input id="name" formControlName="name" placeholder="(Eg. Push-Pull-Leg Split)" required />
           <div *ngIf="workoutForm.get('name')?.invalid && workoutForm.get('name')?.touched" class="error">
               Workout name is required.
           </div>

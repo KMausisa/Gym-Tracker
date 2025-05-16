@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../services/supabase.service';
-import { WorkoutListComponent } from './workout-list/workout-list.component';
+import { WorkoutListComponent } from './workout-plan-list/workout-plan-list.component';
 import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
 

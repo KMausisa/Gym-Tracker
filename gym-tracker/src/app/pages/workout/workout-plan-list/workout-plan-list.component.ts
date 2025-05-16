@@ -1,55 +1,52 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 import { SupabaseService } from '../../../services/supabase.service';
+import { WorkoutService } from '../workout.service';
 
 @Component({
   selector: 'app-workout-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './workout-list.component.html',
+  templateUrl: './workout-plan-list.component.html',
   styleUrl: '../workout.component.css',
 })
 export class WorkoutListComponent implements OnInit {
   user: any;
   userWorkouts: any[] = [];
+
   isLoading = true;
   selectedRoutine: any = null;
   selectedDay: string = '';
   exerciseName: string = '';
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private workoutService: WorkoutService
+  ) {}
 
   ngOnInit() {
-    this.supabaseService.currentUser.subscribe((user) => {
+    this.supabaseService.currentUser.subscribe(async (user) => {
       this.user = user;
       this.isLoading = false;
       if (this.user) {
-        this.getUserWorkouts();
-      }
-    });
-  }
-
-  // Get user workouts
-  async getUserWorkouts() {
-    if (this.user) {
-      try {
-        const workouts = await this.supabaseService.getUserWorkouts(
+        this.userWorkouts = await this.workoutService.getUserWorkoutPlans(
           this.user.id
         );
-        this.userWorkouts = workouts;
-      } catch (error) {
-        console.error('Error fetching user workouts:', error);
       }
-    }
+    });
+    this.workoutService.workoutListChangedEvent.subscribe((workouts) => {
+      this.userWorkouts = workouts;
+    });
   }
 
   openExerciseForm(workout: any, day: string) {
     this.selectedRoutine = workout;
     this.selectedDay = day;
     this.exerciseName = '';
+    console.log(workout.id);
   }
 
   addExercise() {

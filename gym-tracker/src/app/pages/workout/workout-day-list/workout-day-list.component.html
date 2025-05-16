@@ -1,0 +1,10 @@
+
+
+<div *ngIf="selectedRoutine && selectedDay" class="exercise-form">
+       <h4>Add Exercise for {{ selectedRoutine.name }} on {{ selectedDay }}</h4>
+       <form (ngSubmit)="addExercise()">
+         <input type="text" [(ngModel)]="exerciseName" name="exerciseName" placeholder="Exercise name" required />
+         <button type="submit">Add Exercise</button>
+         <button type="button" (click)="cancelExercise()">Cancel</button>
+       </form>
+</div>
