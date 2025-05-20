@@ -209,4 +209,52 @@ export class SupabaseService {
     }
     return data;
   }
+
+  // Add Exercise to a specific workout day
+  async addExerciseToWorkoutDay(exercise: {
+    day_id: string;
+    name: string;
+    sets: number;
+    reps: number;
+    weight: number;
+    notes?: string;
+  }) {
+    const { data, error } = await this.supabase
+      .from('exercises')
+      .insert([exercise]);
+
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
+
+  // Get Day ID based on workout ID and day
+  async getDayId(workoutId: string, day: string) {
+    const { data, error } = await this.supabase
+      .from('workout_days')
+      .select('id')
+      .eq('plan_id', workoutId)
+      .eq('day_of_week', day)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    return data.id;
+  }
+
+  // Get routine based on workout ID and day
+  async getRoutineById(workoutId: string, day: string) {
+    const { data, error } = await this.supabase
+      .from('workout_plans')
+      .select('*')
+      .eq('id', workoutId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
 }

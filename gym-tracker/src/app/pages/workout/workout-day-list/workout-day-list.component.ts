@@ -1,42 +1,63 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {
+  ActivatedRoute,
+  RouterModule,
+  RouterOutlet,
+  Router,
+} from '@angular/router';
+
+import { WorkoutService } from '../workout.service';
 
 @Component({
   selector: 'app-workout-day-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './workout-day-list.component.html',
   styleUrl: './workout-day-list.component.css',
 })
-export class WorkoutDayListComponent {
-  @Input() selectedRoutine: any = null;
-  @Input() selectedDay: string = '';
+export class WorkoutDayListComponent implements OnInit {
+  workoutId: string = '';
+  selectedRoutine: any = null;
+  selectedDay: string = '';
+  @Output() workoutSelected = new EventEmitter<any[]>();
+
   exerciseName: string = '';
+  sets: number = 0;
+  reps: number = 0;
+  weight: number = 0;
+  notes: string = '';
 
-  openExerciseForm(workout: any, day: string) {
-    this.selectedRoutine = workout;
-    this.selectedDay = day;
-    this.exerciseName = '';
-    console.log(workout.id);
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private workoutService: WorkoutService
+  ) {
+    // console.log(this.selectedDay, this.selectedRoutine);
   }
 
-  addExercise() {
-    // Save the exercise for this.selectedRoutine and this.selectedDay
-    // You’ll need to decide how to store this (maybe in your DB or local state)
-    console.log(
-      `Add "${this.exerciseName}" to ${this.selectedRoutine.name} on ${this.selectedDay}`
-    );
-    // After saving:
-    this.selectedRoutine = null;
-    this.selectedDay = '';
-    this.exerciseName = '';
+  ngOnInit() {
+    this.route.params.subscribe((params) => {
+      this.workoutId = params['id'];
+      this.selectedDay = params['day'];
+    });
+
+    this.workoutService.workoutListChanged.subscribe((routine) => {
+      this.selectedRoutine = routine;
+    });
   }
 
-  cancelExercise() {
-    this.selectedRoutine = null;
-    this.selectedDay = '';
-    this.exerciseName = '';
+  // Submit exercise form
+  onSubmit() {}
+
+  selectWorkout(workout: any) {
+    console.log('Workout selected:', workout);
+    this.workoutSelected.emit(workout);
+  }
+
+  // Helper getter to check if on 'add' route
+  get isOnAddRoute(): boolean {
+    return this.router.url.endsWith('/add');
   }
 }

@@ -25,12 +25,23 @@ export const routes: Routes = [
           ).then((m) => m.WorkoutEditComponent),
       },
       {
-        path: ':id',
+        path: ':id/:day',
         canActivate: [AuthGuard],
         loadComponent: () =>
           import(
             './pages/workout/workout-day-list/workout-day-list.component'
           ).then((m) => m.WorkoutDayListComponent),
+        children: [
+          {
+            path: 'add',
+            canActivate: [AuthGuard],
+            // load workout-day-edit component
+            loadComponent: () =>
+              import(
+                './pages/workout/workout-day-edit/workout-day-edit.component'
+              ).then((m) => m.WorkoutDayEditComponent),
+          },
+        ],
       },
       {
         path: ':id/edit',

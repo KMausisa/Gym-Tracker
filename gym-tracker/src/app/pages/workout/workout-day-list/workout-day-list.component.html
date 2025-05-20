@@ -1,10 +1,22 @@
+<div class="workout-day-list">
+  <ng-container *ngIf="!isOnAddRoute">
+    <!-- Exercise list and Add button -->
+    <h2>Exercises for {{ selectedDay }}</h2>
+    <!-- <ul *ngIf="exercises && exercises.length > 0; else noExercises">
+      <li *ngFor="let exercise of exercises">
+        <strong>{{ exercise.name }}</strong>:
+        {{ exercise.sets }} sets x {{ exercise.reps }} reps,
+        {{ exercise.weight }} lbs
+        <span *ngIf="exercise.notes">- {{ exercise.notes }}</span>
+      </li>
+    </ul> -->
+    <ng-template #noExercises>
+      <p>No exercises for this day yet.</p>
+    </ng-template>
+    <button [routerLink]="['add']">
+      Add Exercise
+    </button>
+  </ng-container>
 
-
-<div *ngIf="selectedRoutine && selectedDay" class="exercise-form">
-       <h4>Add Exercise for {{ selectedRoutine.name }} on {{ selectedDay }}</h4>
-       <form (ngSubmit)="addExercise()">
-         <input type="text" [(ngModel)]="exerciseName" name="exerciseName" placeholder="Exercise name" required />
-         <button type="submit">Add Exercise</button>
-         <button type="button" (click)="cancelExercise()">Cancel</button>
-       </form>
+  <router-outlet></router-outlet>
 </div>
