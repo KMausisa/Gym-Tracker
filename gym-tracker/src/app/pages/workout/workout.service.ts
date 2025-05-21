@@ -7,7 +7,9 @@ import { Subject } from 'rxjs';
 })
 export class WorkoutService {
   userWorkouts = [];
+  userExercises = [];
   workoutListChanged = new Subject<any>();
+  exerciseListChanged = new Subject<any>();
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -20,6 +22,18 @@ export class WorkoutService {
       console.error('Error fetching user workouts:', error);
       this.workoutListChanged.next([]);
       return [];
+    }
+  }
+
+  async getRoutineById(dayId: string) {
+    try {
+      const routine = await this.supabaseService.getRoutineById(dayId);
+      this.exerciseListChanged.next(routine); // emit here
+      return routine;
+    } catch (error) {
+      console.error('Error fetching workout by ID:', error);
+      this.exerciseListChanged.next([]);
+      return null;
     }
   }
 

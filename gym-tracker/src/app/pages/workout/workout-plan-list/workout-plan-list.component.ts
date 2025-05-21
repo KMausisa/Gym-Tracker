@@ -28,29 +28,4 @@ export class WorkoutListComponent implements OnInit {
       this.userWorkouts = workouts;
     });
   }
-
-  openExerciseForm(workout: any, day: string) {
-    this.selectedRoutine = workout;
-    this.selectedDay = day;
-    this.exerciseName = '';
-    console.log(workout.id);
-  }
-
-  addExercise() {
-    // Save the exercise for this.selectedRoutine and this.selectedDay
-    // You’ll need to decide how to store this (maybe in your DB or local state)
-    console.log(
-      `Add "${this.exerciseName}" to ${this.selectedRoutine.name} on ${this.selectedDay}`
-    );
-    // After saving:
-    this.selectedRoutine = null;
-    this.selectedDay = '';
-    this.exerciseName = '';
-  }
-
-  cancelExercise() {
-    this.selectedRoutine = null;
-    this.selectedDay = '';
-    this.exerciseName = '';
-  }
 }

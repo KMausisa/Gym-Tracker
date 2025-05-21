@@ -79,7 +79,6 @@ export class SupabaseService {
     const formattedBirthday = birthday
       ? new Date(birthday).toISOString().split('T')[0]
       : null;
-    console.log('Formatted Birthday:', formattedBirthday);
     const { data, error } = await this.supabase.auth.signUp({
       email,
       password,
@@ -98,9 +97,6 @@ export class SupabaseService {
     const {
       data: { session },
     } = await this.supabase.auth.getSession();
-
-    const accessToken = session?.access_token;
-    console.log('Access Token:', accessToken);
 
     // If we have additional profile data and the signup was successful
     if (data.user && (fullName || birthday)) {
@@ -212,6 +208,7 @@ export class SupabaseService {
 
   // Add Exercise to a specific workout day
   async addExerciseToWorkoutDay(exercise: {
+    user_id: string;
     day_id: string;
     name: string;
     sets: number;
@@ -245,12 +242,11 @@ export class SupabaseService {
   }
 
   // Get routine based on workout ID and day
-  async getRoutineById(workoutId: string, day: string) {
+  async getRoutineById(dayId: string) {
     const { data, error } = await this.supabase
-      .from('workout_plans')
+      .from('exercises')
       .select('*')
-      .eq('id', workoutId)
-      .single();
+      .eq('day_id', dayId);
 
     if (error) {
       throw error;

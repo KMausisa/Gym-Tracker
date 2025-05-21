@@ -9,6 +9,7 @@ import {
 } from '@angular/router';
 
 import { WorkoutService } from '../workout.service';
+import { SupabaseService } from '../../../services/supabase.service';
 
 @Component({
   selector: 'app-workout-day-list',
@@ -19,6 +20,8 @@ import { WorkoutService } from '../workout.service';
 })
 export class WorkoutDayListComponent implements OnInit {
   workoutId: string = '';
+  dayId: string = '';
+  exercises: any[] = [];
   selectedRoutine: any = null;
   selectedDay: string = '';
   @Output() workoutSelected = new EventEmitter<any[]>();
@@ -32,19 +35,38 @@ export class WorkoutDayListComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private workoutService: WorkoutService
+    private workoutService: WorkoutService,
+    private supabaseService: SupabaseService
   ) {
     // console.log(this.selectedDay, this.selectedRoutine);
   }
 
-  ngOnInit() {
-    this.route.params.subscribe((params) => {
+  async ngOnInit() {
+    this.route.params.subscribe(async (params) => {
       this.workoutId = params['id'];
       this.selectedDay = params['day'];
+
+      this.dayId = await this.supabaseService.getDayId(
+        this.workoutId,
+        this.selectedDay
+      );
+
+      // Fetch exercises for this workout and day
+      this.workoutService.getRoutineById(this.dayId).then((exercises) => {
+        this.exercises = Array.isArray(exercises)
+          ? exercises
+          : exercises
+          ? [exercises]
+          : [];
+      });
     });
 
     this.workoutService.workoutListChanged.subscribe((routine) => {
       this.selectedRoutine = routine;
+    });
+
+    this.workoutService.exerciseListChanged.subscribe((exercises) => {
+      this.exercises = exercises;
     });
   }
 
