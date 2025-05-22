@@ -11,6 +11,9 @@ export class SupabaseService {
   private supabase: SupabaseClient;
   private _currentUser = new BehaviorSubject<any>(null);
 
+  private sessionReadyResolver!: () => void;
+  public sessionReady: Promise<void>;
+
   constructor(private router: Router) {
     // Initialize Supabase client
     // Replace these with your actual Supabase URL and public anon key
@@ -19,7 +22,11 @@ export class SupabaseService {
       environment.supabaseKey
     );
 
-    // Check for existing session
+    // Create a promise that resolves when session is loaded
+    this.sessionReady = new Promise<void>((resolve) => {
+      this.sessionReadyResolver = resolve;
+    });
+
     this.loadUser();
 
     // Set up auth state change listener
@@ -53,6 +60,8 @@ export class SupabaseService {
   async loadUser() {
     const { data } = await this.supabase.auth.getSession();
     this._currentUser.next(data.session?.user || null);
+    // Resolve the sessionReady promise
+    if (this.sessionReadyResolver) this.sessionReadyResolver();
     return data.session?.user;
   }
 
@@ -155,7 +164,7 @@ export class SupabaseService {
   }
 
   // **** Workout Methods **** //
-  async addRoutine(routine: {
+  async addWorkoutPlan(plan: {
     user_id: string;
     title: string;
     description: string;
@@ -163,7 +172,7 @@ export class SupabaseService {
   }) {
     const { data, error } = await this.supabase
       .from('workout_plans')
-      .insert([routine])
+      .insert([plan])
       .select()
       .single();
 
@@ -175,9 +184,9 @@ export class SupabaseService {
       throw new Error('Workout plan insertion succeeded but returned no data.');
     }
 
-    const daysToInsert = routine.days.map((day, index) => ({
+    const daysToInsert = plan.days.map((day, index) => ({
       plan_id: data.id,
-      user_id: routine.user_id,
+      user_id: plan.user_id,
       day_of_week: day,
       position: index,
     }));
@@ -348,5 +357,16 @@ export class SupabaseService {
     }
 
     return data;
+  }
+
+  async deleteWorkout(workoutId: string) {
+    const { error } = await this.supabase
+      .from('workout_plans')
+      .delete()
+      .eq('id', workoutId);
+
+    if (error) {
+      throw error;
+    }
   }
 }

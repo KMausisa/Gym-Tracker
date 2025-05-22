@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 import { WorkoutService } from '../workout.service';
+import { SupabaseService } from '../../../services/supabase.service';
 
 @Component({
   selector: 'app-workout-list',
@@ -21,13 +22,25 @@ export class WorkoutListComponent implements OnInit {
   selectedDay: string = '';
   exerciseName: string = '';
 
-  constructor(private workoutService: WorkoutService) {}
+  constructor(
+    private supaBaseService: SupabaseService,
+    private workoutService: WorkoutService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    this.supaBaseService.currentUser.subscribe((user) => {
+      this.user = user;
+      this.isLoading = false;
+    });
+
     this.workoutService.workoutListChanged.subscribe((workouts) => {
       this.userWorkouts = workouts;
     });
   }
 
-  deleteWorkout(workoutId: string) {}
+  deleteWorkout(workoutId: string) {
+    this.workoutService.deleteWorkout(this.user.id, workoutId);
+    this.router.navigate(['/workouts']);
+  }
 }

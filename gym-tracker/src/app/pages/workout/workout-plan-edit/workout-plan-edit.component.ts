@@ -109,7 +109,7 @@ export class WorkoutEditComponent implements OnInit {
       try {
         if (this.editMode == false) {
           // If not in edit mode, create a new workout
-          await this.supabaseService.addRoutine({
+          await this.workoutService.addWorkoutPlan({
             user_id: this.user.id,
             title: name,
             description: description,

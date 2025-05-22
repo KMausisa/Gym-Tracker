@@ -50,6 +50,24 @@ export class WorkoutService {
     }
   }
 
+  /***** Create Methods *****/
+  async addWorkoutPlan(plan: {
+    user_id: string;
+    title: string;
+    description: string;
+    days: string[];
+  }) {
+    try {
+      const workout = await this.supabaseService.addWorkoutPlan(plan);
+      await this.getUserWorkoutPlans(plan.user_id); // Refresh the list after adding
+      return workout;
+    } catch (error) {
+      console.error('Error adding workout plan:', error);
+      this.workoutListChanged.next([]);
+      return null;
+    }
+  }
+
   /***** Update Methods *****/
   async updateWorkoutPlanById(plan: {
     user_id: string;
@@ -70,6 +88,20 @@ export class WorkoutService {
       return updatedWorkout;
     } catch (error) {
       console.error('Error updating workout by ID:', error);
+      this.workoutListChanged.next([]);
+      return null;
+    }
+  }
+
+  async deleteWorkout(userId: string, workoutId: string) {
+    try {
+      const deletedWorkout = await this.supabaseService.deleteWorkout(
+        workoutId
+      );
+      this.getUserWorkoutPlans(userId); // Refresh the list after deletion
+      return deletedWorkout;
+    } catch (error) {
+      console.error('Error deleting workout:', error);
       this.workoutListChanged.next([]);
       return null;
     }
