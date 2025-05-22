@@ -28,7 +28,7 @@ export class WorkoutEditComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
   successMessage = '';
-  days = [
+  daysOrder = [
     'Monday',
     'Tuesday',
     'Wednesday',
@@ -101,16 +101,35 @@ export class WorkoutEditComponent implements OnInit {
 
   async onSubmit() {
     if (this.workoutForm.valid) {
-      const { name, description, days } = this.workoutForm.value;
+      let { name, description, days } = this.workoutForm.value;
+      days = [...days].sort(
+        (a, b) => this.daysOrder.indexOf(a) - this.daysOrder.indexOf(b)
+      );
+
       try {
-        await this.supabaseService.addRoutine({
-          user_id: this.user.id,
-          title: name,
-          description: description,
-          days: days, // Include selected days in the submission
-        });
-        this.successMessage = 'Workout added successfully!';
-        this.router.navigate(['/home']);
+        if (this.editMode == false) {
+          // If not in edit mode, create a new workout
+          await this.supabaseService.addRoutine({
+            user_id: this.user.id,
+            title: name,
+            description: description,
+            days: days, // Include selected days in the submission
+          });
+
+          this.successMessage = 'Workout added successfully!';
+          this.router.navigate(['/workouts']);
+        } else {
+          // If in edit mode, update the existing workout
+          await this.workoutService.updateWorkoutPlanById({
+            user_id: this.user.id,
+            workout_id: this.workoutId,
+            title: name,
+            description: description,
+            days: days, // Include selected days in the update
+          });
+          this.successMessage = 'Workout updated successfully!';
+          this.router.navigate(['/workouts']);
+        }
       } catch (error) {
         console.error('Error adding workout:', error);
         this.errorMessage = 'Error adding workout. Please try again.';

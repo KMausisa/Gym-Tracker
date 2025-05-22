@@ -13,6 +13,7 @@ export class WorkoutService {
 
   constructor(private supabaseService: SupabaseService) {}
 
+  /***** Get Methods *****/
   async getUserWorkoutPlans(userId: string) {
     try {
       const workouts = await this.supabaseService.getUserWorkouts(userId);
@@ -45,6 +46,31 @@ export class WorkoutService {
     } catch (error) {
       console.error('Error fetching workout by ID:', error);
       this.exerciseListChanged.next([]);
+      return null;
+    }
+  }
+
+  /***** Update Methods *****/
+  async updateWorkoutPlanById(plan: {
+    user_id: string;
+    workout_id: string;
+    title: string;
+    description: string;
+    days: string[];
+  }) {
+    try {
+      const updatedWorkout = await this.supabaseService.updatePlan({
+        user_id: plan.user_id,
+        id: plan.workout_id,
+        title: plan.title,
+        description: plan.description,
+        days: plan.days,
+      });
+      this.workoutListChanged.next(updatedWorkout); // emit here
+      return updatedWorkout;
+    } catch (error) {
+      console.error('Error updating workout by ID:', error);
+      this.workoutListChanged.next([]);
       return null;
     }
   }

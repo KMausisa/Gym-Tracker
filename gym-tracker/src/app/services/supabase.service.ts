@@ -266,4 +266,87 @@ export class SupabaseService {
     }
     return data;
   }
+
+  async updatePlan(routine: {
+    user_id: string;
+    id: string;
+    title: string;
+    description: string;
+    days: string[];
+  }) {
+    const { data, error } = await this.supabase
+      .from('workout_plans')
+      .update({
+        title: routine.title,
+        description: routine.description,
+        days: routine.days,
+      })
+      .eq('id', routine.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error('Workout plan update succeeded but returned no data.');
+    }
+
+    const { data: existingDays, error: fetchDaysError } = await this.supabase
+      .from('workout_days')
+      .select('id, day_of_week')
+      .eq('plan_id', routine.id);
+
+    if (fetchDaysError) {
+      console.error(fetchDaysError);
+      return;
+    }
+
+    const existingDayNames = (existingDays ?? []).map(
+      (d: any) => d.day_of_week
+    );
+
+    // Update the days in the workout_days table
+    const daysToUpdate = routine.days
+      .filter((day) => !existingDayNames.includes(day))
+      .map((day, index) => ({
+        plan_id: routine.id,
+        user_id: routine.user_id,
+        day_of_week: day,
+        position: index,
+      }));
+
+    if (daysToUpdate.length > 0) {
+      const { error: daysError } = await this.supabase
+        .from('workout_days')
+        .upsert(daysToUpdate);
+
+      if (daysError) {
+        console.error(daysError);
+        return;
+      }
+    }
+
+    // --- DELETE REMOVED DAYS ---
+
+    const daysToDelete = (existingDays ?? []).filter(
+      (d: any) => !routine.days.includes(d.day_of_week)
+    );
+
+    if (daysToDelete.length > 0) {
+      const idsToDelete = daysToDelete.map((d: any) => d.id);
+      const { error: deleteError } = await this.supabase
+        .from('workout_days')
+        .delete()
+        .in('id', idsToDelete);
+
+      if (deleteError) {
+        console.error(deleteError);
+        return;
+      }
+    }
+
+    return data;
+  }
 }

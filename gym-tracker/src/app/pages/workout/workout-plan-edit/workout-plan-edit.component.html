@@ -18,7 +18,7 @@
       <!-- Checkbox of the days user will workout -->
       <div class="form-group">
         <label>Days of the Week</label>
-        <div *ngFor="let day of days">
+        <div *ngFor="let day of daysOrder">
           <input type="checkbox" [value]="day" [checked]="(workoutForm.value.days ?? []).includes(day)" (change)="onDayChange($event)" /> {{ day }}
         </div>
       </div>
