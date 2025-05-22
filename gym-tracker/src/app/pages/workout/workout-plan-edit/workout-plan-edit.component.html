@@ -19,7 +19,7 @@
       <div class="form-group">
         <label>Days of the Week</label>
         <div *ngFor="let day of days">
-          <input type="checkbox" [value]="day" (change)="onDayChange($event)" /> {{ day }}
+          <input type="checkbox" [value]="day" [checked]="(workoutForm.value.days ?? []).includes(day)" (change)="onDayChange($event)" /> {{ day }}
         </div>
       </div>
       <!-- Validate and Submit -->

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SupabaseService } from '../../../services/supabase.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormGroup,
   FormsModule,
@@ -9,6 +8,9 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+
+import { WorkoutService } from '../workout.service';
+import { SupabaseService } from '../../../services/supabase.service';
 
 @Component({
   selector: 'app-workout-edit',
@@ -19,6 +21,9 @@ import {
 })
 export class WorkoutEditComponent implements OnInit {
   workoutForm: FormGroup;
+  workoutId: string = '';
+  originalWorkout: any;
+  editMode: boolean = false;
   user: any;
   isLoading = true;
   errorMessage = '';
@@ -37,12 +42,14 @@ export class WorkoutEditComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private supabaseService: SupabaseService,
+    private workoutService: WorkoutService,
+    private route: ActivatedRoute,
     private router: Router
   ) {
     this.workoutForm = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
-      days: [this.selectedDays], // Bind selectedDays to the form
+      days: [this.selectedDays, Validators.required], // Bind selectedDays to the form
     });
   }
 
@@ -50,6 +57,30 @@ export class WorkoutEditComponent implements OnInit {
     this.supabaseService.currentUser.subscribe((user) => {
       this.user = user;
       this.isLoading = false;
+    });
+
+    this.route.params.subscribe(async (params) => {
+      this.workoutId = params['id'];
+
+      if (!this.workoutId) {
+        this.editMode = false;
+        return;
+      }
+      this.originalWorkout = await this.workoutService.getWorkoutPlanById(
+        this.workoutId
+      );
+      if (!this.originalWorkout) {
+        return;
+      }
+      this.editMode = true;
+      if (this.editMode && this.originalWorkout) {
+        this.workoutForm.patchValue({
+          name: this.originalWorkout.title,
+          description: this.originalWorkout.description,
+          days: this.originalWorkout.days, // Set the selected days
+        });
+      }
+      console.log('Original Workout:', this.originalWorkout);
     });
   }
 

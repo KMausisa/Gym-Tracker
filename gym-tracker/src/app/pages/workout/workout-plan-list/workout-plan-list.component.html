@@ -1,16 +1,19 @@
 <div class="workout-list">
-     <h2>Your Workout Plans</h2>
-     <a routerLink="new" class="btn btn-primary">Create New Workout</a>
-     <ul>
-       <li *ngFor="let workout of userWorkouts">
-         <h3>{{ workout.title }}</h3>
-         <p>{{ workout.description }}</p>
-         <button
-           *ngFor="let day of workout.days"
-           class="day-button"
-           [routerLink]="[workout.id, day]">
-           {{ day }}
-         </button>
-       </li>
-     </ul>
-   </div>
+  <h2>Your Workout Plans</h2>
+  <a routerLink="new" class="btn btn-primary">Create New Workout</a>
+  <ul>
+    <li *ngFor="let workout of userWorkouts">
+      <h3>{{ workout.title }}</h3>
+      <p>{{ workout.description }}</p>
+      <button
+        *ngFor="let day of workout.days"
+        class="day-button"
+        [routerLink]="[workout.id, day]">
+        {{ day }}
+      </button>
+      <!-- Edit and Delete buttons -->
+      <button class="btn btn-secondary" [routerLink]="[workout.id, 'edit']">Edit</button>
+      <button class="btn btn-danger" (click)="deleteWorkout(workout.id)">Delete</button>
+    </li>
+  </ul>
+</div>

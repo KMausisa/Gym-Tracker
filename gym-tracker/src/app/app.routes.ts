@@ -18,7 +18,13 @@ export const routes: Routes = [
     children: [
       {
         path: 'new',
-        canActivate: [AuthGuard],
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-plan-edit/workout-plan-edit.component'
+          ).then((m) => m.WorkoutEditComponent),
+      },
+      {
+        path: ':id/edit',
         loadComponent: () =>
           import(
             './pages/workout/workout-plan-edit/workout-plan-edit.component'
@@ -26,7 +32,6 @@ export const routes: Routes = [
       },
       {
         path: ':id/:day',
-        canActivate: [AuthGuard],
         loadComponent: () =>
           import(
             './pages/workout/workout-day-list/workout-day-list.component'
@@ -34,7 +39,6 @@ export const routes: Routes = [
         children: [
           {
             path: 'add',
-            canActivate: [AuthGuard],
             // load workout-day-edit component
             loadComponent: () =>
               import(
@@ -42,14 +46,6 @@ export const routes: Routes = [
               ).then((m) => m.WorkoutDayEditComponent),
           },
         ],
-      },
-      {
-        path: ':id/edit',
-        canActivate: [AuthGuard],
-        loadComponent: () =>
-          import(
-            './pages/workout/workout-plan-edit/workout-plan-edit.component'
-          ).then((m) => m.WorkoutEditComponent),
       },
     ],
   },

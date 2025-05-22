@@ -44,6 +44,10 @@ export class WorkoutComponent implements OnInit, OnDestroy {
     return this.router.url.endsWith('/new');
   }
 
+  get isOnEditRoute() {
+    return this.router.url.endsWith('/edit');
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }

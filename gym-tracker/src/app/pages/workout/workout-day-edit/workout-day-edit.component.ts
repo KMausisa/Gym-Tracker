@@ -1,4 +1,4 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
@@ -8,6 +8,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+
+import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 
 @Component({
@@ -20,15 +22,18 @@ export class WorkoutDayEditComponent {
   user: any;
   exerciseForm: FormGroup;
   workoutId: string = '';
+  originalWorkout: any;
   selectedDay: string = '';
   DayId: string = '';
-  isLoading = true;
+  isLoading: boolean = true;
+  editMode: boolean = false;
   errorMessage = '';
   successMessage = '';
 
   constructor(
     private fb: FormBuilder,
     private supabaseService: SupabaseService,
+    private workoutService: WorkoutService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -42,7 +47,7 @@ export class WorkoutDayEditComponent {
   }
 
   ngOnInit(): void {
-    this.route.parent?.params.subscribe((params) => {
+    this.route.parent?.params.subscribe((params: Params) => {
       this.workoutId = params['id'];
       this.selectedDay = params['day'];
     });

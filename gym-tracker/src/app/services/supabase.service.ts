@@ -206,6 +206,19 @@ export class SupabaseService {
     return data;
   }
 
+  async getWorkoutById(workoutId: string) {
+    const { data, error } = await this.supabase
+      .from('workout_plans')
+      .select('*')
+      .eq('id', workoutId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
+
   // Add Exercise to a specific workout day
   async addExerciseToWorkoutDay(exercise: {
     user_id: string;

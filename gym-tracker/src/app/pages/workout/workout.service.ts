@@ -25,6 +25,18 @@ export class WorkoutService {
     }
   }
 
+  async getWorkoutPlanById(workoutId: string) {
+    try {
+      const workout = await this.supabaseService.getWorkoutById(workoutId);
+      this.workoutListChanged.next(workout); // emit here
+      return workout;
+    } catch (error) {
+      console.error('Error fetching workout by ID:', error);
+      this.workoutListChanged.next([]);
+      return null;
+    }
+  }
+
   async getRoutineById(dayId: string) {
     try {
       const routine = await this.supabaseService.getRoutineById(dayId);

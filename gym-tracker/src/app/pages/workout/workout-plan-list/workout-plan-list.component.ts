@@ -28,4 +28,6 @@ export class WorkoutListComponent implements OnInit {
       this.userWorkouts = workouts;
     });
   }
+
+  deleteWorkout(workoutId: string) {}
 }
