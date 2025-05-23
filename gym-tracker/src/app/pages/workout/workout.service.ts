@@ -1,6 +1,6 @@
 import { Injectable, Output, EventEmitter } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,8 +8,8 @@ import { Subject } from 'rxjs';
 export class WorkoutService {
   userWorkouts = [];
   userExercises = [];
-  workoutListChanged = new Subject<any>();
-  exerciseListChanged = new Subject<any>();
+  workoutListChanged = new BehaviorSubject<any[]>([]);
+  exerciseListChanged = new BehaviorSubject<any[]>([]);
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -29,11 +29,9 @@ export class WorkoutService {
   async getWorkoutPlanById(workoutId: string) {
     try {
       const workout = await this.supabaseService.getWorkoutById(workoutId);
-      this.workoutListChanged.next(workout); // emit here
       return workout;
     } catch (error) {
       console.error('Error fetching workout by ID:', error);
-      this.workoutListChanged.next([]);
       return null;
     }
   }
@@ -68,6 +66,28 @@ export class WorkoutService {
     }
   }
 
+  async addExerciseToWorkoutDay(exercise: {
+    user_id: string;
+    day_id: string;
+    name: string;
+    sets: number;
+    reps: number;
+    weight: number;
+    notes: string;
+  }) {
+    try {
+      const addedExercise = await this.supabaseService.addExerciseToWorkoutDay(
+        exercise
+      );
+      await this.getRoutineById(exercise.day_id); // Refresh the list after adding
+      return addedExercise;
+    } catch (error) {
+      console.error('Error adding exercise to workout day:', error);
+      this.exerciseListChanged.next([]);
+      return null;
+    }
+  }
+
   /***** Update Methods *****/
   async updateWorkoutPlanById(plan: {
     user_id: string;
@@ -84,7 +104,7 @@ export class WorkoutService {
         description: plan.description,
         days: plan.days,
       });
-      this.workoutListChanged.next(updatedWorkout); // emit here
+      await this.getUserWorkoutPlans(plan.user_id); // Refresh the list after updating
       return updatedWorkout;
     } catch (error) {
       console.error('Error updating workout by ID:', error);

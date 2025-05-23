@@ -51,27 +51,20 @@ export class WorkoutDayListComponent implements OnInit {
         this.selectedDay
       );
 
-      // Fetch exercises for this workout and day
-      this.workoutService.getRoutineById(this.dayId).then((exercises) => {
-        this.exercises = Array.isArray(exercises)
-          ? exercises
-          : exercises
-          ? [exercises]
-          : [];
-      });
-    });
-
-    this.workoutService.workoutListChanged.subscribe((routine) => {
-      this.selectedRoutine = routine;
+      await this.workoutService.getRoutineById(this.dayId);
     });
 
     this.workoutService.exerciseListChanged.subscribe((exercises) => {
       this.exercises = exercises;
+      console.log('Exercises:', this.exercises);
     });
   }
 
   // Submit exercise form
   onSubmit() {}
+
+  onEditExercise(exercise: any) {}
+  onDeleteExercise(exerciseId: string) {}
 
   selectWorkout(workout: any) {
     console.log('Workout selected:', workout);

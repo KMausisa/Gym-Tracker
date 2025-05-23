@@ -77,8 +77,9 @@ export class WorkoutEditComponent implements OnInit {
         this.workoutForm.patchValue({
           name: this.originalWorkout.title,
           description: this.originalWorkout.description,
-          days: this.originalWorkout.days, // Set the selected days
+          days: this.originalWorkout.days,
         });
+        this.selectedDays = [...this.originalWorkout.days]; // <-- Add this line
       }
       console.log('Original Workout:', this.originalWorkout);
     });

@@ -14,11 +14,16 @@ import { HeaderComponent } from './header/header.component';
 export class AppComponent {
   title = 'Gym Tracker';
 
-  isAuthenticated = false;
+  isAuthenticated: boolean = false;
+  isSessionReady: boolean = false;
   userId: string | null = null;
   userProfile: any = null;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private supabaseService: SupabaseService) {
+    this.supabaseService.sessionReady.then(() => {
+      this.isSessionReady = true;
+    });
+  }
 
   ngOnInit() {
     // Set initial authentication state

@@ -72,7 +72,7 @@ export class WorkoutDayEditComponent {
 
       // Call the Supabase function to add the exercise
       try {
-        await this.supabaseService.addExerciseToWorkoutDay({
+        await this.workoutService.addExerciseToWorkoutDay({
           user_id: this.user.id,
           day_id: this.DayId,
           name: exerciseName,
