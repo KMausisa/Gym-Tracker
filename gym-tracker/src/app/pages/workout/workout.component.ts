@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { WorkoutService } from './workout.service';
 import { Subscription } from 'rxjs';
 import { WorkoutListComponent } from './workout-plan-list/workout-plan-list.component';
+import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.component';
 
 @Component({
   selector: 'app-workout',
