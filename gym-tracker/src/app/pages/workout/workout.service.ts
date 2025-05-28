@@ -48,6 +48,16 @@ export class WorkoutService {
     }
   }
 
+  async getExerciseById(exerciseId: string) {
+    try {
+      const exercise = await this.supabaseService.getExerciseById(exerciseId);
+      return exercise;
+    } catch (error) {
+      console.error('Error fetching exercise by ID:', error);
+      return null;
+    }
+  }
+
   /***** Create Methods *****/
   async addWorkoutPlan(plan: {
     user_id: string;
@@ -113,6 +123,29 @@ export class WorkoutService {
     }
   }
 
+  async updateExercisePlanById(exercise: {
+    dayId: string;
+    userId: string;
+    exerciseId: string;
+    name: string;
+    sets: number;
+    reps: number;
+    weight: number;
+    notes?: string;
+  }) {
+    try {
+      const updatedExercise = await this.supabaseService.updateExercisePlanById(
+        exercise
+      );
+      await this.getRoutineById(exercise.dayId); // Refresh the list after updating
+      return updatedExercise;
+    } catch (error) {
+      console.error('Error updating exercise by ID:', error);
+      this.exerciseListChanged.next([]);
+      return null;
+    }
+  }
+
   async deleteWorkout(userId: string, workoutId: string) {
     try {
       const deletedWorkout = await this.supabaseService.deleteWorkout(
@@ -123,6 +156,20 @@ export class WorkoutService {
     } catch (error) {
       console.error('Error deleting workout:', error);
       this.workoutListChanged.next([]);
+      return null;
+    }
+  }
+
+  async deleteExercise(exerciseId: string, userId: string) {
+    try {
+      const deletedExercise = await this.supabaseService.deleteExercise(
+        exerciseId
+      );
+      this.getRoutineById(userId); // Clear the list after deletion
+      return deletedExercise;
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
+      this.exerciseListChanged.next([]);
       return null;
     }
   }

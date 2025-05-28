@@ -1,5 +1,5 @@
 <div class="exercise-form">
-  <h4>Add Exercise</h4>
+  <h4>{{formHeading}}</h4>
   <form (ngSubmit)="onSubmit()" [formGroup]="exerciseForm">
     <div>
       <label for="exerciseName">Exercise Name:</label>
@@ -10,6 +10,7 @@
         formControlName="exerciseName"
         required
       />
+      <div *ngIf="exerciseForm.get('exerciseName')?.invalid && exerciseForm.get('exerciseName')?.touched" class="error">Exercise name is required.</div>
     </div>
     <div>
       <label for="sets">Sets:</label>
@@ -21,6 +22,8 @@
         min="1"
         required
       />
+      <div *ngIf="exerciseForm.get('sets')?.invalid && exerciseForm.get('sets')?.touched" class="error">Number of sets is required.</div>
+
     </div>
     <div>
       <label for="reps">Reps:</label>
@@ -32,6 +35,8 @@
         min="1"
         required
       />
+      <div *ngIf="exerciseForm.get('reps')?.invalid && exerciseForm.get('reps')?.touched" class="error">Number of reps is required.</div>
+
     </div>
     <div>
       <label for="weight">Recommended Weight (lbs):</label>
@@ -52,7 +57,7 @@
         rows="2"
       ></textarea>
     </div>
-    <button type="submit" [disabled]="exerciseForm.invalid">Add Exercise</button>
+    <button type="submit" [disabled]="exerciseForm.invalid">{{ formHeading }}</button>
     <!-- <button type="button" (click)="cancelExercise()">Cancel</button> -->
   </form>
 </div>

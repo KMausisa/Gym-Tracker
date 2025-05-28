@@ -228,6 +228,19 @@ export class SupabaseService {
     return data;
   }
 
+  /***** Exercise Methods *****/
+  async getExerciseById(exerciseId: string) {
+    const { data, error } = await this.supabase
+      .from('exercises')
+      .select('*')
+      .eq('id', exerciseId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
   // Add Exercise to a specific workout day
   async addExerciseToWorkoutDay(exercise: {
     user_id: string;
@@ -359,11 +372,55 @@ export class SupabaseService {
     return data;
   }
 
+  async updateExercisePlanById(exercise: {
+    dayId: string;
+    userId: string;
+    exerciseId: string;
+    name: string;
+    sets: number;
+    reps: number;
+    weight: number;
+    notes?: string;
+  }) {
+    const { data, error } = await this.supabase
+      .from('exercises')
+      .update({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        weight: exercise.weight,
+        notes: exercise.notes,
+      })
+      .eq('id', exercise.exerciseId)
+      .eq('day_id', exercise.dayId)
+      .eq('user_id', exercise.userId)
+      .select();
+
+    if (error) {
+      throw error;
+    }
+    if (!data) {
+      throw new Error('Exercise update succeeded but returned no data.');
+    }
+    return data;
+  }
+
   async deleteWorkout(workoutId: string) {
     const { error } = await this.supabase
       .from('workout_plans')
       .delete()
       .eq('id', workoutId);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async deleteExercise(exerciseId: string) {
+    const { error } = await this.supabase
+      .from('exercises')
+      .delete()
+      .eq('id', exerciseId);
 
     if (error) {
       throw error;

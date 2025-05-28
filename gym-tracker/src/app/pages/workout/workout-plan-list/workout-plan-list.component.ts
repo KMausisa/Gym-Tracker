@@ -11,7 +11,7 @@ import { SupabaseService } from '../../../services/supabase.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './workout-plan-list.component.html',
-  styleUrl: '../workout.component.css',
+  styleUrl: './workout-plan-list.component.css',
 })
 export class WorkoutListComponent implements OnInit {
   user: any;

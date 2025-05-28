@@ -19,6 +19,7 @@ import { SupabaseService } from '../../../services/supabase.service';
   styleUrl: './workout-day-list.component.css',
 })
 export class WorkoutDayListComponent implements OnInit {
+  user: any;
   workoutId: string = '';
   dayId: string = '';
   exercises: any[] = [];
@@ -42,6 +43,10 @@ export class WorkoutDayListComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.supabaseService.currentUser.subscribe((user) => {
+      this.user = user;
+    });
+
     this.route.params.subscribe(async (params) => {
       this.workoutId = params['id'];
       this.selectedDay = params['day'];
@@ -60,19 +65,21 @@ export class WorkoutDayListComponent implements OnInit {
     });
   }
 
-  // Submit exercise form
-  onSubmit() {}
-
-  onEditExercise(exercise: any) {}
-  onDeleteExercise(exerciseId: string) {}
-
   selectWorkout(workout: any) {
-    console.log('Workout selected:', workout);
     this.workoutSelected.emit(workout);
   }
 
   // Helper getter to check if on 'add' route
   get isOnAddRoute(): boolean {
     return this.router.url.endsWith('/add');
+  }
+
+  get isOnEditRoute(): boolean {
+    return this.router.url.includes('/edit');
+  }
+
+  onDeleteExercise(exerciseId: string) {
+    this.workoutService.deleteExercise(exerciseId, this.user.id);
+    this.router.navigate([`/workouts/${this.workoutId}/${this.selectedDay}`]);
   }
 }

@@ -24,6 +24,7 @@ export class WorkoutEditComponent implements OnInit {
   workoutId: string = '';
   originalWorkout: any;
   editMode: boolean = false;
+  formHeading: string = 'Add Workout Plan'; // Default heading for the form
   user: any;
   isLoading = true;
   errorMessage = '';
@@ -73,6 +74,7 @@ export class WorkoutEditComponent implements OnInit {
         return;
       }
       this.editMode = true;
+      this.formHeading = 'Edit Workout Plan'; // Change form heading for edit mode
       if (this.editMode && this.originalWorkout) {
         this.workoutForm.patchValue({
           name: this.originalWorkout.title,
@@ -81,7 +83,6 @@ export class WorkoutEditComponent implements OnInit {
         });
         this.selectedDays = [...this.originalWorkout.days]; // <-- Add this line
       }
-      console.log('Original Workout:', this.originalWorkout);
     });
   }
 

@@ -45,6 +45,14 @@ export const routes: Routes = [
                 './pages/workout/workout-day-edit/workout-day-edit.component'
               ).then((m) => m.WorkoutDayEditComponent),
           },
+          {
+            path: ':exerciseId/edit',
+            // load workout-day-edit component
+            loadComponent: () =>
+              import(
+                './pages/workout/workout-day-edit/workout-day-edit.component'
+              ).then((m) => m.WorkoutDayEditComponent),
+          },
         ],
       },
     ],

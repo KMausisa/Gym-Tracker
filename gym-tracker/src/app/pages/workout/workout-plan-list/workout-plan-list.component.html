@@ -1,6 +1,8 @@
 <div class="workout-list">
-  <h2>Your Workout Plans</h2>
-  <a routerLink="new" class="btn btn-primary">Create New Workout</a>
+  <div class="workout-list-header">
+    <h2>Your Workout Plans</h2>
+    <a routerLink="new" class="btn btn-primary">Create New Workout</a>
+  </div>
   <ul>
     <li *ngFor="let workout of userWorkouts">
       <h3>{{ workout.title }}</h3>
