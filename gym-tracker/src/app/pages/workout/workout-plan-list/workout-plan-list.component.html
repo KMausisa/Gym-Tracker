@@ -10,12 +10,37 @@
       <button
         *ngFor="let day of workout.days"
         class="day-button"
-        [routerLink]="[workout.id, day]">
+        [routerLink]="[workout.id, day]"
+      >
         {{ day }}
       </button>
-      <!-- Edit and Delete buttons -->
-      <button class="btn btn-secondary" [routerLink]="[workout.id, 'edit']">Edit</button>
-      <button class="btn btn-danger" (click)="deleteWorkout(workout.id)">Delete</button>
+      <!-- More actions dropdown -->
+      <div class="actions-dropdown">
+        <button class="btn btn-actions" (click)="showActions = !showActions">
+          ⋮
+        </button>
+        <div class="dropdown-menu" *ngIf="showActions">
+          <button class="btn btn-secondary" [routerLink]="[workout.id, 'edit']">
+            Edit
+          </button>
+          <button class="btn btn-danger" (click)="deleteWorkout(workout.id)">
+            Delete
+          </button>
+          <button
+            class="btn btn-activate"
+            [disabled]="activeWorkoutId === workout.id"
+            (click)="activateWorkout(workout.id)"
+          >
+            {{ activeWorkoutId === workout.id ? "Active" : "Activate" }}
+          </button>
+          <button
+            class="btn btn-deactivate"
+            (click)="deactivateWorkout(workout.id)"
+          >
+            Deactivate
+          </button>
+        </div>
+      </div>
     </li>
   </ul>
 </div>

@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SupabaseService } from '../../services/supabase.service';
-import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
-import { WorkoutService } from './workout.service';
+import { RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
+
+import { SupabaseService } from '../../services/supabase.service';
+import { WorkoutService } from './workout.service';
+
+import { User } from '../profile/user.model';
 import { WorkoutListComponent } from './workout-plan-list/workout-plan-list.component';
 import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.component';
 
@@ -16,11 +19,8 @@ import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.com
   styleUrl: './workout.component.css',
 })
 export class WorkoutComponent implements OnInit, OnDestroy {
-  user: any;
+  user!: User;
   isLoading = true;
-  errorMessage = '';
-  successMessage = '';
-  userWorkouts: any[] = []; // Array to store user workouts
   private subscriptions = new Subscription();
 
   constructor(

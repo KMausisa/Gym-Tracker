@@ -12,6 +12,8 @@ import { combineLatest } from 'rxjs';
 
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
+import { User } from '../../profile/user.model';
+import { Exercise } from '../exercise.model';
 
 @Component({
   selector: 'app-workout-day-edit',
@@ -20,11 +22,11 @@ import { SupabaseService } from '../../../services/supabase.service';
   styleUrl: './workout-day-edit.component.css',
 })
 export class WorkoutDayEditComponent {
-  user: any;
+  user!: User;
   exerciseForm: FormGroup;
   workoutId: string = '';
   exerciseId: string = '';
-  originalExercise: any;
+  originalExercise!: Exercise;
   selectedDay: string = '';
   DayId: string = '';
   isLoading: boolean = true;

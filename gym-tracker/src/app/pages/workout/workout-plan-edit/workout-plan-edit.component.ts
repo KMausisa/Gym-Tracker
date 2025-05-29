@@ -11,6 +11,8 @@ import {
 
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
+import { Workout } from '../workout.model';
+import { User } from '../../profile/user.model';
 
 @Component({
   selector: 'app-workout-edit',
@@ -22,10 +24,10 @@ import { SupabaseService } from '../../../services/supabase.service';
 export class WorkoutEditComponent implements OnInit {
   workoutForm: FormGroup;
   workoutId: string = '';
-  originalWorkout: any;
+  originalWorkout!: Workout;
   editMode: boolean = false;
   formHeading: string = 'Add Workout Plan'; // Default heading for the form
-  user: any;
+  user!: User;
   isLoading = true;
   errorMessage = '';
   successMessage = '';

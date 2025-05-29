@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
     // Check if already logged in
     this.supabaseService.currentUser.subscribe((user) => {
       if (user) {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/dashboard']);
       }
     });
 

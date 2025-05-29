@@ -10,6 +10,8 @@ import {
 
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
+import { User } from '../../profile/user.model';
+import { Exercise } from '../exercise.model';
 
 @Component({
   selector: 'app-workout-day-list',
@@ -19,11 +21,10 @@ import { SupabaseService } from '../../../services/supabase.service';
   styleUrl: './workout-day-list.component.css',
 })
 export class WorkoutDayListComponent implements OnInit {
-  user: any;
+  user!: User;
   workoutId: string = '';
   dayId: string = '';
-  exercises: any[] = [];
-  selectedRoutine: any = null;
+  exercises: Exercise[] = [];
   selectedDay: string = '';
   @Output() workoutSelected = new EventEmitter<any[]>();
 
@@ -38,9 +39,7 @@ export class WorkoutDayListComponent implements OnInit {
     private router: Router,
     private workoutService: WorkoutService,
     private supabaseService: SupabaseService
-  ) {
-    // console.log(this.selectedDay, this.selectedRoutine);
-  }
+  ) {}
 
   async ngOnInit() {
     this.supabaseService.currentUser.subscribe((user) => {
@@ -61,7 +60,6 @@ export class WorkoutDayListComponent implements OnInit {
 
     this.workoutService.exerciseListChanged.subscribe((exercises) => {
       this.exercises = exercises;
-      console.log('Exercises:', this.exercises);
     });
   }
 

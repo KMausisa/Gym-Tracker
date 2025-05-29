@@ -1,0 +1,111 @@
+<div *ngIf="activeWorkout && !inWorkout" class="active-workout-card">
+  <h2>Active Workout</h2>
+  <h3>{{ activeWorkout.title }}</h3>
+  <p>{{ activeWorkout.description }}</p>
+</div>
+<ng-template #noActive>
+  <div class="no-active-message">
+    <p>No active workout selected. Go to your workout plans to activate one!</p>
+  </div>
+</ng-template>
+
+<!-- Show the workout for the day -->
+<div *ngIf="activeWorkout && !inWorkout" class="workout-day-list">
+  <div>
+    <h2>Today's Workout</h2>
+    <button class="btn btn-start" (click)="startWorkout()">
+      Start Workout
+    </button>
+  </div>
+  <ul>
+    <li *ngFor="let exercise of todaysExercises">
+      <strong>{{ exercise.name }}</strong> - {{ exercise.sets }} sets of
+      {{ exercise.reps }} reps
+      <span *ngIf="exercise.weight">({{ exercise.weight }} lbs)</span>
+      <p *ngIf="exercise.notes">{{ exercise.notes }}</p>
+    </li>
+  </ul>
+</div>
+
+<div *ngIf="inWorkout && todaysExercises?.length">
+  <h2>
+    Exercise {{ currentExerciseIndex + 1 }} of {{ todaysExercises.length }}
+  </h2>
+  <div>
+    <strong>{{ todaysExercises[currentExerciseIndex].name }}</strong>
+    <p>Sets: {{ todaysExercises[currentExerciseIndex].sets }}</p>
+    <p>Reps: {{ todaysExercises[currentExerciseIndex].reps }}</p>
+    <p>
+      Recommended Weight: {{ todaysExercises[currentExerciseIndex].weight }} lbs
+    </p>
+    <!-- Add form fields for user to enter completed sets/reps/weight/notes -->
+    <div class="exercise-progress-form">
+      <h3>Log Your Progress</h3>
+      <!-- for set in sets, input reps-->
+
+      <div
+        *ngFor="
+          let set of [].constructor(todaysExercises[currentExerciseIndex].sets);
+          let j = index
+        "
+      >
+        <div>
+          <label>Set {{ j + 1 }}:</label>
+          <!-- label for reps-->
+          <label
+            >Reps:
+            <input
+              type="number"
+              [(ngModel)]="
+                exerciseProgress[todaysExercises[currentExerciseIndex].id].reps[
+                  j
+                ]
+              "
+              placeholder="Reps completed"
+              min="0"
+            />
+          </label>
+          <label
+            >Weight (lbs):
+            <input
+              type="number"
+              [(ngModel)]="
+                exerciseProgress[todaysExercises[currentExerciseIndex].id]
+                  .weight[j]
+              "
+              placeholder="Weight used"
+              min="0"
+            />
+          </label>
+          <label
+            >Notes:
+            <input
+              type="text"
+              [(ngModel)]="
+                exerciseProgress[todaysExercises[currentExerciseIndex].id]
+                  .notes[j]
+              "
+              placeholder="Notes"
+            />
+          </label>
+        </div>
+      </div>
+      <!-- If there is another exercise, click Next. If not, click Finished -->
+      <button
+        *ngIf="currentExerciseIndex < todaysExercises.length - 1"
+        (click)="nextExercise()"
+        class="btn btn-next"
+        1
+      >
+        Next Exercise
+      </button>
+      <button
+        *ngIf="currentExerciseIndex === todaysExercises.length - 1"
+        (click)="finishWorkout()"
+        class="btn btn-finish"
+      >
+        Finish Workout
+      </button>
+    </div>
+  </div>
+</div>

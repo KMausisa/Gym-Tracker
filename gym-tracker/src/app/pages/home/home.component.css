@@ -1,62 +1,37 @@
-.home-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
-}
+/*  */
 
-.welcome-card {
-  width: 500px;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background-color: white;
+.active-workout-card, .workout-day-list {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 2rem;
   text-align: center;
 }
 
-h2 {
-  margin-bottom: 16px;
+.active-workout-card h2 {
+  color: #1976d2;
+  margin-bottom: 1rem;
+}
+
+.active-workout-card h3 {
+  margin: 0.5rem 0 1rem 0;
   color: #333;
 }
 
-.loading {
-  padding: 20px;
+.active-workout-card p {
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.no-active-message {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 2rem;
   text-align: center;
-  color: #666;
-  font-style: italic;
-}
-
-.user-info {
-  background-color: #f8f9fa;
-  padding: 16px;
-  border-radius: 4px;
-  margin: 24px 0;
-  text-align: left;
-  
-  p {
-    margin: 10px 0;
-    
-    strong {
-      display: inline-block;
-      width: 100px;
-      color: #555;
-    }
-  }
-}
-
-button {
-  padding: 12px 24px;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: #3367d6;
-  }
+  color: #888;
+  font-size: 1.1rem;
 }

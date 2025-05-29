@@ -36,6 +36,16 @@ export class WorkoutService {
     }
   }
 
+  async getDayId(workoutId: string, day: string) {
+    try {
+      const dayId = await this.supabaseService.getDayId(workoutId, day);
+      return dayId;
+    } catch (error) {
+      console.error('Error fetching day ID:', error);
+      return null;
+    }
+  }
+
   async getRoutineById(dayId: string) {
     try {
       const routine = await this.supabaseService.getRoutineById(dayId);
