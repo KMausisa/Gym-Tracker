@@ -111,12 +111,20 @@ export class WorkoutService {
   async saveWorkoutProgress(
     userId: string,
     workoutId: string,
-    progress: { [key: string]: any }
+    exerciseId: string,
+    progress: {
+      name: string;
+      sets: number;
+      reps: number[];
+      weights: number[];
+      notes?: string[];
+    }
   ) {
     try {
       const savedProgress = await this.supabaseService.saveWorkoutProgress(
         userId,
         workoutId,
+        exerciseId,
         progress
       );
       return savedProgress;

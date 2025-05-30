@@ -77,7 +77,7 @@ export class HomeComponent {
           this.activeWorkout = workout;
         });
 
-      // Fetch the workout routine for the current day
+      // Fetch and save the workout routine for the current day
       this.getExercisesForDay(activeWorkoutId, this.currentDay);
     }
   }
@@ -89,6 +89,7 @@ export class HomeComponent {
         if (dayId) {
           this.workoutService.getRoutineById(dayId).then((exercises) => {
             this.todaysExercises = exercises ?? [];
+            console.log(this.todaysExercises);
           });
         } else {
           console.log('No exercises found for', currentDay);
@@ -155,20 +156,42 @@ export class HomeComponent {
 
   finishWorkout() {
     // Send this.exerciseProgress to your backend/database here
-    this.workoutService
-      .saveWorkoutProgress(
-        this.user.id,
-        this.activeWorkout.id,
-        this.currentDay,
-        this.exerciseProgress
-      )
-      .then(() => {
-        console.log('Workout progress saved!');
-        // Optionally show a success message or redirect
-      })
-      .catch((error) => {
-        console.error('Error saving workout progress:', error);
-      });
+    console.log('Finishing workout with progress:', this.exerciseProgress);
+    for (const exerciseId in this.exerciseProgress) {
+      const progress = this.exerciseProgress[exerciseId];
+      const currentExercise = this.todaysExercises.find(
+        (ex) => ex.id === exerciseId
+      );
+      console.log(`Exercise ID: ${exerciseId}`, progress);
+      console.log(`Current Exercise:`, currentExercise);
+      if (currentExercise) {
+        this.workoutService
+          .saveWorkoutProgress(
+            this.user.id,
+            this.activeWorkout.id,
+            exerciseId,
+            {
+              name: currentExercise.name,
+              sets: progress.sets,
+              reps: progress.reps,
+              weights: progress.weight,
+              notes: progress.notes,
+            }
+          )
+          .then(() => {
+            console.log('Workout progress saved!');
+            // Optionally show a success message or redirect
+          })
+          .catch((error) => {
+            console.error('Error saving workout progress:', error);
+          });
+      } else {
+        console.error(
+          'Current exercise is undefined for exerciseId:',
+          exerciseId
+        );
+      }
+    }
   }
 
   onNextExercise() {
@@ -176,30 +199,23 @@ export class HomeComponent {
     this.nextExercise(); // Move to next exercise
   }
 
+  onFinishWorkout() {
+    this.onSubmit(); // Save current form data
+    this.finishWorkout(); // Finish the workout
+  }
+
   get sets() {
     return this.exerciseProgressForm.get('sets') as FormArray;
   }
 
   onSubmit() {
-    if (this.exerciseProgressForm.valid) {
-      const currentExercise = this.todaysExercises[this.currentExerciseIndex];
-      const progress = this.exerciseProgressForm.value.sets;
-
-      // Save the progress for the current exercise
-      this.exerciseProgress[currentExercise.id].reps = progress.map(
-        (set: any) => set.reps
-      );
-      this.exerciseProgress[currentExercise.id].weight = progress.map(
-        (set: any) => set.weight
-      );
-      this.exerciseProgress[currentExercise.id].notes = progress.map(
-        (set: any) => set.notes
-      );
-
-      console.log('Progress saved:', this.exerciseProgress);
-      // this.nextExercise();
-    } else {
-      console.error('Form is invalid');
-    }
+    const formValue = this.exerciseProgressForm.value;
+    const currentExercise = this.todaysExercises[this.currentExerciseIndex];
+    this.exerciseProgress[currentExercise.id] = {
+      sets: currentExercise.sets,
+      reps: formValue.sets.map((set: any) => set.reps),
+      weight: formValue.sets.map((set: any) => set.weight),
+      notes: formValue.sets.map((set: any) => set.notes),
+    };
   }
 }
