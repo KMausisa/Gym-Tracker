@@ -34,6 +34,8 @@ export class HomeComponent {
 
   currentExerciseIndex: number = 0;
   inWorkout: boolean = false;
+  workoutCompleted: boolean = false;
+
   exerciseProgress: {
     [exerciseId: string]: {
       sets: number;
@@ -80,6 +82,8 @@ export class HomeComponent {
       // Fetch and save the workout routine for the current day
       this.getExercisesForDay(activeWorkoutId, this.currentDay);
     }
+
+    console.log(this.workoutCompleted);
   }
 
   getExercisesForDay(activeWorkoutId: string, currentDay: string) {
@@ -170,6 +174,7 @@ export class HomeComponent {
             this.user.id,
             this.activeWorkout.id,
             exerciseId,
+            currentExercise.day_id,
             {
               name: currentExercise.name,
               sets: progress.sets,
@@ -202,6 +207,8 @@ export class HomeComponent {
   onFinishWorkout() {
     this.onSubmit(); // Save current form data
     this.finishWorkout(); // Finish the workout
+    this.inWorkout = false; // Reset workout state
+    this.workoutCompleted = true; // Mark workout as completed
   }
 
   get sets() {

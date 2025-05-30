@@ -225,6 +225,7 @@ export class SupabaseService {
     userId: string,
     workoutId: string,
     exerciseId: string,
+    dayId: string,
     progress: {
       name: string;
       sets: number;
@@ -240,6 +241,7 @@ export class SupabaseService {
           user_id: userId,
           workout_id: workoutId,
           exercise_id: exerciseId,
+          day_id: dayId,
           ...progress,
         },
       ])

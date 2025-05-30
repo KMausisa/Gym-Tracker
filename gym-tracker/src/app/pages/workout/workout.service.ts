@@ -112,6 +112,7 @@ export class WorkoutService {
     userId: string,
     workoutId: string,
     exerciseId: string,
+    dayId: string,
     progress: {
       name: string;
       sets: number;
@@ -125,6 +126,7 @@ export class WorkoutService {
         userId,
         workoutId,
         exerciseId,
+        dayId,
         progress
       );
       return savedProgress;

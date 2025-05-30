@@ -6,9 +6,15 @@
     <p>{{ activeWorkout.description }}</p>
     <div class="workout-day-list">
       <h2>Today's Workout</h2>
-      <button class="btn btn-start" (click)="startWorkout()">
-        Start Workout
-      </button>
+      <div *ngIf="!workoutCompleted; else completed">
+        <button class="btn btn-start" (click)="startWorkout()">
+          Start Workout
+        </button>
+      </div>
+      <ng-template #completed>
+        <p class="workout-completed">Workout Completed!</p>
+      </ng-template>
+
       <ul>
         <li *ngFor="let exercise of todaysExercises">
           <strong>{{ exercise.name }}</strong> - {{ exercise.sets }} sets of
