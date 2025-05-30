@@ -108,6 +108,24 @@ export class WorkoutService {
     }
   }
 
+  async saveWorkoutProgress(
+    userId: string,
+    workoutId: string,
+    progress: { [key: string]: any }
+  ) {
+    try {
+      const savedProgress = await this.supabaseService.saveWorkoutProgress(
+        userId,
+        workoutId,
+        progress
+      );
+      return savedProgress;
+    } catch (error) {
+      console.error('Error saving workout progress:', error);
+      return null;
+    }
+  }
+
   /***** Update Methods *****/
   async updateWorkoutPlanById(plan: {
     user_id: string;

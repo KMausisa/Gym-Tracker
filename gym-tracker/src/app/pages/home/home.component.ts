@@ -7,12 +7,19 @@ import { WorkoutService } from '../workout/workout.service';
 import { User } from '../profile/user.model';
 import { Workout } from '../workout/workout.model';
 import { Exercise } from '../workout/exercise.model';
-import { FormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormsModule,
+  FormBuilder,
+  Validators,
+  ReactiveFormsModule,
+  FormArray,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
@@ -22,6 +29,8 @@ export class HomeComponent {
 
   currentDay: string = '';
   todaysExercises: Exercise[] = []; // Array to hold today's exercises
+
+  exerciseProgressForm!: FormGroup;
 
   currentExerciseIndex: number = 0;
   inWorkout: boolean = false;
@@ -36,7 +45,8 @@ export class HomeComponent {
 
   constructor(
     private supabaseService: SupabaseService,
-    private workoutService: WorkoutService
+    private workoutService: WorkoutService,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit() {
@@ -65,7 +75,6 @@ export class HomeComponent {
         .getWorkoutPlanById(activeWorkoutId)
         .then((workout) => {
           this.activeWorkout = workout;
-          console.log('Active Workout:', this.activeWorkout);
         });
 
       // Fetch the workout routine for the current day
@@ -105,9 +114,28 @@ export class HomeComponent {
           };
         }
       });
+      this.initExerciseProgressForm(
+        this.todaysExercises[this.currentExerciseIndex]
+      );
     } else {
       console.error('No exercises for today.');
     }
+  }
+
+  initExerciseProgressForm(exercise: Exercise) {
+    this.exerciseProgressForm = this.fb.group({
+      sets: this.fb.array(
+        Array(exercise.sets)
+          .fill(null)
+          .map(() =>
+            this.fb.group({
+              reps: [0, Validators.required],
+              weight: [0, Validators.required],
+              notes: [''],
+            })
+          )
+      ),
+    });
   }
 
   nextExercise() {
@@ -116,12 +144,62 @@ export class HomeComponent {
       this.currentExerciseIndex < this.todaysExercises.length - 1
     ) {
       this.currentExerciseIndex++;
+      this.initExerciseProgressForm(
+        this.todaysExercises[this.currentExerciseIndex]
+      );
     } else {
       this.inWorkout = false;
-      // Optionally, save progress or show a summary
-      console.log('Workout complete!', this.exerciseProgress);
+      this.finishWorkout(); // <-- Send all progress here
     }
   }
 
-  finishWorkout() {}
+  finishWorkout() {
+    // Send this.exerciseProgress to your backend/database here
+    this.workoutService
+      .saveWorkoutProgress(
+        this.user.id,
+        this.activeWorkout.id,
+        this.currentDay,
+        this.exerciseProgress
+      )
+      .then(() => {
+        console.log('Workout progress saved!');
+        // Optionally show a success message or redirect
+      })
+      .catch((error) => {
+        console.error('Error saving workout progress:', error);
+      });
+  }
+
+  onNextExercise() {
+    this.onSubmit(); // Save current form data
+    this.nextExercise(); // Move to next exercise
+  }
+
+  get sets() {
+    return this.exerciseProgressForm.get('sets') as FormArray;
+  }
+
+  onSubmit() {
+    if (this.exerciseProgressForm.valid) {
+      const currentExercise = this.todaysExercises[this.currentExerciseIndex];
+      const progress = this.exerciseProgressForm.value.sets;
+
+      // Save the progress for the current exercise
+      this.exerciseProgress[currentExercise.id].reps = progress.map(
+        (set: any) => set.reps
+      );
+      this.exerciseProgress[currentExercise.id].weight = progress.map(
+        (set: any) => set.weight
+      );
+      this.exerciseProgress[currentExercise.id].notes = progress.map(
+        (set: any) => set.notes
+      );
+
+      console.log('Progress saved:', this.exerciseProgress);
+      // this.nextExercise();
+    } else {
+      console.error('Form is invalid');
+    }
+  }
 }
