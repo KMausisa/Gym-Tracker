@@ -1,0 +1,28 @@
+<div class="workout-day-list">
+  <ng-container *ngIf="!isOnAddRoute && !isOnEditRoute">
+    <!-- Exercise list and Add button -->
+    <h2>Exercises for {{ selectedDay }}</h2>
+    <ul *ngIf="exercises && exercises.length > 0; else noExercises">
+  <li *ngFor="let exercise of exercises" class="exercise-item">
+    <span>
+      <strong>{{ exercise.name }}</strong>:
+      {{ exercise.sets }} sets x {{ exercise.reps }} reps,
+      {{ exercise.weight }} lbs
+      <span *ngIf="exercise.notes">- {{ exercise.notes }}</span>
+    </span>
+    <span class="exercise-actions">
+      <button title="Edit" [routerLink]="[exercise.id, 'edit']">✏️</button>
+      <button (click)="onDeleteExercise(exercise.id)" title="Delete">🗑️</button>
+    </span>
+  </li>
+</ul>
+    <ng-template #noExercises>
+      <p>No exercises for this day yet.</p>
+    </ng-template>
+    <button [routerLink]="['add']">
+      Add Exercise
+    </button>
+  </ng-container>
+
+  <router-outlet></router-outlet>
+</div>

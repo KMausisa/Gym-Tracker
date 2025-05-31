@@ -2,32 +2,85 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-    {
-        path: 'home',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
-    },
-    {
-        path: 'workout',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./pages/workout/workout.component').then(m => m.WorkoutComponent)
-    },
-    {
-        path: 'progress',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./pages/progress/progress.component').then(m => m.ProgressComponent)
-    },
-    {
-        path: 'account',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent)
-    },
-    {
-        path: 'login',
-        loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
-    },
-    {
-        path: '',
-        loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
-    }
+  {
+    path: 'dashboard',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/home/home.component').then((m) => m.HomeComponent),
+  },
+  {
+    path: 'workouts',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/workout/workout.component').then(
+        (m) => m.WorkoutComponent
+      ),
+    children: [
+      {
+        path: 'new',
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-plan-edit/workout-plan-edit.component'
+          ).then((m) => m.WorkoutEditComponent),
+      },
+      {
+        path: ':id/edit',
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-plan-edit/workout-plan-edit.component'
+          ).then((m) => m.WorkoutEditComponent),
+      },
+      {
+        path: ':id/:day',
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-day-list/workout-day-list.component'
+          ).then((m) => m.WorkoutDayListComponent),
+        children: [
+          {
+            path: 'add',
+            // load workout-day-edit component
+            loadComponent: () =>
+              import(
+                './pages/workout/workout-day-edit/workout-day-edit.component'
+              ).then((m) => m.WorkoutDayEditComponent),
+          },
+          {
+            path: ':exerciseId/edit',
+            // load workout-day-edit component
+            loadComponent: () =>
+              import(
+                './pages/workout/workout-day-edit/workout-day-edit.component'
+              ).then((m) => m.WorkoutDayEditComponent),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: 'progress',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/progress/progress.component').then(
+        (m) => m.ProgressComponent
+      ),
+  },
+  {
+    path: 'profile',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/profile/profile.component').then(
+        (m) => m.ProfileComponent
+      ),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./login/login.component').then((m) => m.LoginComponent),
+  },
 ];

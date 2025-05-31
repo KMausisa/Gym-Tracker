@@ -1,0 +1,107 @@
+.workout-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.workout-list-header h2 {
+  margin: 0;
+}
+
+.btn.btn-primary {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn.btn-primary:hover {
+  background: #1565c0;
+}
+
+.btn.btn-activate {
+  background: #43a047;
+  color: #fff;
+  border: none;
+  margin-left: 8px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn.btn-activate[disabled] {
+  background: #bdbdbd;
+  color: #fff;
+  cursor: default;
+}
+
+.workout-list {
+  min-width: 400px;
+  margin: 40px;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  flex: 1 1 0;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 10px 0;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover,
+button[type="submit"]:focus {
+  background: #0056b3;
+}
+
+.success {
+  color: #388e3c;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.error {
+  color: #d32f2f;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.day-button {
+  display: inline-block;
+  margin: 4px 6px 4px 0;
+  padding: 6px 16px;
+  background: #f0f4ff;
+  color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.day-button:hover,
+.day-button:focus {
+  background: #007bff;
+  color: #fff;
+  border-color: #0056b3;
+  outline: none;
+}

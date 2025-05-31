@@ -1,0 +1,36 @@
+<div class="form">
+    <h2>{{ formHeading }}</h2>
+    <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">Plan Name</label>
+        <input id="name" formControlName="name" placeholder="(Eg. Push-Pull-Leg Split)" required />
+          <div *ngIf="workoutForm.get('name')?.invalid && workoutForm.get('name')?.touched" class="error">
+              Workout name is required.
+          </div>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" required></textarea>
+          <div *ngIf="workoutForm.get('description')?.invalid && workoutForm.get('description')?.touched" class="error">
+              Description is required.
+          </div>
+      </div>
+      <!-- Checkbox of the days user will workout -->
+      <div class="form-group">
+        <label>Days of the Week</label>
+        <div *ngFor="let day of daysOrder">
+          <input type="checkbox" [value]="day" [checked]="(workoutForm.value.days ?? []).includes(day)" (change)="onDayChange($event)" /> {{ day }}
+        </div>
+      </div>
+      <!-- Validate and Submit -->
+      <div class="form-group">
+        <button type="submit" [disabled]="workoutForm.invalid">Create Workout</button>
+          <div *ngIf="errorMessage" class="error">
+              {{ errorMessage }}
+              </div>
+          <div *ngIf="successMessage" class="success">
+              {{ successMessage }}
+          </div>
+      </div>
+      </form>
+  </div>

@@ -1,1 +1,7 @@
-<p>workout works!</p>
+<!-- workout.component.html -->
+<div class="container side-by-side-container">
+  <ng-container *ngIf="!isOnNewRoute && !isOnEditRoute">
+    <app-workout-list></app-workout-list>
+  </ng-container>
+  <router-outlet></router-outlet>
+</div>

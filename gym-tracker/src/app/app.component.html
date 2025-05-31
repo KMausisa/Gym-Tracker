@@ -1,3 +1,6 @@
 <div class="app-container">
+  <ng-container *ngIf="isAuthenticated">
+    <app-header></app-header>
+  </ng-container>
   <router-outlet></router-outlet>
 </div>

@@ -1,0 +1,79 @@
+.workout-day-list {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 2rem;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.exercise-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1.05rem;
+}
+
+.exercise-item:last-child {
+  border-bottom: none;
+}
+
+.exercise-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.exercise-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.2rem 0.4rem;
+  transition: color 0.2s;
+}
+
+.exercise-actions button[title="Edit"]:hover {
+  color: #1976d2;
+}
+
+.exercise-actions button[title="Delete"]:hover {
+  color: #d32f2f;
+}
+
+button[routerLink] {
+  display: block;
+  margin: 1.5rem auto 0 auto;
+  padding: 0.6rem 1.5rem;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[routerLink]:hover {
+  background: #1565c0;
+}
+
+p {
+  text-align: center;
+  color: #888;
+  margin: 1.5rem 0;
+}

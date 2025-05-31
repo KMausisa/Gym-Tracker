@@ -1,47 +1,75 @@
 <div class="login-container">
-    <div class="login-card">
-      <h2>{{ isSignUp ? 'Create Account' : 'Login' }}</h2>
+  <div class="login-card" [ngClass]="{'signup-mode': isSignUp}">
+    <h2>{{ isSignUp ? 'Create Account' : 'Login' }}</h2>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Full Name field - Only shown in signup mode -->
+      <div class="form-group" *ngIf="isSignUp">
+        <label for="fullName">Full Name</label>
+        <input 
+          type="text" 
+          id="fullName" 
+          formControlName="fullName" 
+          placeholder="Enter your full name"
+        >
+        <div class="error" *ngIf="loginForm.get('fullName')?.invalid && loginForm.get('fullName')?.touched">
+          Full name is required
+        </div>
+      </div>
       
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            formControlName="email" 
-            placeholder="Enter your email"
-          >
-          <div class="error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-            Please enter a valid email
-          </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email" 
+          placeholder="Enter your email"
+        >
+        <div class="error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          Please enter a valid email
         </div>
-        
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            formControlName="password" 
-            placeholder="Enter your password"
-          >
-          <div class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-            Password must be at least 6 characters
-          </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password" 
+          placeholder="Enter your password"
+        >
+        <div class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password must be at least 6 characters
         </div>
-        
-        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
-        
-        <button type="submit" [disabled]="loginForm.invalid || loading">
-          {{ loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login' }}
-        </button>
-        
-        <div class="toggle-mode">
-          <span *ngIf="!isSignUp">Don't have an account? </span>
-          <span *ngIf="isSignUp">Already have an account? </span>
-          <a href="javascript:void(0)" (click)="toggleAuthMode()">
-            {{ isSignUp ? 'Login' : 'Sign Up' }}
-          </a>
+      </div>
+      
+      <!-- Birthday field - Only shown in signup mode -->
+      <div class="form-group" *ngIf="isSignUp">
+        <label for="birthday">Birthday</label>
+        <input 
+          type="date" 
+          id="birthday" 
+          formControlName="birthday" 
+          [max]="maxDate"
+        >
+        <div class="error" *ngIf="loginForm.get('birthday')?.invalid && loginForm.get('birthday')?.touched">
+          Birthday is required
         </div>
-      </form>
-    </div>
+      </div>
+      
+      <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+      
+      <button type="submit" [disabled]="loginForm.invalid || loading">
+        {{ loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login' }}
+      </button>
+      
+      <div class="toggle-mode">
+        <span *ngIf="!isSignUp">Don't have an account? </span>
+        <span *ngIf="isSignUp">Already have an account? </span>
+        <a href="javascript:void(0)" (click)="toggleAuthMode()">
+          {{ isSignUp ? 'Login' : 'Sign Up' }}
+        </a>
+      </div>
+    </form>
   </div>
+</div>

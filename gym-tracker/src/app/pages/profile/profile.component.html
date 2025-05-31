@@ -1,0 +1,16 @@
+<div class="home-container">
+  <div class="welcome-card">
+    <h2>Account Details</h2>
+    
+    <div class="loading" *ngIf="isLoading">
+      Loading user information...
+    </div>
+    
+    <div class="user-info" *ngIf="user && !isLoading">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Full Name:</strong> {{ profile?.full_name || 'Not provided' }}</p>
+      <p><strong>Birthday:</strong> {{ formatDate(profile?.birthday) }}</p>
+    </div>
+
+  </div>
+</div>
