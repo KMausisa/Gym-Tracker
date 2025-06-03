@@ -1,6 +1,6 @@
-import { Injectable, Output, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +10,7 @@ export class WorkoutService {
   userExercises = [];
   workoutListChanged = new BehaviorSubject<any[]>([]);
   exerciseListChanged = new BehaviorSubject<any[]>([]);
+  progressListChanged = new BehaviorSubject<any[]>([]);
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -64,6 +65,18 @@ export class WorkoutService {
       return exercise;
     } catch (error) {
       console.error('Error fetching exercise by ID:', error);
+      return null;
+    }
+  }
+
+  async getWorkoutProgress(userId: string) {
+    try {
+      const progress = await this.supabaseService.getWorkoutProgress(userId);
+      this.progressListChanged.next(progress ?? []); // emit here
+      return progress;
+    } catch (error) {
+      console.error('Error fetching workout progress:', error);
+      this.progressListChanged.next([]);
       return null;
     }
   }
@@ -184,6 +197,7 @@ export class WorkoutService {
     }
   }
 
+  /***** Delete Methods *****/
   async deleteWorkout(userId: string, workoutId: string) {
     try {
       const deletedWorkout = await this.supabaseService.deleteWorkout(
@@ -211,15 +225,4 @@ export class WorkoutService {
       return null;
     }
   }
-
-  // Get workout by ID
-  // async getRoutineById(workoutId: string) {
-  //   try {
-  //     const workout = await this.supabaseService.getRoutineById(workoutId);
-  //     return workout;
-  //   } catch (error) {
-  //     console.error('Error fetching workout by ID:', error);
-  //     return null;
-  //   }
-  // }
 }
