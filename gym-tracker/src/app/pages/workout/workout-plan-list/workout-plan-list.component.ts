@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+
 import { RouterModule, Router } from '@angular/router';
 
 import { User } from '../../profile/user.model';
@@ -11,7 +10,7 @@ import { SupabaseService } from '../../../services/supabase.service';
 @Component({
   selector: 'app-workout-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './workout-plan-list.component.html',
   styleUrl: './workout-plan-list.component.css',
 })

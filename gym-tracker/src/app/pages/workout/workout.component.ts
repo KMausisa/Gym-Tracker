@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -13,7 +13,7 @@ import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.com
 
 @Component({
   selector: 'app-workout',
-  imports: [CommonModule, RouterOutlet, WorkoutListComponent],
+  imports: [RouterOutlet, WorkoutListComponent],
   standalone: true,
   templateUrl: './workout.component.html',
   styleUrl: './workout.component.css',

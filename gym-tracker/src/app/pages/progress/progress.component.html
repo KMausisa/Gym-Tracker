@@ -1,1 +1,8 @@
-<p>progress works!</p>
+<div *ngFor="let chartData of chartDataList">
+  <canvas
+    baseChart
+    [data]="chartData"
+    [options]="chartOptions"
+    type="line"
+  ></canvas>
+</div>

@@ -1,110 +1,121 @@
-<ng-container *ngIf="activeWorkout; else noActive">
+@if (activeWorkout) {
   <!-- Show workout summary and start button if NOT in workout -->
-  <div *ngIf="!inWorkout" class="active-workout-card">
-    <h2>Active Workout</h2>
-    <h3>{{ activeWorkout.title }}</h3>
-    <p>{{ activeWorkout.description }}</p>
-    <div class="workout-day-list">
-      <h2>Today's Workout</h2>
-      <div *ngIf="!workoutCompleted; else completed">
-        <button class="btn btn-start" (click)="startWorkout()">
-          Start Workout
-        </button>
+  @if (!inWorkout) {
+    <div class="active-workout-card">
+      <h2>Active Workout</h2>
+      <h3>{{ activeWorkout.title }}</h3>
+      <p>{{ activeWorkout.description }}</p>
+      <div class="workout-day-list">
+        <h2>Today's Workout</h2>
+        @if (!workoutCompleted) {
+          <div>
+            <button class="btn btn-start" (click)="startWorkout()">
+              Start Workout
+            </button>
+          </div>
+        } @else {
+          <p class="workout-completed">Workout Completed!</p>
+        }
+        <ul>
+          @for (exercise of todaysExercises; track exercise) {
+            <li>
+              <strong>{{ exercise.name }}</strong> - {{ exercise.sets }} sets of
+              {{ exercise.reps }} reps
+              @if (exercise.weight) {
+                <span>({{ exercise.weight }} lbs)</span>
+              }
+              @if (exercise.notes) {
+                <p>{{ exercise.notes }}</p>
+              }
+            </li>
+          }
+        </ul>
       </div>
-      <ng-template #completed>
-        <p class="workout-completed">Workout Completed!</p>
-      </ng-template>
-
-      <ul>
-        <li *ngFor="let exercise of todaysExercises">
-          <strong>{{ exercise.name }}</strong> - {{ exercise.sets }} sets of
-          {{ exercise.reps }} reps
-          <span *ngIf="exercise.weight">({{ exercise.weight }} lbs)</span>
-          <p *ngIf="exercise.notes">{{ exercise.notes }}</p>
-        </li>
-      </ul>
     </div>
-  </div>
-
+  }
   <!-- Show progress form if IN workout -->
-  <div *ngIf="inWorkout && todaysExercises?.length">
-    <h2>
-      Exercise {{ currentExerciseIndex + 1 }} of {{ todaysExercises.length }}
-    </h2>
+  @if (inWorkout && todaysExercises?.length) {
     <div>
-      <strong>{{ todaysExercises[currentExerciseIndex].name }}</strong>
-      <p>Sets: {{ todaysExercises[currentExerciseIndex].sets }}</p>
-      <p>Reps: {{ todaysExercises[currentExerciseIndex].reps }}</p>
-      <p>
-        Recommended Weight:
-        {{ todaysExercises[currentExerciseIndex].weight }} lbs
-      </p>
-      <div class="exercise-progress-form">
-        <h3>Log Your Progress</h3>
-        <form [formGroup]="exerciseProgressForm" (ngSubmit)="onSubmit()">
-          <div formArrayName="sets">
-            <div
-              *ngFor="let setGroup of sets.controls; let j = index"
-              [formGroupName]="j"
-            >
-              <div>
-                <label>Set {{ j + 1 }}:</label>
-                <label>
-                  Reps:
-                  <input
-                    type="number"
-                    formControlName="reps"
-                    placeholder="Reps completed"
-                    min="0"
-                    required
-                  />
-                </label>
-                <label>
-                  Weight (lbs):
-                  <input
-                    type="number"
-                    formControlName="weight"
-                    placeholder="Weight used"
-                    min="0"
-                    required
-                  />
-                </label>
-                <label>
-                  Notes:
-                  <input
-                    type="text"
-                    formControlName="notes"
-                    placeholder="Notes"
-                  />
-                </label>
+      <h2>
+        Exercise {{ currentExerciseIndex + 1 }} of {{ todaysExercises.length }}
+      </h2>
+      <div>
+        <strong>{{ todaysExercises[currentExerciseIndex].name }}</strong>
+        <p>Sets: {{ todaysExercises[currentExerciseIndex].sets }}</p>
+        <p>Reps: {{ todaysExercises[currentExerciseIndex].reps }}</p>
+        <p>
+          Recommended Weight:
+          {{ todaysExercises[currentExerciseIndex].weight }} lbs
+        </p>
+        <div class="exercise-progress-form">
+          <h3>Log Your Progress</h3>
+          <form [formGroup]="exerciseProgressForm" (ngSubmit)="onSubmit()">
+            <div formArrayName="sets">
+              @for (setGroup of sets.controls; track setGroup; let j = $index) {
+                <div
+                  [formGroupName]="j"
+                  >
+                  <div>
+                    <label>Set {{ j + 1 }}:</label>
+                    <label>
+                      Reps:
+                      <input
+                        type="number"
+                        formControlName="reps"
+                        placeholder="Reps completed"
+                        min="0"
+                        required
+                        />
+                      </label>
+                      <label>
+                        Weight (lbs):
+                        <input
+                          type="number"
+                          formControlName="weight"
+                          placeholder="Weight used"
+                          min="0"
+                          required
+                          />
+                        </label>
+                        <label>
+                          Notes:
+                          <input
+                            type="text"
+                            formControlName="notes"
+                            placeholder="Notes"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  @if (currentExerciseIndex < todaysExercises.length - 1) {
+                    <button
+                      type="button"
+                      [disabled]="exerciseProgressForm.invalid"
+                      (click)="onNextExercise()"
+                      class="btn btn-next"
+                      >
+                      Next Exercise
+                    </button>
+                  }
+                  @if (currentExerciseIndex === todaysExercises.length - 1) {
+                    <button
+                      type="button"
+                      (click)="onFinishWorkout()"
+                      class="btn btn-finish"
+                      >
+                      Finish Workout
+                    </button>
+                  }
+                </form>
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            [disabled]="exerciseProgressForm.invalid"
-            *ngIf="currentExerciseIndex < todaysExercises.length - 1"
-            (click)="onNextExercise()"
-            class="btn btn-next"
-          >
-            Next Exercise
-          </button>
-          <button
-            type="button"
-            (click)="onFinishWorkout()"
-            *ngIf="currentExerciseIndex === todaysExercises.length - 1"
-            class="btn btn-finish"
-          >
-            Finish Workout
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</ng-container>
+        }
+      } @else {
+        <div class="no-active-message">
+          <p>No active workout selected. Go to your workout plans to activate one!</p>
+        </div>
+      }
 
-<ng-template #noActive>
-  <div class="no-active-message">
-    <p>No active workout selected. Go to your workout plans to activate one!</p>
-  </div>
-</ng-template>

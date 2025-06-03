@@ -1,5 +1,5 @@
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import {
   FormsModule,
@@ -17,7 +17,7 @@ import { Exercise } from '../exercise.model';
 
 @Component({
   selector: 'app-workout-day-edit',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './workout-day-edit.component.html',
   styleUrl: './workout-day-edit.component.css',
 })
