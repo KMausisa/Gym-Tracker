@@ -31,9 +31,9 @@ export class SupabaseService {
 
     // Set up auth state change listener
     this.supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if (session?.user) {
         this._currentUser.next(session.user);
-      } else if (event === 'SIGNED_OUT') {
+      } else {
         this._currentUser.next(null);
       }
     });
@@ -263,6 +263,17 @@ export class SupabaseService {
   }
 
   /***** Exercise Methods *****/
+  async getUserExercises(userId: string) {
+    const { data, error } = await this.supabase
+      .from('exercises')
+      .select('*')
+      .eq('user_id', userId);
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
+
   async getExerciseById(exerciseId: string) {
     const { data, error } = await this.supabase
       .from('exercises')
@@ -323,20 +334,52 @@ export class SupabaseService {
     return data;
   }
 
-  async getWorkoutProgress(userId: string) {
+  async getWorkoutProgress(userId: string, workoutId: string) {
     try {
       const { data, error } = await this.supabase
         .from('exercise_progress')
         .select('*')
-        .eq('user_id', userId);
-      // .eq('workout_id', workoutId)
-      // .eq('exercise_id', exerciseId)
-      // .eq('day_id', dayId);
+        .eq('user_id', userId)
+        .eq('workout_id', workoutId);
+
       return data;
     } catch (error) {
       console.error('Error fetching workout progress:', error);
       throw error;
     }
+  }
+
+  async getExerciseProgress(userId: string, exerciseId: string) {
+    try {
+      const { data, error } = await this.supabase
+        .from('exercise_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('exercise_id', exerciseId);
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching exercise progress:', error);
+      throw error;
+    }
+  }
+
+  // Get the total workout count for a user
+  async getTotalWorkoutCount(workout_id: string) {
+    const { count, error } = await this.supabase
+      .from('exercise_progress')
+      .select('*', { count: 'exact', head: true })
+      .eq('workout_id', workout_id);
+
+    if (error) {
+      throw error;
+    }
+
+    return count || 0; // Return 0 if count is null
   }
 
   async updatePlan(routine: {

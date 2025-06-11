@@ -11,6 +11,9 @@ export class WorkoutService {
   workoutListChanged = new BehaviorSubject<any[]>([]);
   exerciseListChanged = new BehaviorSubject<any[]>([]);
   progressListChanged = new BehaviorSubject<any[]>([]);
+  exerciseProgressChanged = new BehaviorSubject<any[]>([]);
+  private _workoutsCompleted = new BehaviorSubject<number>(0);
+  workoutsCompleted$ = this._workoutsCompleted.asObservable();
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -59,6 +62,18 @@ export class WorkoutService {
     }
   }
 
+  async getUserExercises(userId: string) {
+    try {
+      const exercises = await this.supabaseService.getUserExercises(userId);
+      this.exerciseListChanged.next(exercises); // emit here
+      return exercises;
+    } catch (error) {
+      console.error('Error fetching user exercises:', error);
+      this.exerciseListChanged.next([]);
+      return [];
+    }
+  }
+
   async getExerciseById(exerciseId: string) {
     try {
       const exercise = await this.supabaseService.getExerciseById(exerciseId);
@@ -69,14 +84,32 @@ export class WorkoutService {
     }
   }
 
-  async getWorkoutProgress(userId: string) {
+  async getWorkoutProgress(userId: string, workoutId: string) {
     try {
-      const progress = await this.supabaseService.getWorkoutProgress(userId);
+      const progress = await this.supabaseService.getWorkoutProgress(
+        userId,
+        workoutId
+      );
       this.progressListChanged.next(progress ?? []); // emit here
       return progress;
     } catch (error) {
       console.error('Error fetching workout progress:', error);
       this.progressListChanged.next([]);
+      return null;
+    }
+  }
+
+  async getExerciseProgress(userId: string, exerciseId: string) {
+    try {
+      const progress = await this.supabaseService.getExerciseProgress(
+        userId,
+        exerciseId
+      );
+      this.exerciseProgressChanged.next(progress ?? []); // emit here
+      return progress;
+    } catch (error) {
+      console.error('Error fetching exercise progress:', error);
+      this.exerciseProgressChanged.next([]);
       return null;
     }
   }
@@ -224,5 +257,9 @@ export class WorkoutService {
       this.exerciseListChanged.next([]);
       return null;
     }
+  }
+
+  setWorkoutsCompleted(count: number) {
+    this._workoutsCompleted.next(count);
   }
 }

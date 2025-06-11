@@ -64,6 +64,15 @@ export const routes: Routes = [
       import('./pages/progress/progress.component').then(
         (m) => m.ProgressComponent
       ),
+    children: [
+      {
+        path: ':exerciseId',
+        loadComponent: () =>
+          import(
+            './pages/progress/progress-exercise/progress-exercise.component'
+          ).then((m) => m.ExerciseProgressComponent),
+      },
+    ],
   },
   {
     path: 'profile',

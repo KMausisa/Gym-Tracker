@@ -1,8 +1,60 @@
-<div *ngFor="let chartData of chartDataList">
-  <canvas
-    baseChart
-    [data]="chartData"
-    [options]="chartOptions"
-    type="line"
-  ></canvas>
+<div>
+  <div class="row">
+    <div class="input-group pull-left pad-left-right col-xs-7">
+      <input
+        class="form-control"
+        type="text"
+        name="searchBox"
+        id="searchBox"
+        #searchBox
+        (keyup)="search(searchBox.value)"
+        placeholder="Enter a search value"
+      />
+      <div
+        class="glyphicon glyphicon-search input-group-addon"
+        (click)="search(searchBox.value)"
+      ></div>
+      <div class="dropdown-menu show" *ngIf="filteredExercises.length > 0">
+        @for (exercise of filteredExercises; track exercise.id) {
+        <button
+          class="dropdown-item"
+          [routerLink]="['/progress', exercise.id]"
+          (click)="selectExercise(exercise)"
+          type="button"
+        >
+          {{ exercise.name }}
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+  @if (!isOnNewRoute) {
+  <!-- Search Box -->
+
+  <!-- Workout Completed Count -->
+  <div class="progress-container">
+    <h2>Workout Completed Count</h2>
+    <p>Total Workouts: {{ workoutsCompletedCount }}</p>
+  </div>
+
+  <!-- Top 3 Exercises by Volume -->
+  <div class="progress-container">
+    <h2>Top 3 Exercises by Volume (Weight x Reps)</h2>
+    <div class="exercise-list">
+      @if (top3Exercises.length !== 0) { @for (exercise of top3Exercises; track
+      exercise.id) {
+      <div class="exercise-item">
+        <h3>{{ exercise.name }}</h3>
+        <p>Max Volume: {{ exercise.maxVolume }} lbs</p>
+        <p>Last Workout: {{ exercise.name }}</p>
+        <p>Completed on: {{ exercise.created_at | date }}</p>
+      </div>
+      } } @else {
+      <p>No exercises found.</p>
+      }
+    </div>
+  </div>
+  } @else {
+  <router-outlet></router-outlet>
+  }
 </div>

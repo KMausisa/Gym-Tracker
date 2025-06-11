@@ -21,12 +21,11 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean | UrlTree> {
-    await this.supabaseService.sessionReady; // Wait for session restoration
-
-    if (this.supabaseService.isAuthenticated) {
-      return true;
-    } else {
+    await this.supabaseService.sessionReady;
+    if (!this.supabaseService.isAuthenticated) {
+      // Only redirect if session is ready and user is not authenticated
       return this.router.createUrlTree(['/login']);
     }
+    return true;
   }
 }

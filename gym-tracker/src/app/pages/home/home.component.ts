@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 
-
 import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from '../workout/workout.service';
 
@@ -35,6 +34,7 @@ export class HomeComponent {
   currentExerciseIndex: number = 0;
   inWorkout: boolean = false;
   workoutCompleted: boolean = false;
+  workoutsCompleted: number = 0;
 
   exerciseProgress: {
     [exerciseId: string]: {
@@ -209,6 +209,8 @@ export class HomeComponent {
     this.finishWorkout(); // Finish the workout
     this.inWorkout = false; // Reset workout state
     this.workoutCompleted = true; // Mark workout as completed
+    this.workoutsCompleted++;
+    this.workoutService.setWorkoutsCompleted(this.workoutsCompleted);
   }
 
   get sets() {
