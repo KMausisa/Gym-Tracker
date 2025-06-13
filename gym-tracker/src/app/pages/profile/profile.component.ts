@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })

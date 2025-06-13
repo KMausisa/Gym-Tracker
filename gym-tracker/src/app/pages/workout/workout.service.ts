@@ -1,6 +1,6 @@
-import { Injectable, Output, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +10,10 @@ export class WorkoutService {
   userExercises = [];
   workoutListChanged = new BehaviorSubject<any[]>([]);
   exerciseListChanged = new BehaviorSubject<any[]>([]);
+  progressListChanged = new BehaviorSubject<any[]>([]);
+  exerciseProgressChanged = new BehaviorSubject<any[]>([]);
+  private _workoutsCompleted = new BehaviorSubject<number>(0);
+  workoutsCompleted$ = this._workoutsCompleted.asObservable();
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -58,12 +62,51 @@ export class WorkoutService {
     }
   }
 
+  async getUserExercises(userId: string) {
+    try {
+      const exercises = await this.supabaseService.getUserExercises(userId);
+      this.exerciseListChanged.next(exercises); // emit here
+      return exercises;
+    } catch (error) {
+      console.error('Error fetching user exercises:', error);
+      this.exerciseListChanged.next([]);
+      return [];
+    }
+  }
+
   async getExerciseById(exerciseId: string) {
     try {
       const exercise = await this.supabaseService.getExerciseById(exerciseId);
       return exercise;
     } catch (error) {
       console.error('Error fetching exercise by ID:', error);
+      return null;
+    }
+  }
+
+  async getWorkoutProgress(userId: string) {
+    try {
+      const progress = await this.supabaseService.getWorkoutProgress(userId);
+      this.progressListChanged.next(progress ?? []); // emit here
+      return progress;
+    } catch (error) {
+      console.error('Error fetching workout progress:', error);
+      this.progressListChanged.next([]);
+      return null;
+    }
+  }
+
+  async getExerciseProgress(userId: string, exerciseId: string) {
+    try {
+      const progress = await this.supabaseService.getExerciseProgress(
+        userId,
+        exerciseId
+      );
+      this.exerciseProgressChanged.next(progress ?? []); // emit here
+      return progress;
+    } catch (error) {
+      console.error('Error fetching exercise progress:', error);
+      this.exerciseProgressChanged.next([]);
       return null;
     }
   }
@@ -184,6 +227,7 @@ export class WorkoutService {
     }
   }
 
+  /***** Delete Methods *****/
   async deleteWorkout(userId: string, workoutId: string) {
     try {
       const deletedWorkout = await this.supabaseService.deleteWorkout(
@@ -212,14 +256,7 @@ export class WorkoutService {
     }
   }
 
-  // Get workout by ID
-  // async getRoutineById(workoutId: string) {
-  //   try {
-  //     const workout = await this.supabaseService.getRoutineById(workoutId);
-  //     return workout;
-  //   } catch (error) {
-  //     console.error('Error fetching workout by ID:', error);
-  //     return null;
-  //   }
-  // }
+  setWorkoutsCompleted(count: number) {
+    this._workoutsCompleted.next(count);
+  }
 }

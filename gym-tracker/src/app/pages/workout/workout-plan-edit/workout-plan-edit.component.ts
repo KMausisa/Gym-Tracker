@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormGroup,
@@ -17,7 +17,7 @@ import { User } from '../../profile/user.model';
 @Component({
   selector: 'app-workout-edit',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './workout-plan-edit.component.html',
   styleUrl: '../workout.component.css',
 })

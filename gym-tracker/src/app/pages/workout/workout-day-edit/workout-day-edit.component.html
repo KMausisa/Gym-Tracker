@@ -9,55 +9,61 @@
         name="exerciseName"
         formControlName="exerciseName"
         required
-      />
-      <div *ngIf="exerciseForm.get('exerciseName')?.invalid && exerciseForm.get('exerciseName')?.touched" class="error">Exercise name is required.</div>
-    </div>
-    <div>
-      <label for="sets">Sets:</label>
-      <input
-        type="number"
-        id="sets"
-        name="sets"
-        formControlName="sets"
-        min="1"
-        required
-      />
-      <div *ngIf="exerciseForm.get('sets')?.invalid && exerciseForm.get('sets')?.touched" class="error">Number of sets is required.</div>
+        />
+        @if (exerciseForm.get('exerciseName')?.invalid && exerciseForm.get('exerciseName')?.touched) {
+          <div class="error">Exercise name is required.</div>
+        }
+      </div>
+      <div>
+        <label for="sets">Sets:</label>
+        <input
+          type="number"
+          id="sets"
+          name="sets"
+          formControlName="sets"
+          min="1"
+          required
+          />
+          @if (exerciseForm.get('sets')?.invalid && exerciseForm.get('sets')?.touched) {
+            <div class="error">Number of sets is required.</div>
+          }
 
-    </div>
-    <div>
-      <label for="reps">Reps:</label>
-      <input
-        type="number"
-        id="reps"
-        name="reps"
-        formControlName="reps"
-        min="1"
-        required
-      />
-      <div *ngIf="exerciseForm.get('reps')?.invalid && exerciseForm.get('reps')?.touched" class="error">Number of reps is required.</div>
+        </div>
+        <div>
+          <label for="reps">Reps:</label>
+          <input
+            type="number"
+            id="reps"
+            name="reps"
+            formControlName="reps"
+            min="1"
+            required
+            />
+            @if (exerciseForm.get('reps')?.invalid && exerciseForm.get('reps')?.touched) {
+              <div class="error">Number of reps is required.</div>
+            }
 
-    </div>
-    <div>
-      <label for="weight">Recommended Weight (lbs):</label>
-      <input
-        type="number"
-        id="weight"
-        name="weight"
-        formControlName="weight"
-        min="0"
-      />
-    </div>
-    <div>
-      <label for="notes">Notes:</label>
-      <textarea
-        id="notes"
-        name="notes"
-        formControlName="notes"
-        rows="2"
-      ></textarea>
-    </div>
-    <button type="submit" [disabled]="exerciseForm.invalid">{{ formHeading }}</button>
-    <!-- <button type="button" (click)="cancelExercise()">Cancel</button> -->
-  </form>
-</div>
+          </div>
+          <div>
+            <label for="weight">Recommended Weight (lbs):</label>
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              formControlName="weight"
+              min="0"
+              />
+            </div>
+            <div>
+              <label for="notes">Notes:</label>
+              <textarea
+                id="notes"
+                name="notes"
+                formControlName="notes"
+                rows="2"
+              ></textarea>
+            </div>
+            <button type="submit" [disabled]="exerciseForm.invalid">{{ formHeading }}</button>
+            <!-- <button type="button" (click)="cancelExercise()">Cancel</button> -->
+          </form>
+        </div>

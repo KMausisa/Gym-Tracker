@@ -7,6 +7,7 @@ export class Exercise {
     public sets: number,
     public reps: number,
     public weight: number,
+    public maxVolume?: number,
     public notes?: string,
     public created_at?: Date
   ) {}

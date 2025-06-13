@@ -38,15 +38,11 @@ export class LoginComponent implements OnInit {
     this.maxDate = today.toISOString().split('T')[0];
   }
 
-  ngOnInit(): void {
-    // Check if already logged in
-    this.supabaseService.currentUser.subscribe((user) => {
-      if (user) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
-
-    // Update form based on mode
+  async ngOnInit() {
+    await this.supabaseService.sessionReady;
+    if (this.supabaseService.isAuthenticated) {
+      this.router.navigate(['/dashboard']);
+    }
     this.updateFormFields();
   }
 

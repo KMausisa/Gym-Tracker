@@ -4,43 +4,48 @@
     <a routerLink="new" class="btn btn-primary">Create New Workout</a>
   </div>
   <ul>
-    <li *ngFor="let workout of userWorkouts">
-      <h3>{{ workout.title }}</h3>
-      <p>{{ workout.description }}</p>
-      <button
-        *ngFor="let day of workout.days"
-        class="day-button"
-        [routerLink]="[workout.id, day]"
-      >
-        {{ day }}
-      </button>
-      <!-- More actions dropdown -->
-      <div class="actions-dropdown">
-        <button class="btn btn-actions" (click)="showActions = !showActions">
-          ⋮
-        </button>
-        <div class="dropdown-menu" *ngIf="showActions">
-          <button class="btn btn-secondary" [routerLink]="[workout.id, 'edit']">
-            Edit
-          </button>
-          <button class="btn btn-danger" (click)="deleteWorkout(workout.id)">
-            Delete
-          </button>
+    @for (workout of userWorkouts; track workout) {
+      <li>
+        <h3>{{ workout.title }}</h3>
+        <p>{{ workout.description }}</p>
+        @for (day of workout.days; track day) {
           <button
-            class="btn btn-activate"
-            [disabled]="activeWorkoutId === workout.id"
-            (click)="activateWorkout(workout.id)"
-          >
-            {{ activeWorkoutId === workout.id ? "Active" : "Activate" }}
+            class="day-button"
+            [routerLink]="[workout.id, day]"
+            >
+            {{ day }}
           </button>
-          <button
-            class="btn btn-deactivate"
-            (click)="deactivateWorkout(workout.id)"
-          >
-            Deactivate
+        }
+        <!-- More actions dropdown -->
+        <div class="actions-dropdown">
+          <button class="btn btn-actions" (click)="showActions = !showActions">
+            ⋮
           </button>
+          @if (showActions) {
+            <div class="dropdown-menu">
+              <button class="btn btn-secondary" [routerLink]="[workout.id, 'edit']">
+                Edit
+              </button>
+              <button class="btn btn-danger" (click)="deleteWorkout(workout.id)">
+                Delete
+              </button>
+              <button
+                class="btn btn-activate"
+                [disabled]="activeWorkoutId === workout.id"
+                (click)="activateWorkout(workout.id)"
+                >
+                {{ activeWorkoutId === workout.id ? "Active" : "Activate" }}
+              </button>
+              <button
+                class="btn btn-deactivate"
+                (click)="deactivateWorkout(workout.id)"
+                >
+                Deactivate
+              </button>
+            </div>
+          }
         </div>
-      </div>
-    </li>
+      </li>
+    }
   </ul>
 </div>
