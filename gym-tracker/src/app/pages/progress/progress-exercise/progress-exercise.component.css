@@ -1,0 +1,19 @@
+.chart-flex-container {
+  display: flex;
+  gap: 2rem; /* space between charts */
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap; /* stack on small screens */
+}
+
+.chart-container {
+  width: 600px;
+  max-width: 100%;
+  min-width: 250px;
+  /* Optional: add a border or shadow for clarity */
+  /* border: 1px solid #eee; */
+  /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+}

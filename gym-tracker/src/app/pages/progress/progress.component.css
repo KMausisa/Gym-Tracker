@@ -1,0 +1,170 @@
+/* Layout and spacing */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background-color: #f0f4fa;
+}
+
+.progress-flex-container {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.progress-left {
+  flex: 1 1 260px;
+  max-width: 320px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.progress-right {
+  flex: 2 1 400px;
+  min-width: 300px;
+}
+
+.progress-item {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exercise-item {
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  min-width: 220px;
+}
+
+h2 {
+  color: #2d3a4a;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+h3 {
+  color: #3b5998;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+input.form-control {
+  border-radius: 6px 0 0 6px;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.input-group-addon,
+.glyphicon-search {
+  background: #eee;
+  border-radius: 0 6px 6px 0;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-left: none;
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 24px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.search-input:focus {
+  border-color: #3b5998;
+}
+
+.search-icon {
+  /* background: #3b5998; */
+  color: #fff;
+  border: none;
+  border-radius: 0 24px 24px 0;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.search-icon:hover {
+  background: #2d3a4a;
+}
+
+.dropdown-menu.show {
+  left: 0;
+  right: 0;
+  top: 110%;
+  position: absolute;
+  z-index: 10;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0 0 8px 8px;
+  width: 100%;
+  margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.dropdown-item:hover {
+  background: #f0f4fa;
+}
+
+@media (max-width: 700px) {
+  .progress-container {
+    padding: 1rem;
+    max-width: 100%;
+  }
+  .exercise-list {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .progress-flex-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .progress-left, .progress-right {
+    max-width: 100%;
+    min-width: 0;
+  }
+}

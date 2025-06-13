@@ -84,12 +84,9 @@ export class WorkoutService {
     }
   }
 
-  async getWorkoutProgress(userId: string, workoutId: string) {
+  async getWorkoutProgress(userId: string) {
     try {
-      const progress = await this.supabaseService.getWorkoutProgress(
-        userId,
-        workoutId
-      );
+      const progress = await this.supabaseService.getWorkoutProgress(userId);
       this.progressListChanged.next(progress ?? []); // emit here
       return progress;
     } catch (error) {

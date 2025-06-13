@@ -334,14 +334,12 @@ export class SupabaseService {
     return data;
   }
 
-  async getWorkoutProgress(userId: string, workoutId: string) {
+  async getWorkoutProgress(userId: string) {
     try {
       const { data, error } = await this.supabase
         .from('exercise_progress')
         .select('*')
-        .eq('user_id', userId)
-        .eq('workout_id', workoutId);
-
+        .eq('user_id', userId);
       return data;
     } catch (error) {
       console.error('Error fetching workout progress:', error);

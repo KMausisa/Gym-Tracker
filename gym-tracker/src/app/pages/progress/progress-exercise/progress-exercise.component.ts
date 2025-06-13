@@ -26,7 +26,9 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
 
   chartType: 'scatter' = 'scatter';
   chartDataList: any[] = [];
+  maxWeightChartDataList: any[] = [];
   chartOptions: any = {};
+  maxWeightChartOptions: any = {};
   term: string = '';
 
   private routeSub!: Subscription;
@@ -97,6 +99,12 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
     ];
 
     // Chart options for time x-axis
+    const singleDate = new Date(this.exerciseList[0]?.created_at);
+    const minDate = new Date(singleDate);
+    minDate.setDate(minDate.getDate() - 1);
+    const maxDate = new Date(singleDate);
+    maxDate.setDate(maxDate.getDate() + 1);
+
     this.chartOptions = {
       responsive: true,
       scales: {
@@ -114,8 +122,14 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
             text: 'Date',
           },
           ticks: {
-            autoSkip: true,
-            maxTicksLimit: 5,
+            source: 'data',
+            autoSkip: false,
+            maxTicksLimit: 1,
+            // Optionally, format the tick label
+            callback: function (value: any) {
+              // value is a timestamp, format as date string
+              return new Date(value).toLocaleDateString();
+            },
           },
         },
         y: {
@@ -148,19 +162,68 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
               const reps = Array.isArray(exercise.reps)
                 ? exercise.reps
                 : [exercise.reps];
-              const sets = weights
-                .map((w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`)
-                .join(', ');
+              const sets = weights.map(
+                (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
+              );
               const formattedDate = new Date(
                 exercise.created_at
               ).toLocaleDateString();
               return [
                 `Volume: ${context.parsed.y}`,
                 `Date: ${formattedDate}`,
-                sets,
+                ...sets,
               ];
             },
           },
+        },
+      },
+    };
+
+    const maxWeightPerSession = this.exerciseList.map((exercise) => {
+      const weights: number[] = Array.isArray(exercise.weights)
+        ? exercise.weights
+        : [exercise.weights];
+      // Find the max weight for this session
+      return Math.max(...weights, 0);
+    });
+
+    const maxWeightDataPoints = this.exerciseList.map((s, i) => ({
+      x: s.created_at,
+      y: maxWeightPerSession[i],
+    }));
+
+    this.maxWeightChartDataList = [
+      {
+        datasets: [
+          {
+            label: 'Best Set (Max Weight)',
+            data: maxWeightDataPoints,
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0, 0, 255, 0.2)',
+            showLine: false,
+            pointRadius: 5,
+          },
+        ],
+      },
+    ];
+
+    this.maxWeightChartOptions = {
+      ...this.chartOptions,
+      scales: {
+        ...this.chartOptions.scales,
+        y: {
+          ...this.chartOptions.scales.y,
+          title: {
+            display: true,
+            text: 'Max Weight (lbs)',
+          },
+        },
+      },
+      plugins: {
+        ...this.chartOptions.plugins,
+        title: {
+          display: true,
+          text: 'Best Set (Max Weight) Per Session',
         },
       },
     };

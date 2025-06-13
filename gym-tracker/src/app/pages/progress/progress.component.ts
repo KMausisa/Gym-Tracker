@@ -24,6 +24,15 @@ export class ProgressComponent implements OnInit, OnDestroy {
   userProgress: any[] = [];
   exerciseList: Exercise[] = [];
   top3Exercises: ExerciseProgress[] = [];
+  heaviestLift: {
+    exercise: string;
+    weight: number;
+    reps: number;
+  } = {
+    exercise: '',
+    weight: 0,
+    reps: 0,
+  };
 
   workoutsCompletedCount: number = 0;
   activeWorkoutId: string = '';
@@ -61,10 +70,7 @@ export class ProgressComponent implements OnInit, OnDestroy {
 
         // Fetch user exercises and workout progress
         this.workoutService.getUserExercises(this.user.id);
-        this.workoutService.getWorkoutProgress(
-          this.user.id,
-          this.activeWorkoutId
-        );
+        this.workoutService.getWorkoutProgress(this.user.id);
       });
 
     // Listen for progress and exercise list changes
@@ -110,7 +116,6 @@ export class ProgressComponent implements OnInit, OnDestroy {
     this.term = exercise.name;
     this.filteredExercises = [];
     // Optionally, show exercise details somewhere
-    console.log('Selected exercise:', exercise);
   }
 
   get isOnNewRoute() {
@@ -131,5 +136,22 @@ export class ProgressComponent implements OnInit, OnDestroy {
     // Grab the top 3 exercises by max volume
     this.userProgress.sort((a, b) => (b.maxVolume ?? 0) - (a.maxVolume ?? 0));
     this.top3Exercises = this.userProgress.slice(0, 3);
+
+    // Find the heaviest lift in terms of weight (lbs)
+    this.heaviestLift = this.userProgress.reduce(
+      (max, exercise) => {
+        const maxWeight = Math.max(...exercise.weights);
+        if (maxWeight > max.weight) {
+          return {
+            exercise: exercise.name,
+            weight: maxWeight,
+            reps: exercise.reps[exercise.weights.indexOf(maxWeight)] || 0,
+          };
+        }
+        return max;
+      },
+      { exercise: '', weight: 0, reps: 0 }
+    );
+    console.log('Heaviest Lift:', this.heaviestLift);
   }
 }
