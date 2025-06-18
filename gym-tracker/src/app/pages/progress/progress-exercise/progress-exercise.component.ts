@@ -8,7 +8,7 @@ import { ChartConfiguration, ChartType } from 'chart.js';
 import { SupabaseService } from '../../../services/supabase.service';
 import { WorkoutService } from '../../workout/workout.service';
 import { User } from '../../profile/user.model';
-import { ExerciseProgress } from '../exercise-progress.model';
+import { ExerciseProgress } from '../../../models/exercise_progress.model';
 
 @Component({
   selector: 'app-exercise-progress',
@@ -99,7 +99,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
     ];
 
     // Chart options for time x-axis
-    const singleDate = new Date(this.exerciseList[0]?.created_at);
+    const singleDate = new Date(this.exerciseList[0]?.created_at ?? '');
     const minDate = new Date(singleDate);
     minDate.setDate(minDate.getDate() - 1);
     const maxDate = new Date(singleDate);
@@ -165,9 +165,9 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
               const sets = weights.map(
                 (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
               );
-              const formattedDate = new Date(
-                exercise.created_at
-              ).toLocaleDateString();
+              const formattedDate = exercise.created_at
+                ? new Date(exercise.created_at).toLocaleDateString()
+                : 'Unknown date';
               return [
                 `Volume: ${context.parsed.y}`,
                 `Date: ${formattedDate}`,

@@ -11,7 +11,7 @@ import {
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 import { User } from '../../profile/user.model';
-import { Exercise } from '../exercise.model';
+import { Exercise } from '../../../models/exercise.model';
 
 @Component({
   selector: 'app-workout-day-list',
@@ -54,8 +54,7 @@ export class WorkoutDayListComponent implements OnInit {
         this.workoutId,
         this.selectedDay
       );
-
-      await this.workoutService.getRoutineById(this.dayId);
+      this.loadExercisesForDay(this.dayId);
     });
 
     this.workoutService.exerciseListChanged.subscribe((exercises) => {
@@ -76,8 +75,14 @@ export class WorkoutDayListComponent implements OnInit {
     return this.router.url.includes('/edit');
   }
 
+  async loadExercisesForDay(dayId: string) {
+    await this.workoutService.getRoutineById(dayId);
+  }
+
   onDeleteExercise(exerciseId: string) {
-    this.workoutService.deleteExercise(exerciseId, this.user.id);
+    this.workoutService.deleteExercise(exerciseId, this.user.id).then(() => {
+      this.loadExercisesForDay(this.dayId);
+    });
     this.router.navigate([`/workouts/${this.workoutId}/${this.selectedDay}`]);
   }
 }

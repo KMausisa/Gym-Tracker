@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProgressExerciseComponent } from './progress-exercise.component';
+import { ExerciseProgressComponent } from './progress-exercise.component';
 
-describe('ProgressExerciseComponent', () => {
-  let component: ProgressExerciseComponent;
-  let fixture: ComponentFixture<ProgressExerciseComponent>;
+describe('ExerciseProgressComponent', () => {
+  let component: ExerciseProgressComponent;
+  let fixture: ComponentFixture<ExerciseProgressComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProgressExerciseComponent]
-    })
-    .compileComponents();
+      imports: [ExerciseProgressComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(ProgressExerciseComponent);
+    fixture = TestBed.createComponent(ExerciseProgressComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

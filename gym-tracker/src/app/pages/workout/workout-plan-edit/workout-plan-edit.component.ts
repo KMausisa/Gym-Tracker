@@ -11,7 +11,7 @@ import {
 
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
-import { Workout } from '../workout.model';
+import { WorkoutPlan } from '../../../models/workout_plan.model';
 import { User } from '../../profile/user.model';
 
 @Component({
@@ -24,7 +24,7 @@ import { User } from '../../profile/user.model';
 export class WorkoutEditComponent implements OnInit {
   workoutForm: FormGroup;
   workoutId: string = '';
-  originalWorkout!: Workout;
+  originalWorkout!: WorkoutPlan | null;
   editMode: boolean = false;
   formHeading: string = 'Add Workout Plan'; // Default heading for the form
   user!: User;
@@ -110,27 +110,31 @@ export class WorkoutEditComponent implements OnInit {
         (a, b) => this.daysOrder.indexOf(a) - this.daysOrder.indexOf(b)
       );
 
+      const workoutPlanToAdd: Omit<WorkoutPlan, 'id'> = {
+        user_id: this.user.id,
+        title: name,
+        description: description,
+        days: days, // Include selected days in the submission
+      };
+
+      const workoutPlanToUpdate: WorkoutPlan = {
+        id: this.workoutId,
+        user_id: this.user.id,
+        title: name,
+        description: description,
+        days: days, // Include selected days in the update
+      };
+
       try {
         if (this.editMode == false) {
           // If not in edit mode, create a new workout
-          await this.workoutService.addWorkoutPlan({
-            user_id: this.user.id,
-            title: name,
-            description: description,
-            days: days, // Include selected days in the submission
-          });
+          await this.workoutService.addWorkoutPlan(workoutPlanToAdd);
 
           this.successMessage = 'Workout added successfully!';
           this.router.navigate(['/workouts']);
         } else {
           // If in edit mode, update the existing workout
-          await this.workoutService.updateWorkoutPlanById({
-            user_id: this.user.id,
-            workout_id: this.workoutId,
-            title: name,
-            description: description,
-            days: days, // Include selected days in the update
-          });
+          await this.workoutService.updateWorkoutPlanById(workoutPlanToUpdate);
           this.successMessage = 'Workout updated successfully!';
           this.router.navigate(['/workouts']);
         }

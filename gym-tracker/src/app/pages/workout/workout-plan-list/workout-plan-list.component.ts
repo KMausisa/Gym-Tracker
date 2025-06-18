@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 
 import { User } from '../../profile/user.model';
-import { Workout } from '../workout.model';
+import { WorkoutPlan } from '../../../models/workout_plan.model';
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 
@@ -16,7 +16,7 @@ import { SupabaseService } from '../../../services/supabase.service';
 })
 export class WorkoutListComponent implements OnInit {
   user!: User;
-  userWorkouts: Workout[] = [];
+  userWorkouts: WorkoutPlan[] = [];
   activeWorkoutId: string = '';
   showActions: boolean = false; // Flag to control visibility of action buttons
 

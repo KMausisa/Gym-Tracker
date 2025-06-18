@@ -13,7 +13,7 @@ import { combineLatest } from 'rxjs';
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 import { User } from '../../profile/user.model';
-import { Exercise } from '../exercise.model';
+import { Exercise } from '../../../models/exercise.model';
 
 @Component({
   selector: 'app-workout-day-edit',
@@ -26,7 +26,7 @@ export class WorkoutDayEditComponent {
   exerciseForm: FormGroup;
   workoutId: string = '';
   exerciseId: string = '';
-  originalExercise!: Exercise;
+  originalExercise!: Exercise | null;
   selectedDay: string = '';
   DayId: string = '';
   isLoading: boolean = true;
@@ -105,33 +105,35 @@ export class WorkoutDayEditComponent {
         this.selectedDay
       );
 
-      console.log('DayId:', this.DayId);
+      const exerciseToAdd: Omit<Exercise, 'id' | 'created_at'> = {
+        user_id: this.user.id,
+        day_id: this.DayId,
+        name: exerciseName,
+        sets: sets,
+        reps: reps,
+        weight: weight,
+        notes: notes,
+      };
+
+      const exerciseToUpdate: Exercise = {
+        id: this.exerciseId,
+        user_id: this.user.id,
+        day_id: this.DayId,
+        name: exerciseName,
+        sets: sets,
+        reps: reps,
+        weight: weight,
+        notes: notes,
+      };
 
       // Call the Supabase function to add the exercise
       try {
         if (this.editMode == false) {
-          await this.workoutService.addExerciseToWorkoutDay({
-            user_id: this.user.id,
-            day_id: this.DayId,
-            name: exerciseName,
-            sets: sets,
-            reps: reps,
-            weight: weight,
-            notes: notes,
-          });
+          await this.workoutService.addExerciseToWorkoutDay(exerciseToAdd);
           this.successMessage = 'Exercise added successfully!';
           this.router.navigate(['/workouts', this.workoutId, this.selectedDay]);
-        } else {
-          await this.workoutService.updateExercisePlanById({
-            dayId: this.DayId,
-            userId: this.user.id,
-            exerciseId: this.exerciseId,
-            name: exerciseName,
-            sets: sets,
-            reps: reps,
-            weight: weight,
-            notes: notes,
-          });
+        } else if (this.editMode == true) {
+          await this.workoutService.updateExercisePlanById(exerciseToUpdate);
           this.successMessage = 'Exercise updated successfully!';
           this.router.navigate(['/workouts', this.workoutId, this.selectedDay]);
         }

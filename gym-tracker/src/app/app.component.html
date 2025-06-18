@@ -1,6 +1,10 @@
-<div class="app-container">
-  @if (isAuthenticated) {
+<body>
+  <div class="app-container">
+    @if (isAuthenticated) {
     <app-header></app-header>
-  }
-  <router-outlet></router-outlet>
-</div>
+    }
+    <router-outlet></router-outlet>
+    <!-- Move footer inside container -->
+  </div>
+</body>
+<app-footer></app-footer>

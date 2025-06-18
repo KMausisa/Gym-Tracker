@@ -1,4 +1,32 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background-color: #f0f4fa; /* your desired bg color */
+}
+
+html {
+  border: 5px dashed blue; /* confirm html fills space */
+}
+
+
 .app-container {
-    min-height: 100vh;
-    font-family: 'Roboto', Arial, sans-serif;
-  }
+  min-height: 100vh;
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: transparent; /* or remove background */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make sure footer is part of layout */
+app-footer {
+  text-align: center;
+  margin-top: auto; /* pushes footer to bottom if using flex */
+  font-family: 'Roboto', Arial, sans-serif;
+
+}
