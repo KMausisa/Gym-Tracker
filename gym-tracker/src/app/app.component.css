@@ -28,5 +28,4 @@ app-footer {
   text-align: center;
   margin-top: auto; /* pushes footer to bottom if using flex */
   font-family: 'Roboto', Arial, sans-serif;
-
 }

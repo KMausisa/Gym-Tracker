@@ -56,11 +56,18 @@ ul.exercise-list {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
+  /* align-items: center; */
   gap: 1rem;
 }
 
 li.exercise-item {
+  background: #f7f7f7;
   flex: 1 1 calc(45% - 1rem); /* two columns on larger screens */
+  margin-bottom: 0;
+}
+
+li.exercise-item > strong {
+  color: #3b5998;
 }
 
 

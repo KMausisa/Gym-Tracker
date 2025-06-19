@@ -1,78 +1,76 @@
-<div>
-  <!-- Centered Search Bar -->
-  <div class="container">
-    <div class="search-bar-outer">
-      <div class="search-bar-container">
-        <input
-          class="search-input"
-          type="text"
-          name="searchBox"
-          id="searchBox"
-          #searchBox
-          (keyup)="search(searchBox.value)"
-          [value]="term"
-          placeholder="Search exercises..."
-          autocomplete="off"
-        />
-        <div class="dropdown-menu show" *ngIf="filteredExercises.length > 0">
-          @for (exercise of filteredExercises; track exercise.id) {
-          <button
-            class="dropdown-item"
-            [routerLink]="['/progress', exercise.id]"
-            (click)="selectExercise(exercise)"
-            type="button"
-          >
-            {{ exercise.name }}
-          </button>
+<!-- Centered Search Bar -->
+<div class="container">
+  <div class="search-bar-outer">
+    <div class="search-bar-container">
+      <input
+        class="search-input"
+        type="text"
+        name="searchBox"
+        id="searchBox"
+        #searchBox
+        (keyup)="search(searchBox.value)"
+        [value]="term"
+        placeholder="Search exercises..."
+        autocomplete="off"
+      />
+      <div class="dropdown-menu show" *ngIf="filteredExercises.length > 0">
+        @for (exercise of filteredExercises; track exercise.id) {
+        <button
+          class="dropdown-item"
+          [routerLink]="['/progress', exercise.id]"
+          (click)="selectExercise(exercise)"
+          type="button"
+        >
+          {{ exercise.name }}
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (!isOnNewRoute) {
+  <!-- Search Box -->
+
+  <div class="progress-flex-container">
+    <div class="progress-left">
+      <!-- Workout Completed Count -->
+      <div class="progress-item">
+        <h2>Workout Completed Count</h2>
+        <p>Total Workouts: {{ workoutsCompletedCount }}</p>
+      </div>
+      <!-- Heaviest lift -->
+      <div class="progress-item">
+        <h2>Heaviest Lift performed</h2>
+        <div class="exercise-item">
+          <h3>{{ heaviestLift.exercise }}</h3>
+          <p>
+            Weight (lbs): {{ heaviestLift.weight }} lbs,
+            {{ heaviestLift.reps }} reps
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="progress-right">
+      <!-- Top 3 Exercises by Volume -->
+      <div class="progress-item">
+        <h2>Top 3 Exercises by Volume (Weight x Reps)</h2>
+        <div class="exercise-list">
+          @if (top3Exercises.length !== 0) { @for (exercise of top3Exercises;
+          track exercise.id) {
+          <div class="exercise-item">
+            <h3>{{ exercise.name }}</h3>
+            <p>Max Volume: {{ exercise.maxVolume }} lbs</p>
+            <p>Last Workout: {{ exercise.name }}</p>
+            <p>Completed on: {{ exercise.created_at | date }}</p>
+          </div>
+          } } @else {
+          <p>No exercises found.</p>
           }
         </div>
       </div>
     </div>
-
-    @if (!isOnNewRoute) {
-    <!-- Search Box -->
-
-    <div class="progress-flex-container">
-      <div class="progress-left">
-        <!-- Workout Completed Count -->
-        <div class="progress-item">
-          <h2>Workout Completed Count</h2>
-          <p>Total Workouts: {{ workoutsCompletedCount }}</p>
-        </div>
-        <!-- Heaviest lift -->
-        <div class="progress-item">
-          <h2>Heaviest Lift performed</h2>
-          <div class="exercise-item">
-            <h3>{{ heaviestLift.exercise }}</h3>
-            <p>
-              Weight (lbs): {{ heaviestLift.weight }} lbs,
-              {{ heaviestLift.reps }} reps
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="progress-right">
-        <!-- Top 3 Exercises by Volume -->
-        <div class="progress-item">
-          <h2>Top 3 Exercises by Volume (Weight x Reps)</h2>
-          <div class="exercise-list">
-            @if (top3Exercises.length !== 0) { @for (exercise of top3Exercises;
-            track exercise.id) {
-            <div class="exercise-item">
-              <h3>{{ exercise.name }}</h3>
-              <p>Max Volume: {{ exercise.maxVolume }} lbs</p>
-              <p>Last Workout: {{ exercise.name }}</p>
-              <p>Completed on: {{ exercise.created_at | date }}</p>
-            </div>
-            } } @else {
-            <p>No exercises found.</p>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-    } @else {
-    <router-outlet></router-outlet>
-    }
   </div>
+  } @else {
+  <router-outlet></router-outlet>
+  }
 </div>

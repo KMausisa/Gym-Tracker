@@ -47,6 +47,8 @@ export class HomeComponent {
     };
   } = {};
 
+  workoutDayHeader: string = 'This is your routine for the day:';
+
   constructor(
     private supabaseService: SupabaseService,
     private workoutService: WorkoutService,
@@ -104,6 +106,9 @@ export class HomeComponent {
         if (dayId) {
           this.workoutService.getRoutineById(dayId).then((exercises) => {
             this.todaysExercises = exercises ?? [];
+            if (this.todaysExercises.length == 0) {
+              this.workoutDayHeader = 'You have no exercises for today.';
+            }
           });
         } else {
           console.log('No exercises found for', currentDay);

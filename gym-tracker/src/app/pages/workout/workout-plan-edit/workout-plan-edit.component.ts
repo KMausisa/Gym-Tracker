@@ -19,7 +19,7 @@ import { User } from '../../profile/user.model';
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './workout-plan-edit.component.html',
-  styleUrl: '../workout.component.css',
+  styleUrl: './workout-plan-edit.component.css',
 })
 export class WorkoutEditComponent implements OnInit {
   workoutForm: FormGroup;
@@ -27,6 +27,7 @@ export class WorkoutEditComponent implements OnInit {
   originalWorkout!: WorkoutPlan | null;
   editMode: boolean = false;
   formHeading: string = 'Add Workout Plan'; // Default heading for the form
+  submitFormText: string = 'Create Workout';
   user!: User;
   isLoading = true;
   errorMessage = '';
@@ -77,6 +78,7 @@ export class WorkoutEditComponent implements OnInit {
       }
       this.editMode = true;
       this.formHeading = 'Edit Workout Plan'; // Change form heading for edit mode
+      this.submitFormText = 'Edit Workout';
       if (this.editMode && this.originalWorkout) {
         this.workoutForm.patchValue({
           name: this.originalWorkout.title,
@@ -101,6 +103,13 @@ export class WorkoutEditComponent implements OnInit {
     }
     // Update the form control value
     this.workoutForm.patchValue({ days: this.selectedDays });
+  }
+
+  cancelEdit() {
+    this.workoutForm.reset();
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.router.navigate(['/workouts']);
   }
 
   async onSubmit() {

@@ -1,51 +1,34 @@
-<div class="workout-list">
+<div class="container">
   <div class="workout-list-header">
-    <h2>Your Workout Plans</h2>
+    <h1>Your Workout Plans</h1>
     <a routerLink="new" class="btn btn-primary">Create New Workout</a>
   </div>
-  <ul>
-    @for (workout of userWorkouts; track workout) {
-      <li>
-        <h3>{{ workout.title }}</h3>
-        <p>{{ workout.description }}</p>
-        @for (day of workout.days; track day) {
-          <button
-            class="day-button"
-            [routerLink]="[workout.id, day]"
-            >
-            {{ day }}
-          </button>
-        }
-        <!-- More actions dropdown -->
-        <div class="actions-dropdown">
-          <button class="btn btn-actions" (click)="showActions = !showActions">
-            ⋮
-          </button>
-          @if (showActions) {
-            <div class="dropdown-menu">
-              <button class="btn btn-secondary" [routerLink]="[workout.id, 'edit']">
-                Edit
-              </button>
-              <button class="btn btn-danger" (click)="deleteWorkout(workout.id)">
-                Delete
-              </button>
-              <button
-                class="btn btn-activate"
-                [disabled]="activeWorkoutId === workout.id"
-                (click)="activateWorkout(workout.id)"
-                >
-                {{ activeWorkoutId === workout.id ? "Active" : "Activate" }}
-              </button>
-              <button
-                class="btn btn-deactivate"
-                (click)="deactivateWorkout(workout.id)"
-                >
-                Deactivate
-              </button>
-            </div>
+  <div class="workout-list">
+    @for (workout of sortedWorkouts; track workout) {
+    <div
+      class="workout-plan-item"
+      [class.active]="activeWorkoutId === workout.id"
+    >
+      <div class="workout-info">
+        <h3>
+          {{ workout.title }} @if (activeWorkoutId === workout.id) {
+          <span class="active-badge">Active</span>
           }
-        </div>
-      </li>
+        </h3>
+        <p>{{ workout.description }}</p>
+      </div>
+
+      <select class="actions-select" (change)="onActionSelect($event, workout)">
+        <option value="" disabled selected>More actions</option>
+        <option value="edit">Edit</option>
+        <option value="delete">Delete</option>
+        @if (activeWorkoutId !== workout.id) {
+        <option value="activate">Activate</option>
+        } @else if (activeWorkoutId === workout.id) {
+        <option value="deactivate">Deactivate</option>
+        }
+      </select>
+    </div>
     }
-  </ul>
+  </div>
 </div>

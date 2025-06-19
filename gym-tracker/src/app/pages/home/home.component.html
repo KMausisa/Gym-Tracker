@@ -9,14 +9,14 @@
   </div>
   <div class="workout-day-list card">
     <div class="workout-day-header">
-      <h2>Today is {{ currentDay }}. This is your routine for the day:</h2>
-      @if (!workoutCompleted) {
+      <h2>Today is {{ currentDay }}. {{ workoutDayHeader }}</h2>
+      @if (!workoutCompleted && todaysExercises.length != 0) {
       <div>
         <button class="btn btn-start" (click)="startWorkout()">
           Start Workout
         </button>
       </div>
-      } @else {
+      } @else if (workoutCompleted){
       <p class="workout-completed">Workout Completed!</p>
       }
     </div>
