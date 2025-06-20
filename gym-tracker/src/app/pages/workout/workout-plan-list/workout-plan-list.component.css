@@ -37,6 +37,12 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.workout-plan-item:hover {
+  background: #f0f4fa;  /* subtle highlight */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .workout-plan-item h3 {

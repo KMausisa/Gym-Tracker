@@ -34,6 +34,10 @@ export class WorkoutListComponent implements OnInit {
     this.supaBaseService.currentUser.subscribe((user) => {
       this.user = user;
       this.isLoading = false;
+
+      if (this.user) {
+        this.workoutService.getUserWorkoutPlans(this.user.id);
+      }
     });
 
     this.workoutService.workoutListChanged.subscribe((workouts) => {

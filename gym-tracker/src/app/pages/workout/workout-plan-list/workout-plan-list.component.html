@@ -9,7 +9,7 @@
       class="workout-plan-item"
       [class.active]="activeWorkoutId === workout.id"
     >
-      <div class="workout-info">
+      <div class="workout-info" [routerLink]="workout.id">
         <h3>
           {{ workout.title }} @if (activeWorkoutId === workout.id) {
           <span class="active-badge">Active</span>
