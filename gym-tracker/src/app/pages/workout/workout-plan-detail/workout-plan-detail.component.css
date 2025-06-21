@@ -1,6 +1,6 @@
 .workout-plan-detail {
   max-width: 900px;
-  margin: 50px auto;
+  margin: 25px auto;
   padding: 1.5rem;
   border-radius: 12px;
   background: #fff;
@@ -53,7 +53,7 @@ button {
 
 .btn-container {
   max-width: 900px;
-  margin: 50px auto;
+  margin: 25px auto 0;
 }
 
 .btn-back {
@@ -66,7 +66,6 @@ button {
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
-  margin-bottom: 1rem;
 }
 
 .btn-back:hover {

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Location } from '@angular/common';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -37,6 +38,7 @@ export class WorkoutDayListComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private workoutService: WorkoutService,
     private supabaseService: SupabaseService
   ) {}
@@ -84,5 +86,9 @@ export class WorkoutDayListComponent implements OnInit {
       this.loadExercisesForDay(this.dayId);
     });
     this.router.navigate([`/workouts/${this.workoutId}/${this.selectedDay}`]);
+  }
+
+  goBack() {
+    this.location.back();
   }
 }

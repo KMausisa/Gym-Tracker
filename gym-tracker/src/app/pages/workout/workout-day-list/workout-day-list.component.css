@@ -77,3 +77,24 @@ p {
   color: #888;
   margin: 1.5rem 0;
 }
+
+.btn-container {
+  max-width: 600px;
+  margin: 25px auto 0;
+}
+
+.btn-back {
+  display: block;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #555;  /* subtle grey */
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.btn-back:hover {
+  color: #333;  /* slightly darker on hover */
+}

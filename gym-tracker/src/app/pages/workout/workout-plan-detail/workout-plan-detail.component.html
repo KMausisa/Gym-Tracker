@@ -18,16 +18,4 @@
     </li>
     }
   </ul>
-
-  <div class="actions">
-    <button
-      [routerLink]="['/workouts', workoutPlan?.id, 'edit']"
-      class="btn btn-edit"
-    >
-      Edit Plan
-    </button>
-    <button class="btn btn-danger" (click)="confirmDelete(workoutPlan?.id)">
-      Delete Plan
-    </button>
-  </div>
 </div>

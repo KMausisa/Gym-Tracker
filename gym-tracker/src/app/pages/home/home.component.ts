@@ -27,6 +27,7 @@ import { ExerciseProgress } from '../../models/exercise_progress.model';
 export class HomeComponent {
   user!: User;
   activeWorkout!: WorkoutPlan | null;
+  activeWorkoutId: string = '';
 
   currentDay: string = '';
   todaysExercises: Exercise[] = []; // Array to hold today's exercises
@@ -70,38 +71,39 @@ export class HomeComponent {
       'Saturday',
     ];
 
-    // If it's the next day, the system should set the workoutCompleted to false.
     const today = new Date();
     this.currentDay = daysOfWeek[today.getDay()];
-    if (this.currentDay != localStorage.getItem('currentDay')) {
+    this.activeWorkoutId = localStorage.getItem('activeWorkoutId') ?? '';
+
+    const completedRaw = localStorage.getItem('completedWorkout');
+    if (completedRaw && this.activeWorkoutId) {
+      const completed = JSON.parse(completedRaw);
+
+      // Check if current workout ID is in the completed object and
+      // if the current day is included for that workout.
+      const completedDaysForWorkout = completed[this.activeWorkoutId] || [];
+
+      this.workoutCompleted = completedDaysForWorkout.includes(this.currentDay);
+    } else {
       this.workoutCompleted = false;
-      localStorage.setItem('workoutCompleted', 'false');
-      localStorage.setItem('currentDay', this.currentDay);
     }
 
-    const activeWorkoutId = localStorage.getItem('activeWorkoutId');
-    const workoutCompleted = localStorage.getItem('workoutCompleted');
+    console.log('The workout is completed: ', this.workoutCompleted);
 
-    if (workoutCompleted == 'true') {
-      this.workoutCompleted = true;
-    }
-
-    if (activeWorkoutId) {
-      // Fetch the active workout plan
+    if (this.activeWorkoutId) {
       this.workoutService
-        .getWorkoutPlanById(activeWorkoutId)
+        .getWorkoutPlanById(this.activeWorkoutId)
         .then((workout) => {
           this.activeWorkout = workout;
         });
 
-      // Fetch and save the workout routine for the current day
-      this.getExercisesForDay(activeWorkoutId, this.currentDay);
+      this.getExercisesForDay(this.activeWorkoutId, this.currentDay);
     }
   }
 
   getExercisesForDay(activeWorkoutId: string, currentDay: string) {
     this.workoutService
-      .getDayId(activeWorkoutId, currentDay)
+      .getDayId(this.activeWorkoutId ?? '', currentDay)
       .then((dayId) => {
         if (dayId) {
           this.workoutService.getRoutineById(dayId).then((exercises) => {
@@ -225,8 +227,23 @@ export class HomeComponent {
     this.onSubmit(); // Save current form data
     this.finishWorkout(); // Finish the workout
     this.inWorkout = false; // Reset workout state
-    this.workoutCompleted = true; // Mark workout as completed
-    localStorage.setItem('workoutCompleted', this.workoutCompleted.toString());
+    // Get existing completed data or initialize empty object
+    const completedRaw = localStorage.getItem('completedWorkout');
+    let completed = completedRaw ? JSON.parse(completedRaw) : {};
+
+    // Initialize the array for this workout if it doesn't exist
+    if (!completed[this.activeWorkoutId]) {
+      completed[this.activeWorkoutId] = [];
+    }
+
+    // Add current day if not already recorded
+    if (!completed[this.activeWorkoutId].includes(this.currentDay)) {
+      completed[this.activeWorkoutId].push(this.currentDay);
+    }
+
+    localStorage.setItem('completedWorkout', JSON.stringify(completed));
+
+    this.workoutCompleted = true;
     this.workoutsCompleted++;
     this.workoutService.setWorkoutsCompleted(this.workoutsCompleted);
   }

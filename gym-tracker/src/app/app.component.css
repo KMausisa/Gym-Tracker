@@ -1,31 +1,19 @@
-* {
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
   width: 100%;
-  background-color: #f0f4fa; /* your desired bg color */
+  /* No need for height: 100% unless doing specific viewport layouts */
 }
-
-html {
-  border: 5px dashed blue; /* confirm html fills space */
-}
-
 
 .app-container {
   min-height: 100vh;
-  font-family: 'Roboto', Arial, sans-serif;
-  background-color: transparent; /* or remove background */
   display: flex;
   flex-direction: column;
+  background-color: #f0f4fa; /* ✅ your desired background */
 }
 
-/* Make sure footer is part of layout */
 app-footer {
+  margin-top: auto; /* push footer to bottom */
   text-align: center;
-  margin-top: auto; /* pushes footer to bottom if using flex */
-  font-family: 'Roboto', Arial, sans-serif;
+  background-color: white;
 }

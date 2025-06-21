@@ -42,6 +42,8 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.routeSub = this.route.paramMap.subscribe((params) => {
       this.exerciseId = params.get('exerciseId')!;
+
+      console.log(this.exerciseId);
       // Fetch data for the new exerciseId here
       this.supabaseService.currentUser.subscribe((user) => {
         this.user = user;
