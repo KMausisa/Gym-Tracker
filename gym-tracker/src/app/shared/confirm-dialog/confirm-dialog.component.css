@@ -1,0 +1,41 @@
+.container {
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+button {
+  width: 100px;
+  padding: 10px 0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button.cancel {
+  background: #007bff;
+}
+
+button.cancel:hover,
+button.cancel:focus {
+  background: #0056b3;
+}
+
+button.delete {
+  background: #F44336;
+}
+
+button.delete:hover,
+button.delete:focus {
+  background: #D32F2F;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}

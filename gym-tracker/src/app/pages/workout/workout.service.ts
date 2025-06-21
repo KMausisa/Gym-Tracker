@@ -2,26 +2,38 @@ import { Injectable } from '@angular/core';
 import { SupabaseService } from '../../services/supabase.service';
 import { BehaviorSubject } from 'rxjs';
 
+import { WorkoutPlan } from '../../models/workout_plan.model';
+import { Exercise } from '../../models/exercise.model';
+import { ExerciseProgress } from '../../models/exercise_progress.model';
+
 @Injectable({
   providedIn: 'root',
 })
 export class WorkoutService {
   userWorkouts = [];
   userExercises = [];
-  workoutListChanged = new BehaviorSubject<any[]>([]);
-  exerciseListChanged = new BehaviorSubject<any[]>([]);
-  progressListChanged = new BehaviorSubject<any[]>([]);
-  exerciseProgressChanged = new BehaviorSubject<any[]>([]);
+  workoutListChanged = new BehaviorSubject<WorkoutPlan[]>([]);
+  exerciseListChanged = new BehaviorSubject<Exercise[]>([]);
+  progressListChanged = new BehaviorSubject<ExerciseProgress[]>([]);
+  exerciseProgressChanged = new BehaviorSubject<ExerciseProgress[]>([]);
   private _workoutsCompleted = new BehaviorSubject<number>(0);
   workoutsCompleted$ = this._workoutsCompleted.asObservable();
 
   constructor(private supabaseService: SupabaseService) {}
 
-  /***** Get Methods *****/
-  async getUserWorkoutPlans(userId: string) {
+  /***** GET METHODS *****/
+
+  /**
+   * Get the workout plans for a specific user.
+   * This method fetches the workout plans from the Supabase service and emits the updated list.
+   * @param userId - The ID of the user whose workout plans are to be fetched.
+   * @returns {Promise<WorkoutPlan[] | null>}A promise that resolves to an array of WorkoutPlan objects or null if an error occurs.
+   * @throws Error if there is an issue fetching the workout plans.
+   */
+  async getUserWorkoutPlans(userId: string): Promise<WorkoutPlan[] | null> {
     try {
       const workouts = await this.supabaseService.getUserWorkouts(userId);
-      this.workoutListChanged.next(workouts); // emit here
+      this.workoutListChanged.next(workouts ?? []);
       return workouts;
     } catch (error) {
       console.error('Error fetching user workouts:', error);
@@ -30,17 +42,30 @@ export class WorkoutService {
     }
   }
 
-  async getWorkoutPlanById(workoutId: string) {
+  /**
+   * Get a specific workout plan by its ID.
+   * @param workoutId - The ID of the workout plan to be fetched.
+   * @returns {Promise<WorkoutPlan | null>} A promise that resolves to a WorkoutPlan object or null if an error occurs.
+   * @throws Error if there is an issue fetching the workout plan.
+   */
+  async getWorkoutPlanById(workoutId: string): Promise<WorkoutPlan | null> {
     try {
       const workout = await this.supabaseService.getWorkoutById(workoutId);
-      return workout;
+      return workout ?? null;
     } catch (error) {
       console.error('Error fetching workout by ID:', error);
       return null;
     }
   }
 
-  async getDayId(workoutId: string, day: string) {
+  /**
+   * Gets the ID of a specific day in a workout plan.
+   * @param workoutId - The ID of the workout plan.
+   * @param day - The day for which the ID is to be fetched (e.g., 'Monday', 'Tuesday').
+   * @returns {Promise<string | null>} A promise that resolves to the ID of the day or null if an error occurs.
+   * @throws Error if there is an issue fetching the day ID.
+   */
+  async getDayId(workoutId: string, day: string): Promise<string | null> {
     try {
       const dayId = await this.supabaseService.getDayId(workoutId, day);
       return dayId;
@@ -50,10 +75,17 @@ export class WorkoutService {
     }
   }
 
-  async getRoutineById(dayId: string) {
+  /**
+   * Gets the routine (exercises) for a specific day in a workout plan.
+   * This method fetches the routine for a given day ID and emits the updated exercise list.
+   * @param dayId - The ID of the day for which the routine is to be fetched.
+   * @returns {Promise<Exercise[] | null>} A promise that resolves to an array of Exercise objects or null if an error occurs.
+   * @throws Error if there is an issue fetching the routine.
+   */
+  async getRoutineById(dayId: string): Promise<Exercise[] | null> {
     try {
       const routine = await this.supabaseService.getRoutineById(dayId);
-      this.exerciseListChanged.next(routine); // emit here
+      this.exerciseListChanged.next(routine ?? []);
       return routine;
     } catch (error) {
       console.error('Error fetching workout by ID:', error);
@@ -62,10 +94,17 @@ export class WorkoutService {
     }
   }
 
-  async getUserExercises(userId: string) {
+  /**
+   * Gets the exercises for a specific user.
+   * This method fetches the exercises from the Supabase service and emits the updated exercise list.
+   * @param userId - The ID of the user whose exercises are to be fetched.
+   * @returns - A promise that resolves to an array of Exercise objects or null if an error occurs.
+   * @throws Error if there is an issue fetching the exercises.
+   */
+  async getUserExercises(userId: string): Promise<Exercise[] | null> {
     try {
       const exercises = await this.supabaseService.getUserExercises(userId);
-      this.exerciseListChanged.next(exercises); // emit here
+      this.exerciseListChanged.next(exercises ?? []); // emit here
       return exercises;
     } catch (error) {
       console.error('Error fetching user exercises:', error);
@@ -74,7 +113,14 @@ export class WorkoutService {
     }
   }
 
-  async getExerciseById(exerciseId: string) {
+  /**
+   * Get a specific exercise by its ID.
+   * This method fetches the exercise details from the Supabase service.
+   * @param exerciseId - The ID of the exercise to be fetched.
+   * @returns {Promise<Exercise | null>} A promise that resolves to an Exercise object or null if an error occurs.
+   * @throws Error if there is an issue fetching the exercise.
+   */
+  async getExerciseById(exerciseId: string): Promise<Exercise | null> {
     try {
       const exercise = await this.supabaseService.getExerciseById(exerciseId);
       return exercise;
@@ -84,7 +130,14 @@ export class WorkoutService {
     }
   }
 
-  async getWorkoutProgress(userId: string) {
+  /**
+   * Gets the workout progress for a specific user.
+   * This method fetches the workout progress from the Supabase service and emits the updated progress list.
+   * @param userId - The ID of the user whose workout progress is to be fetched.
+   * @returns {Promise<ExerciseProgress[] | null>} A promise that resolves to an array of ExerciseProgress objects or null if an error occurs.
+   * @throws Error if there is an issue fetching the workout progress.
+   */
+  async getWorkoutProgress(userId: string): Promise<ExerciseProgress[] | null> {
     try {
       const progress = await this.supabaseService.getWorkoutProgress(userId);
       this.progressListChanged.next(progress ?? []); // emit here
@@ -96,31 +149,46 @@ export class WorkoutService {
     }
   }
 
-  async getExerciseProgress(userId: string, exerciseId: string) {
+  /**
+   * Gets the progress for a specific exercise of a user.
+   * This method fetches the exercise progress from the Supabase service and emits the updated progress list.
+   * @param userId - The ID of the user whose exercise progress is to be fetched.
+   * @param exerciseId - The ID of the exercise for which progress is to be fetched.
+   * @returns {Promise<ExerciseProgress[]>} A promise that resolves to an array of ExerciseProgress objects or null if an error occurs.
+   * @throws Error if there is an issue fetching the exercise progress.
+   */
+  async getExerciseProgress(
+    userId: string,
+    exerciseId: string
+  ): Promise<ExerciseProgress[]> {
     try {
       const progress = await this.supabaseService.getExerciseProgress(
         userId,
         exerciseId
       );
-      this.exerciseProgressChanged.next(progress ?? []); // emit here
-      return progress;
+      this.exerciseProgressChanged.next(progress); // emit here
+      return progress ?? [];
     } catch (error) {
       console.error('Error fetching exercise progress:', error);
       this.exerciseProgressChanged.next([]);
-      return null;
+      return [];
     }
   }
 
-  /***** Create Methods *****/
-  async addWorkoutPlan(plan: {
-    user_id: string;
-    title: string;
-    description: string;
-    days: string[];
-  }) {
+  /***** ADD, CREATE, AND UPDATE METHODS *****/
+
+  /**
+   * Add Workout Plan based on User ID
+   * @param workoutPlan - The workout plan the user input in the form.
+   * @returns {Promise<WorkoutPlan[] | null>} Promise that resolves to the created workout plan or throws an error.
+   * @throws Error is there is an issue adding the data or if no data is returned.
+   */
+  async addWorkoutPlan(
+    workoutPlan: Omit<WorkoutPlan, 'id'>
+  ): Promise<WorkoutPlan[] | null> {
     try {
-      const workout = await this.supabaseService.addWorkoutPlan(plan);
-      await this.getUserWorkoutPlans(plan.user_id); // Refresh the list after adding
+      const workout = await this.supabaseService.addWorkoutPlan(workoutPlan);
+      await this.getUserWorkoutPlans(workoutPlan.user_id); // Refresh the list after adding
       return workout;
     } catch (error) {
       console.error('Error adding workout plan:', error);
@@ -129,15 +197,15 @@ export class WorkoutService {
     }
   }
 
-  async addExerciseToWorkoutDay(exercise: {
-    user_id: string;
-    day_id: string;
-    name: string;
-    sets: number;
-    reps: number;
-    weight: number;
-    notes: string;
-  }) {
+  /**
+   * Adds an exercise to a specific day in a User's Workout Plan.
+   * @param exercise - The exercise object containing user_id, day_id, name, sets, reps, weight, and optional notes.
+   * @returns {Exercise} Promise that resolves to the created exercise or throws an error.
+   * @throws Error if there is an issue inserting the data or if no data is returned.
+   */
+  async addExerciseToWorkoutDay(
+    exercise: Omit<Exercise, 'id'>
+  ): Promise<Exercise | null> {
     try {
       const addedExercise = await this.supabaseService.addExerciseToWorkoutDay(
         exercise
@@ -151,26 +219,18 @@ export class WorkoutService {
     }
   }
 
+  /**
+   * Save workout progress for a specific exercise
+   * @param exerciseProgress - The exercise object containing user_id, day_id, name, and the users recorded sets, reps, weight, and optional notes.
+   * @returns {ExerciseProgress} Promise that resolves to the created exercise progress or throws an error.
+   * @throws Error if there is an issue inserting the data or if no data is returned.
+   * */
   async saveWorkoutProgress(
-    userId: string,
-    workoutId: string,
-    exerciseId: string,
-    dayId: string,
-    progress: {
-      name: string;
-      sets: number;
-      reps: number[];
-      weights: number[];
-      notes?: string[];
-    }
-  ) {
+    exerciseProgress: Omit<ExerciseProgress, 'id'>
+  ): Promise<ExerciseProgress | null> {
     try {
       const savedProgress = await this.supabaseService.saveWorkoutProgress(
-        userId,
-        workoutId,
-        exerciseId,
-        dayId,
-        progress
+        exerciseProgress
       );
       return savedProgress;
     } catch (error) {
@@ -179,23 +239,16 @@ export class WorkoutService {
     }
   }
 
-  /***** Update Methods *****/
-  async updateWorkoutPlanById(plan: {
-    user_id: string;
-    workout_id: string;
-    title: string;
-    description: string;
-    days: string[];
-  }) {
+  /**
+   * Update the workout plan based on the id.
+   * @param workoutPlan - The workout plan object containing id, user_id, title, description, and days.
+   * @returns {WorkoutPlan} Promise that resolves to the updated workout plan or throws an error.
+   * @throws Error if there is an issue updating the data or if no data is returned.
+   */
+  async updateWorkoutPlanById(workoutPlan: WorkoutPlan) {
     try {
-      const updatedWorkout = await this.supabaseService.updatePlan({
-        user_id: plan.user_id,
-        id: plan.workout_id,
-        title: plan.title,
-        description: plan.description,
-        days: plan.days,
-      });
-      await this.getUserWorkoutPlans(plan.user_id); // Refresh the list after updating
+      const updatedWorkout = await this.supabaseService.updatePlan(workoutPlan);
+      await this.getUserWorkoutPlans(workoutPlan.user_id); // Refresh the list after updating
       return updatedWorkout;
     } catch (error) {
       console.error('Error updating workout by ID:', error);
@@ -204,21 +257,18 @@ export class WorkoutService {
     }
   }
 
-  async updateExercisePlanById(exercise: {
-    dayId: string;
-    userId: string;
-    exerciseId: string;
-    name: string;
-    sets: number;
-    reps: number;
-    weight: number;
-    notes?: string;
-  }) {
+  /**
+   * Update an exercise in the workout plan by its ID.
+   * @param exercise - The exercise object containing id, user_id, day_id, name, sets, reps, weight, and optional notes.
+   * @returns {Exercise} Promise that resolves to the updated exercise or throws an error.
+   * @throws Error if there is an issue updating the data or if no data is returned.
+   */
+  async updateExercisePlanById(exercise: Exercise) {
     try {
       const updatedExercise = await this.supabaseService.updateExercisePlanById(
         exercise
       );
-      await this.getRoutineById(exercise.dayId); // Refresh the list after updating
+      await this.getRoutineById(exercise.day_id); // Refresh the list after updating
       return updatedExercise;
     } catch (error) {
       console.error('Error updating exercise by ID:', error);
@@ -227,8 +277,15 @@ export class WorkoutService {
     }
   }
 
-  /***** Delete Methods *****/
-  async deleteWorkout(userId: string, workoutId: string) {
+  /***** DELETE METHODS *****/
+
+  /**
+   * Delete a workout plan by its ID.
+   * @param workoutId - The ID of the workout plan to delete.
+   * @return {Promise<void>} Promise that resolves when the workout plan is deleted.
+   * @throws Error if there is an issue deleting the data or if no data is returned.
+   */
+  async deleteWorkout(userId: string, workoutId: string): Promise<void | null> {
     try {
       const deletedWorkout = await this.supabaseService.deleteWorkout(
         workoutId
@@ -242,7 +299,16 @@ export class WorkoutService {
     }
   }
 
-  async deleteExercise(exerciseId: string, userId: string) {
+  /**
+   * Delete an exercise by its ID.
+   * @param exerciseId - The ID of the exercise to delete.
+   * @return {Promise<void>} Promise that resolves when the exercise is deleted.
+   * @throws Error if there is an issue deleting the data or if no data is returned.
+   */
+  async deleteExercise(
+    exerciseId: string,
+    userId: string
+  ): Promise<void | null> {
     try {
       const deletedExercise = await this.supabaseService.deleteExercise(
         exerciseId

@@ -1,32 +1,34 @@
+<div class="btn-container">
+  <button class="btn-back" (click)="goBack()">← Back</button>
+</div>
 <div class="workout-day-list">
   @if (!isOnAddRoute && !isOnEditRoute) {
-    <!-- Exercise list and Add button -->
-    <h2>Exercises for {{ selectedDay }}</h2>
-    @if (exercises && exercises.length > 0) {
-      <ul>
-        @for (exercise of exercises; track exercise) {
-          <li class="exercise-item">
-            <span>
-              <strong>{{ exercise.name }}</strong>:
-              {{ exercise.sets }} sets x {{ exercise.reps }} reps,
-              {{ exercise.weight }} lbs
-              @if (exercise.notes) {
-                <span>- {{ exercise.notes }}</span>
-              }
-            </span>
-            <span class="exercise-actions">
-              <button title="Edit" [routerLink]="[exercise.id, 'edit']">✏️</button>
-              <button (click)="onDeleteExercise(exercise.id)" title="Delete">🗑️</button>
-            </span>
-          </li>
+  <!-- Exercise list and Add button -->
+  <h2>Exercises for {{ selectedDay }}</h2>
+  @if (exercises && exercises.length > 0) {
+  <ul>
+    @for (exercise of exercises; track exercise) {
+    <li class="exercise-item">
+      <span>
+        <strong>{{ exercise.name }}</strong
+        >: {{ exercise.sets }} sets x {{ exercise.reps }} reps,
+        {{ exercise.weight }} lbs @if (exercise.notes) {
+        <span>- {{ exercise.notes }}</span>
         }
-      </ul>
-    } @else {
-      <p>No exercises for this day yet.</p>
+      </span>
+      <span class="exercise-actions">
+        <button title="Edit" [routerLink]="[exercise.id, 'edit']">✏️</button>
+        <button (click)="onDeleteExercise(exercise.id!)" title="Delete">
+          🗑️
+        </button>
+      </span>
+    </li>
     }
-    <button [routerLink]="['add']">
-      Add Exercise
-    </button>
+  </ul>
+  } @else {
+  <p>No exercises for this day yet.</p>
+  }
+  <button [routerLink]="['add']">Add Exercise</button>
   }
 
   <router-outlet></router-outlet>

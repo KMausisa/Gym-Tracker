@@ -4,11 +4,12 @@ import { SupabaseService } from './services/supabase.service';
 import { HeaderComponent } from './header/header.component';
 import { Subscription } from 'rxjs';
 import { User } from './pages/profile/user.model';
+import { FooterComponent } from './footer/footer.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -17,7 +18,7 @@ export class AppComponent implements OnDestroy {
 
   isAuthenticated: boolean = false;
   isSessionReady: boolean = false;
-  userId: string | null = null;
+  userId: string = '';
   userProfile: User | null = null;
 
   private authSub?: Subscription;
@@ -44,7 +45,7 @@ export class AppComponent implements OnDestroy {
 
   async loadUserProfile() {
     try {
-      this.userProfile = await this.supabaseService.getCurrentUserProfile();
+      this.userProfile = await this.supabaseService.getUserProfile(this.userId);
     } catch (error) {
       console.error('Error loading user profile:', error);
     }

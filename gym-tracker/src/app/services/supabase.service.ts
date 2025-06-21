@@ -4,6 +4,12 @@ import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.development';
 
+import { Profile } from '../models/profile.model';
+import { WorkoutPlan } from '../models/workout_plan.model';
+import { Exercise } from '../models/exercise.model';
+import { ExerciseProgress } from '../models/exercise_progress.model';
+import { WorkoutDay } from '../models/workout_day.model';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,36 +33,25 @@ export class SupabaseService {
       this.sessionReadyResolver = resolve;
     });
 
+    // Load the user
     this.loadUser();
 
     // Set up auth state change listener
     this.supabase.auth.onAuthStateChange((event, session) => {
+      // If the session has a user, update the current user
       if (session?.user) {
         this._currentUser.next(session.user);
       } else {
+        // If no user is logged in, set current user to null
         this._currentUser.next(null);
       }
     });
   }
 
-  get currentUser() {
-    return this._currentUser.asObservable();
-  }
-
-  // Add this getter to easily access the current user value
-  get currentUserValue() {
-    return this._currentUser.value;
-  }
-
-  // Add this getter to easily access the current user's ID
-  get userId(): string | null {
-    return this._currentUser.value?.id || null;
-  }
-
-  get isAuthenticated(): boolean {
-    return this._currentUser.value !== null;
-  }
-
+  /**
+   * This method loads the current user from Supabase and updates the BehaviorSubject.
+   * @returns Promise that resolves to the current user or null if not logged in.
+   */
   async loadUser() {
     const { data } = await this.supabase.auth.getSession();
     this._currentUser.next(data.session?.user || null);
@@ -65,289 +60,361 @@ export class SupabaseService {
     return data.session?.user;
   }
 
-  async signIn(email: string, password: string) {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  /***** GETTER METHODS *****/
 
-    if (error) {
-      throw error;
-    }
-
-    this._currentUser.next(data.user);
-    return data;
+  /**
+   * Get the current user as an observable
+   * @returns Observable of the current user
+   * */
+  get currentUser() {
+    return this._currentUser.asObservable();
   }
 
+  /** Get the current user value directly
+   * @returns The current user object or null if not logged in
+   * */
+  get currentUserValue() {
+    return this._currentUser.value;
+  }
+
+  /** Get the user ID of the current user
+   * @returns The user ID as a string or null if not logged in
+   * */
+  get userId(): string | null {
+    // Returns null if no user is logged in
+    return this._currentUser.value?.id || null;
+  }
+
+  /** Check if the user is authenticated
+   * @returns True if the user is authenticated, false otherwise
+   * */
+  get isAuthenticated(): boolean {
+    return this._currentUser.value !== null;
+  }
+
+  /***** AUTHENTICATION METHODS *****/
+
+  /** Sign in with email and password
+   * @param email - The user's email address
+   * @param password - The user's password
+   * @returns Promise that resolves to the sign-in data or throws an error
+   * @throws Error if there is an issue signing in
+   * */
+  async signIn(email: string, password: string): Promise<any> {
+    try {
+      const { data, error } = await this.supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      this._currentUser.next(data.user);
+      return data;
+    } catch (error) {
+      console.error('Error signing in:', error);
+      throw error;
+    }
+  }
+
+  /** Sign up with email, password, and optional profile data
+   * @param email - The user's email address
+   * @param password - The user's password
+   * @param fullName - Optional full name of the user
+   * @param birthday - Optional birthday of the user in ISO format
+   * @returns Promise that resolves to the sign-up data or throws an error
+   * @throws Error if there is an issue signing up or creating the profile
+   * */
   async signUp(
     email: string,
     password: string,
     fullName?: string,
     birthday?: string
   ) {
+    // Format the birthday to ISO date string if provided
     const formattedBirthday = birthday
       ? new Date(birthday).toISOString().split('T')[0]
       : null;
-    const { data, error } = await this.supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          birthday: formattedBirthday,
-        },
-      },
-    });
 
-    if (error) {
+    try {
+      const { data, error } = await this.supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            birthday: formattedBirthday,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const {
+        data: { session },
+      } = await this.supabase.auth.getSession();
+
+      // If we have additional profile data and the signup was successful
+      if (data.user && (fullName || birthday)) {
+        // Insert or update the profile in the 'profiles' table
+        try {
+          await this.supabase.from('profiles').upsert({
+            id: data.user.id,
+            full_name: fullName,
+            birthday: formattedBirthday,
+            email: email,
+            updated_at: new Date(),
+          });
+        } catch (profileError) {
+          console.error('Error creating profile:', profileError);
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error signing up:', error);
       throw error;
     }
-
-    const {
-      data: { session },
-    } = await this.supabase.auth.getSession();
-
-    // If we have additional profile data and the signup was successful
-    if (data.user && (fullName || birthday)) {
-      // Optional: Create a more detailed profile in a separate table
-      // This is useful if you want to query by these fields later
-      try {
-        await this.supabase.from('profiles').upsert({
-          id: data.user.id,
-          full_name: fullName,
-          birthday: formattedBirthday,
-          email: email,
-          updated_at: new Date(),
-        });
-      } catch (profileError) {
-        console.error('Error creating profile:', profileError);
-        // Don't throw here - the user is still created, the profile update failed
-      }
-    }
-
-    return data;
   }
 
+  /**
+   * Sign out the current user
+   * @returns Promise that resolves when the user is signed out
+   * */
   async signOut() {
     await this.supabase.auth.signOut();
     this._currentUser.next(null);
     this.router.navigate(['/login']);
   }
 
+  /**
+   * Check if the user is logged in
+   * @return True if the user is logged in, false otherwise
+   * */
   isLoggedIn(): boolean {
     return this._currentUser.value !== null;
   }
 
-  // Method to get profile data including name and birthday
-  async getUserProfile(userId: string) {
-    const { data, error } = await this.supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+  /***** GETTER METHODS *****/
 
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return null;
+  /**
+   * Get User Profile
+   * @param userId - The ID of the user whose profile is to be fetched.
+   * @returns {Profile} Promise that resolves to the user's profile or throws an error if not found.
+   * @throws Error if there is an issue fetching the data.
+   * */
+  async getUserProfile(userId: string): Promise<Profile> {
+    const id = userId ?? this.userId;
+    if (!id) {
+      throw new Error('User ID is required to fetch profile.');
     }
+    try {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    return data;
-  }
+      if (error) {
+        throw error;
+      }
 
-  // You can also add a convenience method to get the current user's profile
-  async getCurrentUserProfile() {
-    if (!this.userId) {
-      return null;
-    }
-
-    return this.getUserProfile(this.userId);
-  }
-
-  // **** Workout Methods **** //
-  async addWorkoutPlan(plan: {
-    user_id: string;
-    title: string;
-    description: string;
-    days: string[];
-  }) {
-    const { data, error } = await this.supabase
-      .from('workout_plans')
-      .insert([plan])
-      .select()
-      .single();
-
-    if (error) {
+      return data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
       throw error;
     }
-
-    if (!data) {
-      throw new Error('Workout plan insertion succeeded but returned no data.');
-    }
-
-    const daysToInsert = plan.days.map((day, index) => ({
-      plan_id: data.id,
-      user_id: plan.user_id,
-      day_of_week: day,
-      position: index,
-    }));
-
-    const { error: daysError } = await this.supabase
-      .from('workout_days')
-      .insert(daysToInsert);
-
-    if (daysError) {
-      console.error(daysError);
-      return;
-    }
-
-    return data;
   }
 
-  async saveWorkoutProgress(
-    userId: string,
-    workoutId: string,
-    exerciseId: string,
-    dayId: string,
-    progress: {
-      name: string;
-      sets: number;
-      reps: number[];
-      weights: number[];
-      notes?: string[];
-    }
-  ) {
-    const { data, error } = await this.supabase
-      .from('exercise_progress')
-      .insert([
-        {
-          user_id: userId,
-          workout_id: workoutId,
-          exercise_id: exerciseId,
-          day_id: dayId,
-          ...progress,
-        },
-      ])
-      .select()
-      .single();
+  /**
+   * Get User Workouts by User ID
+   * @param userId - The ID of the user whose workouts are to be fetched.
+   * @returns {Array<WorkoutPlan>} Promise that resolves to an array of workout plans or an empty array if not found.
+   * @throws Error if there is an issue fetching the data.
+   * */
+  async getUserWorkouts(userId: string): Promise<WorkoutPlan[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('workout_plans')
+        .select('*')
+        .eq('user_id', userId);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      return data ?? [];
+    } catch (error) {
+      console.error('Error fetching user workouts:', error);
       throw error;
     }
-
-    return data;
   }
 
-  async getUserWorkouts(userId: string) {
-    const { data, error } = await this.supabase
-      .from('workout_plans')
-      .select('*')
-      .eq('user_id', userId);
+  /**
+   * Get a specific workout by ID
+   * @param workoutId - The ID of the workout plan to fetch.
+   * @returns {WorkoutPlan} Promise that resolves to the workout plan or an empty array if not found.
+   * @throws Error if there is an issue fetching the data.
+   * */
+  async getWorkoutById(workoutId: string): Promise<WorkoutPlan> {
+    try {
+      const { data, error } = await this.supabase
+        .from('workout_plans')
+        .select('*')
+        .eq('id', workoutId)
+        .single();
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      return data ?? [];
+    } catch (error) {
+      console.error('Error fetching workout by ID:', error);
       throw error;
     }
-    return data;
   }
 
-  async getWorkoutById(workoutId: string) {
-    const { data, error } = await this.supabase
-      .from('workout_plans')
-      .select('*')
-      .eq('id', workoutId)
-      .single();
+  /** Gets all exercises for a user by user ID
+   * @param userId - The ID of the user whose exercises are to be fetched.
+   * @returns {Array<Exercise>} Promise that resolves to an array of exercises or an empty list if not found.
+   * @throws Error if there is an issue fetching the data.
+   * */
+  async getUserExercises(userId: string): Promise<Exercise[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('exercises')
+        .select('*')
+        .eq('user_id', userId);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      return data ?? [];
+    } catch (error) {
+      console.error('Error fetching user exercises:', error);
       throw error;
     }
-    return data;
   }
 
-  /***** Exercise Methods *****/
-  async getUserExercises(userId: string) {
-    const { data, error } = await this.supabase
-      .from('exercises')
-      .select('*')
-      .eq('user_id', userId);
-    if (error) {
+  /**
+   * Get specific exercise by exercise ID
+   * @param exerciseId - The ID of the exercise to fetch.
+   * @returns {Exercise | null} Promise that resolves to the exercise or null if not found.
+   * @throws Error if there is an issue fetching the data.
+   * */
+  async getExerciseById(exerciseId: string): Promise<Exercise | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('exercises')
+        .select('*')
+        .eq('id', exerciseId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return data ?? null;
+    } catch (error) {
+      console.error('Error fetching exercise by ID:', error);
       throw error;
     }
-    return data;
-  }
-
-  async getExerciseById(exerciseId: string) {
-    const { data, error } = await this.supabase
-      .from('exercises')
-      .select('*')
-      .eq('id', exerciseId)
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data;
-  }
-  // Add Exercise to a specific workout day
-  async addExerciseToWorkoutDay(exercise: {
-    user_id: string;
-    day_id: string;
-    name: string;
-    sets: number;
-    reps: number;
-    weight: number;
-    notes?: string;
-  }) {
-    const { data, error } = await this.supabase
-      .from('exercises')
-      .insert([exercise]);
-
-    if (error) {
-      throw error;
-    }
-    return data;
   }
 
   // Get Day ID based on workout ID and day
-  async getDayId(workoutId: string, day: string) {
-    const { data, error } = await this.supabase
-      .from('workout_days')
-      .select('id')
-      .eq('plan_id', workoutId)
-      .eq('day_of_week', day)
-      .single();
+  /**
+   * Get the ID of a workout day based on the workout ID and day of the week.
+   * @param workoutId - The ID of the workout plan.
+   * @param day - The day of the week (e.g., 'Monday', 'Tuesday').
+   * @returns The ID of the workout day.
+   * @throws Error if there is an issue fetching the data.
+   *
+   */
+  async getDayId(workoutId: string, day: string): Promise<string> {
+    try {
+      const { data, error } = await this.supabase
+        .from('workout_days')
+        .select('id')
+        .eq('plan_id', workoutId)
+        .eq('day_of_week', day)
+        .single();
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      return data.id;
+    } catch (error) {
+      console.error('Error fetching day ID:', error);
       throw error;
     }
-    return data.id;
   }
 
   // Get routine based on workout ID and day
-  async getRoutineById(dayId: string) {
-    const { data, error } = await this.supabase
-      .from('exercises')
-      .select('*')
-      .eq('day_id', dayId);
+  /**
+   * Get the routine (exercises) for a specific day in a workout plan.
+   * @param dayId - The ID of the workout day.
+   * @returns {Array<{Exercise}>} An array of exercises for that day or an empty list if not found.
+   * @throws Error if there is an issue fetching the data.
+   */
+  async getRoutineById(dayId: string): Promise<Exercise[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('exercises')
+        .select('*')
+        .eq('day_id', dayId);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+      return data ?? [];
+    } catch (error) {
+      console.error('Error fetching routine by day ID:', error);
       throw error;
     }
-    return data;
   }
 
-  async getWorkoutProgress(userId: string) {
+  /**
+   * Get workout progress for a user by user ID.
+   * @param userId - The ID of the user whose workout progress is to be fetched.
+   * @returns {Array<ExerciseProgress>} Promise that resolves to an array of exercise progress or null if not found.
+   * @throws Error if there is an issue fetching the data.
+   */
+  async getWorkoutProgress(userId: string): Promise<ExerciseProgress[]> {
     try {
       const { data, error } = await this.supabase
         .from('exercise_progress')
         .select('*')
         .eq('user_id', userId);
-      return data;
+
+      if (error) {
+        throw error;
+      }
+
+      return data ?? [];
     } catch (error) {
       console.error('Error fetching workout progress:', error);
       throw error;
     }
   }
 
-  async getExerciseProgress(userId: string, exerciseId: string) {
+  /**
+   * Get a specific exercise progress for a user by user ID and exercise ID.
+   * @param userId - The ID of the user whose exercise progress is to be fetched.
+   * @param exerciseId - The ID of the exercise for which progress is to be fetched.
+   * @returns {Array<ExerciseProgress>} Promise that resolves to an array of exercise progress or null if not found.
+   * @throws Error if there is an issue fetching the data.
+   */
+  async getExerciseProgress(
+    userId: string,
+    exerciseId: string
+  ): Promise<ExerciseProgress[]> {
     try {
       const { data, error } = await this.supabase
         .from('exercise_progress')
@@ -359,120 +426,223 @@ export class SupabaseService {
         throw error;
       }
 
-      return data;
+      return data ?? [];
     } catch (error) {
       console.error('Error fetching exercise progress:', error);
       throw error;
     }
   }
 
-  // Get the total workout count for a user
+  /**
+   * Get the total workout count for a user
+   * @param workout_id - The ID of the workout plan.
+   * @return {number} Promise that resolves to the total count of workouts or 0 if not found.
+   * @throws Error if there is an issue fetching the data.
+   * */
   async getTotalWorkoutCount(workout_id: string) {
-    const { count, error } = await this.supabase
-      .from('exercise_progress')
-      .select('*', { count: 'exact', head: true })
-      .eq('workout_id', workout_id);
+    try {
+      const { count, error } = await this.supabase
+        .from('exercise_progress')
+        .select('*', { count: 'exact', head: true })
+        .eq('workout_id', workout_id);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      return count || 0; // Return 0 if count is null
+    } catch (error) {
+      console.error('Error fetching total workout count:', error);
       throw error;
     }
-
-    return count || 0; // Return 0 if count is null
   }
 
-  async updatePlan(routine: {
-    user_id: string;
-    id: string;
-    title: string;
-    description: string;
-    days: string[];
-  }) {
-    const { data, error } = await this.supabase
-      .from('workout_plans')
-      .update({
-        title: routine.title,
-        description: routine.description,
-        days: routine.days,
-      })
-      .eq('id', routine.id)
-      .select()
-      .single();
+  /***** ADD, CREATE, AND INSERT METHODS *****/
 
-    if (error) {
-      throw error;
-    }
+  /**
+   * Add a new workout plan.
+   * @param plan - The workout plan object containing user_id, title, description, and days.
+   * @returns {WorkoutPlan} Promise that resolves to the created workout plan or throws an error.
+   * @throws Error if there is an issue inserting the data or if no data is returned.
+   * */
+  async addWorkoutPlan(workoutPlan: Omit<WorkoutPlan, 'id'>) {
+    try {
+      const { data, error } = await this.supabase
+        .from('workout_plans')
+        .insert([workoutPlan])
+        .select()
+        .single();
 
-    if (!data) {
-      throw new Error('Workout plan update succeeded but returned no data.');
-    }
+      if (!data) {
+        throw new Error(
+          'Workout plan insertion succeeded but returned no data.'
+        );
+      }
 
-    const { data: existingDays, error: fetchDaysError } = await this.supabase
-      .from('workout_days')
-      .select('id, day_of_week')
-      .eq('plan_id', routine.id);
+      if (error) {
+        console.error('Error inserting workout plan:', error);
+        throw error;
+      }
 
-    if (fetchDaysError) {
-      console.error(fetchDaysError);
-      return;
-    }
-
-    const existingDayNames = (existingDays ?? []).map(
-      (d: any) => d.day_of_week
-    );
-
-    // Update the days in the workout_days table
-    const daysToUpdate = routine.days
-      .filter((day) => !existingDayNames.includes(day))
-      .map((day, index) => ({
-        plan_id: routine.id,
-        user_id: routine.user_id,
+      // Insert the workout days into the workout_days table
+      const daysToInsert = workoutPlan.days.map((day, index) => ({
+        plan_id: data.id,
+        user_id: workoutPlan.user_id,
         day_of_week: day,
         position: index,
       }));
 
-    if (daysToUpdate.length > 0) {
-      const { error: daysError } = await this.supabase
-        .from('workout_days')
-        .upsert(daysToUpdate);
+      try {
+        const { error: daysError } = await this.supabase
+          .from('workout_days')
+          .insert(daysToInsert);
 
-      if (daysError) {
-        console.error(daysError);
-        return;
+        return data;
+      } catch (daysError) {
+        console.error('Error inserting workout days:', daysError);
+        throw daysError;
       }
+    } catch (error) {
+      console.error('Error adding workout plan:', error);
+      throw error;
     }
-
-    // --- DELETE REMOVED DAYS ---
-
-    const daysToDelete = (existingDays ?? []).filter(
-      (d: any) => !routine.days.includes(d.day_of_week)
-    );
-
-    if (daysToDelete.length > 0) {
-      const idsToDelete = daysToDelete.map((d: any) => d.id);
-      const { error: deleteError } = await this.supabase
-        .from('workout_days')
-        .delete()
-        .in('id', idsToDelete);
-
-      if (deleteError) {
-        console.error(deleteError);
-        return;
-      }
-    }
-
-    return data;
   }
 
-  async updateExercisePlanById(exercise: {
-    dayId: string;
-    userId: string;
-    exerciseId: string;
-    name: string;
-    sets: number;
-    reps: number;
-    weight: number;
-    notes?: string;
-  }) {
+  /**
+   * Add Exercise to a specific workout day
+   * @param exercise - The exercise object containing user_id, day_id, name, sets, reps, weight, and optional notes.
+   * @returns {Exercise} Promise that resolves to the created exercise or throws an error.
+   * @throws Error if there is an issue inserting the data or if no data is returned.
+   * */
+  async addExerciseToWorkoutDay(exercise: Omit<Exercise, 'id'>) {
+    try {
+      const { data, error } = await this.supabase
+        .from('exercises')
+        .insert([exercise]);
+      console.log('Insert result: ', { data, error });
+      return data;
+    } catch (error) {
+      console.error('Error adding exercise to workout day:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Save workout progress for a specific exercise
+   * @param exerciseProgress - The exercise object containing user_id, day_id, name, and the users recorded sets, reps, weight, and optional notes.
+   * @returns {ExerciseProgress} Promise that resolves to the created exercise progress or throws an error.
+   * @throws Error if there is an issue inserting the data or if no data is returned.
+   * */
+  async saveWorkoutProgress(exerciseProgress: Omit<ExerciseProgress, 'id'>) {
+    try {
+      const { data, error } = await this.supabase
+        .from('exercise_progress')
+        .insert([exerciseProgress])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error saving workout progress:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update the workout plan based on the id.
+   * @param workoutPlan - The workout plan object containing id, user_id, title, description, and days.
+   * @returns {WorkoutPlan} Promise that resolves to the updated workout plan or throws an error.
+   * @throws Error if there is an issue updating the data or if no data is returned.
+   */
+  async updatePlan(workoutPlan: WorkoutPlan) {
+    try {
+      const { data, error } = await this.supabase
+        .from('workout_plans')
+        .update(workoutPlan)
+        .eq('id', workoutPlan.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('Workout plan update succeeded but returned no data.');
+      }
+
+      const { data: existingDays, error: fetchDaysError } = await this.supabase
+        .from('workout_days')
+        .select('id, day_of_week')
+        .eq('plan_id', workoutPlan.id);
+
+      if (fetchDaysError) {
+        console.error(fetchDaysError);
+        return;
+      }
+
+      const existingDayNames = (existingDays ?? []).map(
+        (d: any) => d.day_of_week
+      );
+
+      // Update the days in the workout_days table
+      const daysToUpdate = workoutPlan.days
+        .filter((day) => !existingDayNames.includes(day))
+        .map((day, index) => ({
+          plan_id: workoutPlan.id,
+          user_id: workoutPlan.user_id,
+          day_of_week: day,
+          position: index,
+        }));
+
+      if (daysToUpdate.length > 0) {
+        const { error: daysError } = await this.supabase
+          .from('workout_days')
+          .upsert(daysToUpdate);
+
+        if (daysError) {
+          console.error(daysError);
+          return;
+        }
+      }
+
+      // --- DELETE REMOVED DAYS ---
+
+      const daysToDelete = (existingDays ?? []).filter(
+        (d: any) => !workoutPlan.days.includes(d.day_of_week)
+      );
+
+      if (daysToDelete.length > 0) {
+        const idsToDelete = daysToDelete.map((d: any) => d.id);
+        const { error: deleteError } = await this.supabase
+          .from('workout_days')
+          .delete()
+          .in('id', idsToDelete);
+
+        if (deleteError) {
+          console.error(deleteError);
+          return;
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error updating workout plan:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an exercise in the workout plan by its ID.
+   * @param exercise - The exercise object containing id, user_id, day_id, name, sets, reps, weight, and optional notes.
+   * @returns {Exercise} Promise that resolves to the updated exercise or throws an error.
+   * @throws Error if there is an issue updating the data or if no data is returned.
+   */
+  async updateExercisePlanById(exercise: Exercise) {
     const { data, error } = await this.supabase
       .from('exercises')
       .update({
@@ -482,9 +652,9 @@ export class SupabaseService {
         weight: exercise.weight,
         notes: exercise.notes,
       })
-      .eq('id', exercise.exerciseId)
-      .eq('day_id', exercise.dayId)
-      .eq('user_id', exercise.userId)
+      .eq('id', exercise.id)
+      .eq('day_id', exercise.day_id)
+      .eq('user_id', exercise.user_id)
       .select();
 
     if (error) {
@@ -496,24 +666,48 @@ export class SupabaseService {
     return data;
   }
 
-  async deleteWorkout(workoutId: string) {
-    const { error } = await this.supabase
-      .from('workout_plans')
-      .delete()
-      .eq('id', workoutId);
+  /***** DELETE METHODS *****/
 
-    if (error) {
+  /**
+   * Delete a workout plan by its ID.
+   * @param workoutId - The ID of the workout plan to delete.
+   * @return {Promise<void>} Promise that resolves when the workout plan is deleted.
+   * @throws Error if there is an issue deleting the data or if no data is returned.
+   */
+  async deleteWorkout(workoutId: string): Promise<void> {
+    try {
+      const { error } = await this.supabase
+        .from('workout_plans')
+        .delete()
+        .eq('id', workoutId);
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error deleting workout plan:', error);
       throw error;
     }
   }
 
-  async deleteExercise(exerciseId: string) {
-    const { error } = await this.supabase
-      .from('exercises')
-      .delete()
-      .eq('id', exerciseId);
+  /**
+   * Delete an exercise by its ID.
+   * @param exerciseId - The ID of the exercise to delete.
+   * @return {Promise<void>} Promise that resolves when the exercise is deleted.
+   * @throws Error if there is an issue deleting the data or if no data is returned.
+   */
+  async deleteExercise(exerciseId: string): Promise<void> {
+    try {
+      const { error } = await this.supabase
+        .from('exercises')
+        .delete()
+        .eq('id', exerciseId);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
       throw error;
     }
   }

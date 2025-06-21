@@ -1,0 +1,21 @@
+<div class="btn-container">
+  <button class="btn-back" (click)="goBack()">← Back</button>
+</div>
+<div class="workout-plan-detail card">
+  <h2>{{ workoutPlan?.title }}</h2>
+  <p>{{ workoutPlan?.description }}</p>
+
+  <h3>Days</h3>
+  <ul class="day-list">
+    @for (day of workoutPlan?.days; track day) {
+    <li>
+      <button
+        class="day-button"
+        [routerLink]="['/workouts', workoutPlan?.id, day]"
+      >
+        {{ day }}
+      </button>
+    </li>
+    }
+  </ul>
+</div>

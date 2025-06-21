@@ -3,43 +3,62 @@
   <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="name">Plan Name</label>
-      <input id="name" formControlName="name" placeholder="(Eg. Push-Pull-Leg Split)" required />
-      @if (workoutForm.get('name')?.invalid && workoutForm.get('name')?.touched) {
-        <div class="error">
-          Workout name is required.
-        </div>
+      <input
+        id="name"
+        formControlName="name"
+        placeholder="(Eg. Push-Pull-Leg Split)"
+        required
+      />
+      @if (workoutForm.get('name')?.invalid && workoutForm.get('name')?.touched)
+      {
+      <div class="error">Workout name is required.</div>
       }
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea id="description" formControlName="description" required></textarea>
-      @if (workoutForm.get('description')?.invalid && workoutForm.get('description')?.touched) {
-        <div class="error">
-          Description is required.
-        </div>
+      <textarea
+        id="description"
+        formControlName="description"
+        required
+      ></textarea>
+      @if (workoutForm.get('description')?.invalid &&
+      workoutForm.get('description')?.touched) {
+      <div class="error">Description is required.</div>
       }
     </div>
     <!-- Checkbox of the days user will workout -->
     <div class="form-group">
-      <label>Days of the Week</label>
-      @for (day of daysOrder; track day) {
+      <label for="days">Days of the Week</label>
+      <div class="form-group-days">
+        @for (day of daysOrder; track day) {
         <div>
-          <input type="checkbox" [value]="day" [checked]="(workoutForm.value.days ?? []).includes(day)" (change)="onDayChange($event)" /> {{ day }}
+          <input
+            type="checkbox"
+            [value]="day"
+            [checked]="(workoutForm.value.days ?? []).includes(day)"
+            (change)="onDayChange($event)"
+          />
+          <span>{{ day }}</span>
         </div>
-      }
+        }
+      </div>
     </div>
+
     <!-- Validate and Submit -->
-    <div class="form-group">
-      <button type="submit" [disabled]="workoutForm.invalid">Create Workout</button>
-      @if (errorMessage) {
-        <div class="error">
-          {{ errorMessage }}
-        </div>
-      }
-      @if (successMessage) {
-        <div class="success">
-          {{ successMessage }}
-        </div>
+    <div class="form-group buttons">
+      <button type="submit" [disabled]="workoutForm.invalid">
+        {{ submitFormText }}
+      </button>
+      @if (editMode == true) {
+      <button class="cancel" onclick="cancelEdit()">Cancel Edit</button>
+      } @if (errorMessage) {
+      <div class="error">
+        {{ errorMessage }}
+      </div>
+      } @if (successMessage) {
+      <div class="success">
+        {{ successMessage }}
+      </div>
       }
     </div>
   </form>

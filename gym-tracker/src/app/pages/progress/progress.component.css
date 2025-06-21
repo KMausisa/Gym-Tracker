@@ -5,6 +5,9 @@
   align-items: center;
   padding: 2rem;
   background-color: #f0f4fa;
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 0 20px;
 }
 
 .progress-flex-container {

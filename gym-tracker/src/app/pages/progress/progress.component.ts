@@ -9,8 +9,8 @@ import { User } from '../profile/user.model';
 import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from '../workout/workout.service';
 import { CommonModule } from '@angular/common';
-import { Exercise } from '../workout/exercise.model';
-import { ExerciseProgress } from './exercise-progress.model';
+import { Exercise } from '../../models/exercise.model';
+import { ExerciseProgress } from '../../models/exercise_progress.model';
 
 @Component({
   selector: 'app-progress',
@@ -152,6 +152,5 @@ export class ProgressComponent implements OnInit, OnDestroy {
       },
       { exercise: '', weight: 0, reps: 0 }
     );
-    console.log('Heaviest Lift:', this.heaviestLift);
   }
 }

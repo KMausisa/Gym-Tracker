@@ -1,0 +1,74 @@
+.workout-plan-detail {
+  max-width: 900px;
+  margin: 25px auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.workout-plan-detail h2 {
+  margin-top: 0;
+}
+
+.day-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button {
+  text-decoration: none;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.day-button {
+  background-color: #1976d2;
+}
+
+.day-button:hover {
+  background: #155a9c;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-edit {
+  background: #4caf50;
+}
+
+.btn-danger {
+  background: #d32f2f;
+}
+
+.btn-container {
+  max-width: 900px;
+  margin: 25px auto 0;
+}
+
+.btn-back {
+  display: block;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #555;  /* subtle grey */
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.btn-back:hover {
+  color: #333;  /* slightly darker on hover */
+}
+

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -13,7 +13,7 @@ import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.com
 
 @Component({
   selector: 'app-workout',
-  imports: [RouterOutlet, WorkoutListComponent],
+  imports: [RouterOutlet],
   standalone: true,
   templateUrl: './workout.component.html',
   styleUrl: './workout.component.css',
@@ -26,6 +26,7 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   constructor(
     private supabaseService: SupabaseService,
     private workoutService: WorkoutService,
+    private route: ActivatedRoute,
     private router: Router
   ) {}
 
@@ -42,7 +43,10 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   }
 
   get isOnNewRoute() {
-    return this.router.url.endsWith('/new');
+    return (
+      this.route.snapshot.routeConfig?.path === 'new' ||
+      this.route.snapshot.routeConfig?.path === ':id'
+    );
   }
 
   get isOnEditRoute() {

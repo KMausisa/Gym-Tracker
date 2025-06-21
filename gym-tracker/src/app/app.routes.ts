@@ -17,11 +17,25 @@ export const routes: Routes = [
       ),
     children: [
       {
+        path: '',
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-plan-list/workout-plan-list.component'
+          ).then((m) => m.WorkoutListComponent),
+      },
+      {
         path: 'new',
         loadComponent: () =>
           import(
             './pages/workout/workout-plan-edit/workout-plan-edit.component'
           ).then((m) => m.WorkoutEditComponent),
+      },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import(
+            './pages/workout/workout-plan-detail/workout-plan-detail.component'
+          ).then((m) => m.WorkoutPlanDetailComponent),
       },
       {
         path: ':id/edit',
@@ -90,6 +104,6 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./login/login.component').then((m) => m.LoginComponent),
+      import('./pages/home/home.component').then((m) => m.HomeComponent),
   },
 ];

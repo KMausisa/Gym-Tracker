@@ -1,0 +1,39 @@
+.app-footer {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 1rem 2rem;
+  text-align: center;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  font-weight: bold;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-links a {
+  color: #000000;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-quote {
+  font-size: 0.8rem;
+  font-style: italic;
+}

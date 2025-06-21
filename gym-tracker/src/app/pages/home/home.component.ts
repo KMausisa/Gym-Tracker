@@ -4,8 +4,9 @@ import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from '../workout/workout.service';
 
 import { User } from '../profile/user.model';
-import { Workout } from '../workout/workout.model';
-import { Exercise } from '../workout/exercise.model';
+import { WorkoutPlan } from '../../models/workout_plan.model';
+import { Exercise } from '../../models/exercise.model';
+
 import {
   FormGroup,
   FormsModule,
@@ -14,6 +15,7 @@ import {
   ReactiveFormsModule,
   FormArray,
 } from '@angular/forms';
+import { ExerciseProgress } from '../../models/exercise_progress.model';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +26,8 @@ import {
 })
 export class HomeComponent {
   user!: User;
-  activeWorkout!: Workout;
+  activeWorkout!: WorkoutPlan | null;
+  activeWorkoutId: string = '';
 
   currentDay: string = '';
   todaysExercises: Exercise[] = []; // Array to hold today's exercises
@@ -44,6 +47,8 @@ export class HomeComponent {
       notes: string[];
     };
   } = {};
+
+  workoutDayHeader: string = 'This is your routine for the day:';
 
   constructor(
     private supabaseService: SupabaseService,
@@ -68,32 +73,44 @@ export class HomeComponent {
 
     const today = new Date();
     this.currentDay = daysOfWeek[today.getDay()];
+    this.activeWorkoutId = localStorage.getItem('activeWorkoutId') ?? '';
 
-    const activeWorkoutId = localStorage.getItem('activeWorkoutId');
+    const completedRaw = localStorage.getItem('completedWorkout');
+    if (completedRaw && this.activeWorkoutId) {
+      const completed = JSON.parse(completedRaw);
 
-    if (activeWorkoutId) {
-      // Fetch the active workout plan
+      // Check if current workout ID is in the completed object and
+      // if the current day is included for that workout.
+      const completedDaysForWorkout = completed[this.activeWorkoutId] || [];
+
+      this.workoutCompleted = completedDaysForWorkout.includes(this.currentDay);
+    } else {
+      this.workoutCompleted = false;
+    }
+
+    console.log('The workout is completed: ', this.workoutCompleted);
+
+    if (this.activeWorkoutId) {
       this.workoutService
-        .getWorkoutPlanById(activeWorkoutId)
+        .getWorkoutPlanById(this.activeWorkoutId)
         .then((workout) => {
           this.activeWorkout = workout;
         });
 
-      // Fetch and save the workout routine for the current day
-      this.getExercisesForDay(activeWorkoutId, this.currentDay);
+      this.getExercisesForDay(this.activeWorkoutId, this.currentDay);
     }
-
-    console.log(this.workoutCompleted);
   }
 
   getExercisesForDay(activeWorkoutId: string, currentDay: string) {
     this.workoutService
-      .getDayId(activeWorkoutId, currentDay)
+      .getDayId(this.activeWorkoutId ?? '', currentDay)
       .then((dayId) => {
         if (dayId) {
           this.workoutService.getRoutineById(dayId).then((exercises) => {
             this.todaysExercises = exercises ?? [];
-            console.log(this.todaysExercises);
+            if (this.todaysExercises.length == 0) {
+              this.workoutDayHeader = 'You have no exercises for today.';
+            }
           });
         } else {
           console.log('No exercises found for', currentDay);
@@ -110,13 +127,17 @@ export class HomeComponent {
       this.currentExerciseIndex = 0;
       // Initialize progress for each exercise
       this.todaysExercises.forEach((ex) => {
-        if (!this.exerciseProgress[ex.id]) {
-          this.exerciseProgress[ex.id] = {
-            sets: ex.sets,
-            reps: Array(ex.sets).fill(0), // User will enter actual reps
-            weight: Array(ex.sets).fill(0), // User will enter actual weight
-            notes: Array(ex.sets).fill(''), // User will enter notes
-          };
+        if (typeof ex.id === 'string' && ex.id) {
+          if (!this.exerciseProgress[ex.id]) {
+            this.exerciseProgress[ex.id] = {
+              sets: ex.sets,
+              reps: Array(ex.sets).fill(0), // User will enter actual reps
+              weight: Array(ex.sets).fill(0), // User will enter actual weight
+              notes: Array(ex.sets).fill(''), // User will enter notes
+            };
+          }
+        } else {
+          console.warn('Exercise has undefined or non-string id:', ex);
         }
       });
       this.initExerciseProgressForm(
@@ -166,23 +187,21 @@ export class HomeComponent {
       const currentExercise = this.todaysExercises.find(
         (ex) => ex.id === exerciseId
       );
-      console.log(`Exercise ID: ${exerciseId}`, progress);
-      console.log(`Current Exercise:`, currentExercise);
       if (currentExercise) {
+        const progressToSave: Omit<ExerciseProgress, 'id'> = {
+          exercise_id: exerciseId,
+          user_id: this.user.id,
+          workout_id: this.activeWorkout ? this.activeWorkout.id : '',
+          day_id: currentExercise.day_id,
+          name: currentExercise.name,
+          sets: progress.sets,
+          reps: progress.reps,
+          weights: progress.weight,
+          maxVolume: 0,
+          notes: progress.notes,
+        };
         this.workoutService
-          .saveWorkoutProgress(
-            this.user.id,
-            this.activeWorkout.id,
-            exerciseId,
-            currentExercise.day_id,
-            {
-              name: currentExercise.name,
-              sets: progress.sets,
-              reps: progress.reps,
-              weights: progress.weight,
-              notes: progress.notes,
-            }
-          )
+          .saveWorkoutProgress(progressToSave)
           .then(() => {
             console.log('Workout progress saved!');
             // Optionally show a success message or redirect
@@ -208,7 +227,23 @@ export class HomeComponent {
     this.onSubmit(); // Save current form data
     this.finishWorkout(); // Finish the workout
     this.inWorkout = false; // Reset workout state
-    this.workoutCompleted = true; // Mark workout as completed
+    // Get existing completed data or initialize empty object
+    const completedRaw = localStorage.getItem('completedWorkout');
+    let completed = completedRaw ? JSON.parse(completedRaw) : {};
+
+    // Initialize the array for this workout if it doesn't exist
+    if (!completed[this.activeWorkoutId]) {
+      completed[this.activeWorkoutId] = [];
+    }
+
+    // Add current day if not already recorded
+    if (!completed[this.activeWorkoutId].includes(this.currentDay)) {
+      completed[this.activeWorkoutId].push(this.currentDay);
+    }
+
+    localStorage.setItem('completedWorkout', JSON.stringify(completed));
+
+    this.workoutCompleted = true;
     this.workoutsCompleted++;
     this.workoutService.setWorkoutsCompleted(this.workoutsCompleted);
   }
@@ -220,11 +255,15 @@ export class HomeComponent {
   onSubmit() {
     const formValue = this.exerciseProgressForm.value;
     const currentExercise = this.todaysExercises[this.currentExerciseIndex];
-    this.exerciseProgress[currentExercise.id] = {
-      sets: currentExercise.sets,
-      reps: formValue.sets.map((set: any) => set.reps),
-      weight: formValue.sets.map((set: any) => set.weight),
-      notes: formValue.sets.map((set: any) => set.notes),
-    };
+    if (currentExercise && typeof currentExercise.id === 'string') {
+      this.exerciseProgress[currentExercise.id] = {
+        sets: currentExercise.sets,
+        reps: formValue.sets.map((set: any) => set.reps),
+        weight: formValue.sets.map((set: any) => set.weight),
+        notes: formValue.sets.map((set: any) => set.notes),
+      };
+    } else {
+      console.warn('Current exercise or its id is undefined:', currentExercise);
+    }
   }
 }
