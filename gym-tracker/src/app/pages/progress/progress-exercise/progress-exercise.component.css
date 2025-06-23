@@ -1,3 +1,23 @@
+.chart-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.chart-title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #3b5998;
+  font-weight: 600;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+
 .chart-flex-container {
   display: flex;
   gap: 2rem;

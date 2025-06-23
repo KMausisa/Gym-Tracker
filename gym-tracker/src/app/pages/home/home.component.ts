@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 
 import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from '../workout/workout.service';
@@ -6,6 +8,8 @@ import { WorkoutService } from '../workout/workout.service';
 import { User } from '../profile/user.model';
 import { WorkoutPlan } from '../../models/workout_plan.model';
 import { Exercise } from '../../models/exercise.model';
+
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 import {
   FormGroup,
@@ -53,7 +57,9 @@ export class HomeComponent {
   constructor(
     private supabaseService: SupabaseService,
     private workoutService: WorkoutService,
-    private fb: FormBuilder
+    private router: Router,
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -119,6 +125,21 @@ export class HomeComponent {
       .catch((error) => {
         console.error('Error fetching exercises for day:', error);
       });
+  }
+
+  confirmCancelWorkout() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { message: 'Are you sure you want to cancel your workout?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Reset state or navigate
+        this.inWorkout = false;
+        this.router.navigate(['/dashboard']); // or wherever is appropriate
+      }
+    });
   }
 
   startWorkout() {

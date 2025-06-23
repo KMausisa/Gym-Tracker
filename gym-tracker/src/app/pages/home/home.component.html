@@ -1,8 +1,8 @@
 <div class="dashboard-container">
-  @if (activeWorkout) { @if (!inWorkout) {
   <div class="banner">
     <h1>Welcome to your Gym Tracker!</h1>
   </div>
+  @if (activeWorkout) { @if (!inWorkout) {
   <div class="active-workout-card card">
     <h2>Active Workout: {{ activeWorkout.title }}</h2>
     <p>Description: {{ activeWorkout.description }}</p>
@@ -20,6 +20,7 @@
       <p class="workout-completed">Workout Completed!</p>
       }
     </div>
+    @if (todaysExercises.length != 0) {
     <ul class="exercise-list">
       @for (exercise of todaysExercises; track exercise) {
       <li class="exercise-item card">
@@ -28,12 +29,11 @@
         <p>Reps: {{ exercise.reps }} reps</p>
         @if (exercise.weight) {
         <span>Weight: {{ exercise.weight }} lbs</span>
-        } @if (exercise.notes) {
-        <p>{{ exercise.notes }}</p>
         }
       </li>
       }
     </ul>
+    }
   </div>
   } @if (inWorkout && todaysExercises.length) {
   <div class="exercise-item card">
@@ -47,6 +47,9 @@
       Recommended Weight:
       {{ todaysExercises[currentExerciseIndex].weight }} lbs
     </p>
+    @if (todaysExercises[currentExerciseIndex].notes) {
+    <p>Notes: {{ todaysExercises[currentExerciseIndex].notes }}</p>
+    }
   </div>
   <div class="exercise-progress-form">
     <h3>Log Your Progress</h3>
@@ -85,14 +88,19 @@
         }
       </div>
       @if (currentExerciseIndex < todaysExercises.length - 1) {
-      <button
-        type="button"
-        [disabled]="exerciseProgressForm.invalid"
-        (click)="onNextExercise()"
-        class="btn btn-next"
-      >
-        Next Exercise
-      </button>
+      <div class="buttons">
+        <button class="btn-cancel" (click)="confirmCancelWorkout()">
+          Cancel Workout
+        </button>
+        <button
+          type="button"
+          [disabled]="exerciseProgressForm.invalid"
+          (click)="onNextExercise()"
+          class="btn btn-next"
+        >
+          Next Exercise
+        </button>
+      </div>
       } @if (currentExerciseIndex === todaysExercises.length - 1) {
       <button type="button" (click)="onFinishWorkout()" class="btn btn-finish">
         Finish Workout
@@ -106,35 +114,3 @@
   </div>
   }
 </div>
-
-<!-- <div class="container">
-  <div class="banner">
-    <h1>Welcome to your Gym Tracker!</h1>
-  </div>
-
-  <div class="active-workout-card card">
-    <h2>Active Workout: Push Day</h2>
-    <p>Description: Upper body strength focus</p>
-  </div>
-
-  <div class="workout-day-list card">
-    <div class="workout-day-header">
-      <h2>Today is Monday. This is your routine for the day:</h2>
-      <button class="btn btn-start">Start Workout</button>
-    </div>
-    <ul class="exercise-list">
-      <li class="exercise-item card">
-        <strong>Bench Press</strong>
-        <p>Sets: 4</p>
-        <p>Reps: 8</p>
-        <p>Weight: 135 lbs</p>
-      </li>
-      <li class="exercise-item card">
-        <strong>Overhead Press</strong>
-        <p>Sets: 3</p>
-        <p>Reps: 10</p>
-        <p>Weight: 95 lbs</p>
-      </li>
-    </ul>
-  </div>
-</div> -->

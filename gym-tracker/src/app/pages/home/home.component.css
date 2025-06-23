@@ -78,6 +78,10 @@ li.exercise-item > strong {
   gap: 1rem;
 }
 
+.exercise-progress-form > h3 {
+  margin-left: 15px;
+}
+
 .exercise-progress-form [formArrayName="sets"] {
   display: flex;
   flex-direction: column;
@@ -128,7 +132,14 @@ li.exercise-item > strong {
   box-shadow: 0 0 5px rgba(25, 118, 210, 0.4);
 }
 
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 .btn-next,
+.btn-cancel,
 .btn-finish {
   align-self: center;
   padding: 0.7rem 2rem;
@@ -154,6 +165,14 @@ li.exercise-item > strong {
   background-color: #135ba1;
 }
 
+.btn-cancel {
+  background: #F44336;
+}
+
+.btn-cancel:hover {
+  background: #D32F2F;
+}
+
 .btn-finish {
   background-color: #388e3c;
 }
@@ -161,3 +180,16 @@ li.exercise-item > strong {
 .btn-finish:hover {
   background-color: #2e7030;
 }
+
+.no-active-message {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+

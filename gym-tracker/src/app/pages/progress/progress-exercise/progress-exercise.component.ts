@@ -20,9 +20,8 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   user!: User;
   exerciseId!: string;
 
-  exerciseList: ExerciseProgress[] = [];
-
   exerciseProgress: ExerciseProgress[] = [];
+  exerciseHasProgress: boolean = false;
 
   chartType: 'scatter' = 'scatter';
   chartDataList: any[] = [];
@@ -55,7 +54,8 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         }
       });
       this.workoutService.exerciseProgressChanged.subscribe((progress) => {
-        this.exerciseList = progress;
+        this.exerciseProgress = progress;
+        console.log('Exercise Progress: ', this.exerciseProgress);
         this.prepareChartData();
       });
     });
@@ -66,7 +66,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   }
 
   prepareChartData() {
-    const totalVolume = this.exerciseList.map((exercise) => {
+    const totalVolume = this.exerciseProgress.map((exercise) => {
       const weights: number[] = Array.isArray(exercise.weights)
         ? exercise.weights
         : [exercise.weights];
@@ -79,7 +79,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
       );
     });
 
-    const dataPoints = this.exerciseList.map((s, i) => ({
+    const dataPoints = this.exerciseProgress.map((s, i) => ({
       x: s.created_at,
       y: totalVolume[i],
     }));
@@ -101,7 +101,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
     ];
 
     // Chart options for time x-axis
-    const singleDate = new Date(this.exerciseList[0]?.created_at ?? '');
+    const singleDate = new Date(this.exerciseProgress[0]?.created_at ?? '');
     const minDate = new Date(singleDate);
     minDate.setDate(minDate.getDate() - 1);
     const maxDate = new Date(singleDate);
@@ -127,9 +127,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
             source: 'data',
             autoSkip: false,
             maxTicksLimit: 1,
-            // Optionally, format the tick label
             callback: function (value: any) {
-              // value is a timestamp, format as date string
               return new Date(value).toLocaleDateString();
             },
           },
@@ -154,34 +152,59 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         tooltip: {
           callbacks: {
             label: (context: any) => {
-              // Find the original exercise session
               const idx = context.dataIndex;
-              const exercise = this.exerciseList[idx];
-              // Format weights and reps for display
-              const weights = Array.isArray(exercise.weights)
-                ? exercise.weights
-                : [exercise.weights];
-              const reps = Array.isArray(exercise.reps)
-                ? exercise.reps
-                : [exercise.reps];
-              const sets = weights.map(
-                (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
-              );
-              const formattedDate = exercise.created_at
-                ? new Date(exercise.created_at).toLocaleDateString()
-                : 'Unknown date';
-              return [
-                `Volume: ${context.parsed.y}`,
-                `Date: ${formattedDate}`,
-                ...sets,
-              ];
+              const exercise = this.exerciseProgress[idx];
+              return `Volume: ${context.parsed.y}`;
             },
           },
         },
       },
     };
 
-    const maxWeightPerSession = this.exerciseList.map((exercise) => {
+    this.maxWeightChartOptions = {
+      responsive: true,
+      scales: {
+        x: this.chartOptions.scales.x,
+        y: {
+          title: {
+            display: true,
+            text: 'Max Weight (lbs)',
+          },
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Best Set (Max Weight) Per Session',
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const idx = context.dataIndex;
+              const exercise = this.exerciseProgress[idx];
+              const weights = Array.isArray(exercise.weights)
+                ? exercise.weights
+                : [exercise.weights];
+              const reps = Array.isArray(exercise.reps)
+                ? exercise.reps
+                : [exercise.reps];
+              const maxWeight = Math.max(...weights, 0);
+              const sets = [maxWeight].map(
+                (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
+              );
+              return [`Max Weight: ${maxWeight} lbs`, ...sets];
+            },
+          },
+        },
+      },
+    };
+
+    const maxWeightPerSession = this.exerciseProgress.map((exercise) => {
       const weights: number[] = Array.isArray(exercise.weights)
         ? exercise.weights
         : [exercise.weights];
@@ -189,7 +212,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
       return Math.max(...weights, 0);
     });
 
-    const maxWeightDataPoints = this.exerciseList.map((s, i) => ({
+    const maxWeightDataPoints = this.exerciseProgress.map((s, i) => ({
       x: s.created_at,
       y: maxWeightPerSession[i],
     }));
@@ -210,11 +233,11 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
     ];
 
     this.maxWeightChartOptions = {
-      ...this.chartOptions,
+      ...this.maxWeightChartOptions,
       scales: {
-        ...this.chartOptions.scales,
+        ...this.maxWeightChartOptions.scales,
         y: {
-          ...this.chartOptions.scales.y,
+          ...this.maxWeightChartOptions.scales.y,
           title: {
             display: true,
             text: 'Max Weight (lbs)',
@@ -222,7 +245,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         },
       },
       plugins: {
-        ...this.chartOptions.plugins,
+        ...this.maxWeightChartOptions.plugins,
         title: {
           display: true,
           text: 'Best Set (Max Weight) Per Session',
