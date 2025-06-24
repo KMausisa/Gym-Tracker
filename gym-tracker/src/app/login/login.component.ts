@@ -84,7 +84,7 @@ export class LoginComponent implements OnInit {
         this.errorMessage = 'Please check your email for verification link.';
       } else {
         await this.supabaseService.signIn(email, password);
-        this.router.navigate(['/home']);
+        this.router.navigate(['/dashboard']);
       }
     } catch (error: any) {
       this.errorMessage = error.message || 'Authentication failed';

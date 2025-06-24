@@ -9,6 +9,8 @@ import {
   Router,
 } from '@angular/router';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 import { User } from '../../profile/user.model';
@@ -17,7 +19,7 @@ import { Exercise } from '../../../models/exercise.model';
 @Component({
   selector: 'app-workout-day-list',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, MatProgressSpinnerModule],
   templateUrl: './workout-day-list.component.html',
   styleUrl: './workout-day-list.component.css',
 })
@@ -27,6 +29,7 @@ export class WorkoutDayListComponent implements OnInit {
   dayId: string = '';
   exercises: Exercise[] = [];
   selectedDay: string = '';
+  isLoading: boolean = false;
   @Output() workoutSelected = new EventEmitter<any[]>();
 
   exerciseName: string = '';
@@ -58,10 +61,6 @@ export class WorkoutDayListComponent implements OnInit {
       );
       this.loadExercisesForDay(this.dayId);
     });
-
-    this.workoutService.exerciseListChanged.subscribe((exercises) => {
-      this.exercises = exercises;
-    });
   }
 
   selectWorkout(workout: any) {
@@ -78,7 +77,14 @@ export class WorkoutDayListComponent implements OnInit {
   }
 
   async loadExercisesForDay(dayId: string) {
-    await this.workoutService.getRoutineById(dayId);
+    this.isLoading = true;
+    this.exercises = []; // Reset to prevent flicker
+
+    const routine = await this.workoutService.getRoutineById(dayId);
+
+    // Only update exercises if routine was fetched
+    this.exercises = routine ?? [];
+    this.isLoading = false;
   }
 
   onDeleteExercise(exerciseId: string) {

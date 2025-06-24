@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { min, Subscription } from 'rxjs';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartType } from 'chart.js';
 
@@ -93,18 +93,25 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
             data: dataPoints,
             borderColor: 'black',
             backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            showLine: false, // No connecting line
+            showLine: false,
+            spanGaps: false,
             pointRadius: 5,
+            pointBorderWidth: 1,
+            pointStyle: 'circle', // Ensure it’s a dot, not a vertical bar
           },
         ],
       },
     ];
 
     // Chart options for time x-axis
-    const singleDate = new Date(this.exerciseProgress[0]?.created_at ?? '');
-    const minDate = new Date(singleDate);
+    const dates = this.exerciseProgress
+      .map((e) => (e.created_at ? new Date(e.created_at) : null))
+      .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+
+    // Add padding — e.g. 1 day before and after
     minDate.setDate(minDate.getDate() - 1);
-    const maxDate = new Date(singleDate);
     maxDate.setDate(maxDate.getDate() + 1);
 
     this.chartOptions = {
@@ -112,6 +119,8 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
       scales: {
         x: {
           type: 'time',
+          min: minDate,
+          max: maxDate,
           time: {
             unit: 'day',
             tooltipFormat: 'MMM dd, yyyy',
@@ -122,6 +131,10 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
           title: {
             display: true,
             text: 'Date',
+          },
+          grid: {
+            drawTicks: true,
+            drawOnChartArea: false, // disables vertical gridlines (if you want to try)
           },
           ticks: {
             source: 'data',
@@ -154,7 +167,16 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
             label: (context: any) => {
               const idx = context.dataIndex;
               const exercise = this.exerciseProgress[idx];
-              return `Volume: ${context.parsed.y}`;
+              const weights = Array.isArray(exercise.weights)
+                ? exercise.weights
+                : [exercise.weights];
+              const reps = Array.isArray(exercise.reps)
+                ? exercise.reps
+                : [exercise.reps];
+              const sets = weights.map(
+                (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
+              );
+              return [`Volume: ${context.parsed.y}`, ...sets];
             },
           },
         },

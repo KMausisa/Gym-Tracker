@@ -21,7 +21,7 @@ export class WorkoutListComponent implements OnInit {
   activeWorkoutId: string = '';
   showActions: boolean = false; // Flag to control visibility of action buttons
 
-  isLoading = true;
+  isLoading = false;
 
   constructor(
     private supaBaseService: SupabaseService,
@@ -33,7 +33,6 @@ export class WorkoutListComponent implements OnInit {
   ngOnInit() {
     this.supaBaseService.currentUser.subscribe((user) => {
       this.user = user;
-      this.isLoading = false;
 
       if (this.user) {
         this.workoutService.getUserWorkoutPlans(this.user.id);
