@@ -98,3 +98,13 @@ p {
 .btn-back:hover {
   color: #333;  /* slightly darker on hover */
 }
+
+@media (max-width: 600px) {
+  .workout-day-list {
+    margin: 2rem 1rem;
+  }
+
+  .btn-back {
+    margin-left: 1.5rem;
+  }
+}

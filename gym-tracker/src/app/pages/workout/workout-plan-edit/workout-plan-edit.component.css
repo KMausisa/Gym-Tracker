@@ -136,3 +136,9 @@ button.cancel:focus {
   text-align: center;
   margin-top: 12px;
 }
+
+@media (max-width: 600px) {
+  .form {
+    margin: 40px 15px;
+  }
+}

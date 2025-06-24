@@ -1,13 +1,43 @@
 <nav class="header-container">
   <div class="header-content">
     <div class="logo">GymTracker</div>
-    <ul class="nav-links">
+    <button
+      class="hamburger"
+      aria-label="Toggle navigation"
+      (click)="toggleMenu()"
+    >
+      ☰
+    </button>
+    <ul class="nav-links" [class.active]="menuOpen">
       <li>
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          (click)="closeMenu()"
+          >Dashboard</a
+        >
       </li>
-      <li><a routerLink="/progress" routerLinkActive="active">Progress</a></li>
-      <li><a routerLink="/workouts" routerLinkActive="active">Workouts</a></li>
-      <li><a routerLink="/profile" routerLinkActive="active">Profile</a></li>
+      <li>
+        <a
+          routerLink="/progress"
+          routerLinkActive="active"
+          (click)="closeMenu()"
+          >Progress</a
+        >
+      </li>
+      <li>
+        <a
+          routerLink="/workouts"
+          routerLinkActive="active"
+          (click)="closeMenu()"
+          >Workouts</a
+        >
+      </li>
+      <li>
+        <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()"
+          >Profile</a
+        >
+      </li>
       <li><button (click)="logOut()">Logout</button></li>
     </ul>
   </div>

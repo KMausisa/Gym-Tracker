@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { min, Subscription } from 'rxjs';
 import { NgChartsModule } from 'ng2-charts';
-import { ChartConfiguration, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartType, plugins } from 'chart.js';
 
 import { SupabaseService } from '../../../services/supabase.service';
 import { WorkoutService } from '../../workout/workout.service';
@@ -112,7 +112,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
 
     // Add padding — e.g. 1 day before and after
     minDate.setDate(minDate.getDate() - 1);
-    maxDate.setDate(maxDate.getDate() + 1);
+    maxDate.setDate(maxDate.getDate() + 2);
 
     this.chartOptions = {
       responsive: true,
@@ -131,6 +131,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
           title: {
             display: true,
             text: 'Date',
+            color: '#000000',
           },
           grid: {
             drawTicks: true,
@@ -140,8 +141,13 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
             source: 'data',
             autoSkip: false,
             maxTicksLimit: 1,
+            color: '#000000',
             callback: function (value: any) {
-              return new Date(value).toLocaleDateString();
+              const date = new Date(value);
+              return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+              });
             },
           },
         },
@@ -149,6 +155,10 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
           title: {
             display: true,
             text: 'Total Volume',
+            color: '#000000',
+          },
+          ticks: {
+            color: '#000000',
           },
           beginAtZero: true,
         },
@@ -157,10 +167,14 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         legend: {
           display: true,
           position: 'top',
+          labels: {
+            color: '#000000',
+          },
         },
         title: {
           display: true,
           text: 'Exercise Volume Over Time',
+          color: '#000000',
         },
         tooltip: {
           callbacks: {
@@ -186,11 +200,48 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
     this.maxWeightChartOptions = {
       responsive: true,
       scales: {
-        x: this.chartOptions.scales.x,
+        x: {
+          type: 'time',
+          min: minDate,
+          max: maxDate,
+          time: {
+            unit: 'day',
+            tooltipFormat: 'MMM dd, yyyy',
+            displayFormats: {
+              day: 'MMM dd',
+            },
+          },
+          title: {
+            display: true,
+            text: 'Date',
+            color: '#000000',
+          },
+          grid: {
+            drawTicks: true,
+            drawOnChartArea: false,
+          },
+          ticks: {
+            color: '#000000',
+            source: 'data',
+            autoSkip: true, // ✅ let Chart.js skip overlapping ticks
+            maxTicksLimit: 10, // ✅ limit how many labels are shown
+            callback: function (value: any) {
+              const date = new Date(value);
+              return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+              });
+            },
+          },
+        },
         y: {
           title: {
             display: true,
             text: 'Max Weight (lbs)',
+            color: '#000000',
+          },
+          ticks: {
+            color: '#000000',
           },
           beginAtZero: true,
         },
@@ -199,10 +250,14 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         legend: {
           display: true,
           position: 'top',
+          labels: {
+            color: '#000000',
+          },
         },
         title: {
           display: true,
           text: 'Best Set (Max Weight) Per Session',
+          color: '#000000',
         },
         tooltip: {
           callbacks: {
@@ -253,26 +308,5 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         ],
       },
     ];
-
-    this.maxWeightChartOptions = {
-      ...this.maxWeightChartOptions,
-      scales: {
-        ...this.maxWeightChartOptions.scales,
-        y: {
-          ...this.maxWeightChartOptions.scales.y,
-          title: {
-            display: true,
-            text: 'Max Weight (lbs)',
-          },
-        },
-      },
-      plugins: {
-        ...this.maxWeightChartOptions.plugins,
-        title: {
-          display: true,
-          text: 'Best Set (Max Weight) Per Session',
-        },
-      },
-    };
   }
 }

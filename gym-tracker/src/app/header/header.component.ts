@@ -10,8 +10,18 @@ import { SupabaseService } from '../services/supabase.service';
   styleUrl: './header.component.css',
 })
 export class HeaderComponent {
+  menuOpen = false;
+
   private auth = inject(SupabaseService);
   private router = inject(Router);
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu() {
+    this.menuOpen = false;
+  }
 
   async logOut() {
     this.auth

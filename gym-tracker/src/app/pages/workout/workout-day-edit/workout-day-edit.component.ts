@@ -126,7 +126,6 @@ export class WorkoutDayEditComponent {
         notes: notes,
       };
 
-      // Call the Supabase function to add the exercise
       try {
         if (this.editMode == false) {
           await this.workoutService.addExerciseToWorkoutDay(exerciseToAdd);

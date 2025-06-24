@@ -1,3 +1,4 @@
+import { filter } from 'rxjs';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Location } from '@angular/common';
 
@@ -7,6 +8,7 @@ import {
   RouterModule,
   RouterOutlet,
   Router,
+  NavigationEnd,
 } from '@angular/router';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -51,16 +53,27 @@ export class WorkoutDayListComponent implements OnInit {
       this.user = user;
     });
 
-    this.route.params.subscribe(async (params) => {
-      this.workoutId = params['id'];
-      this.selectedDay = params['day'];
+    this.loadFromParams();
 
-      this.dayId = await this.supabaseService.getDayId(
-        this.workoutId,
-        this.selectedDay
-      );
-      this.loadExercisesForDay(this.dayId);
-    });
+    // Listen for navigation events so you can reload exercises when this route is re-activated
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.loadFromParams();
+      });
+  }
+
+  async loadFromParams() {
+    const params = this.route.snapshot.params;
+    this.workoutId = params['id'];
+    this.selectedDay = params['day'];
+
+    this.dayId = await this.supabaseService.getDayId(
+      this.workoutId,
+      this.selectedDay
+    );
+
+    this.loadExercisesForDay(this.dayId);
   }
 
   selectWorkout(workout: any) {
@@ -95,6 +108,10 @@ export class WorkoutDayListComponent implements OnInit {
   }
 
   goBack() {
-    this.location.back();
+    if (this.router.url === `/workouts/${this.workoutId}/${this.selectedDay}`) {
+      this.router.navigate(['/workouts']);
+    } else {
+      this.location.back();
+    }
   }
 }

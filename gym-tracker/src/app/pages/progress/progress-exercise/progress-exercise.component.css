@@ -20,18 +20,22 @@
 
 .chart-flex-container {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap; /* allows them to stack on small screens */
+  gap: 1rem;
   justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  margin-top: 25px;
 }
 
 .chart-container {
-  width: 600px;
+  flex: 1 1 400px; /* grow/shrink, min width */
+  min-width: 280px; /* prevents squishing too much */
   max-width: 100%;
-  min-width: 250px;
-  background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
+  background-color: white;
 }
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+
+

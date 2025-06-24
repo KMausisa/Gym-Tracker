@@ -4,6 +4,7 @@ import { WorkoutPlan } from '../../../models/workout_plan.model';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { WorkoutService } from '../workout.service';
+import { NavigationService } from '../../../services/navigation-service.service';
 
 @Component({
   selector: 'app-workout-plan-detail',
@@ -17,7 +18,9 @@ export class WorkoutPlanDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private location: Location,
+    private navService: NavigationService,
     private workoutService: WorkoutService
   ) {}
 
@@ -33,17 +36,14 @@ export class WorkoutPlanDetailComponent implements OnInit {
     console.log("User's selected workout plan: ", this.workoutPlan);
   }
 
-  viewDayExercises(day: string) {}
-
-  editworkoutPlan() {}
-
-  confirmDelete(workoutId: string | undefined) {}
-
-  activateworkoutPlan() {}
-
-  deactivateworkoutPlan() {}
-
   goBack() {
-    this.location.back();
+    const prevUrl = this.navService.getPreviousUrl();
+    const workoutId = this.workoutPlan?.id; // assuming you have this available
+
+    if (prevUrl && /\/workouts\/\d+\/(add|edit)/.test(prevUrl)) {
+      this.router.navigate(['/workouts', workoutId]);
+    } else {
+      this.location.back();
+    }
   }
 }

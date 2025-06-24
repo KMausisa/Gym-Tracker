@@ -138,3 +138,23 @@
   font-size: 1rem;
 }
 
+@media (max-width: 600px) {
+  .workout-list-header {
+    margin-bottom: 25px;
+  }
+
+  .workout-plan-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions-select {
+    width: 100%; /* makes the select fill the row nicely */
+    margin-top: 0.5rem; /* add breathing space above it */
+  }
+
+  .workout-info {
+    width: 100%;
+  }
+}
+
