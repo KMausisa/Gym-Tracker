@@ -3,10 +3,20 @@
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  max-width: 90vw;      /* prevents overflowing on small screens */
+  box-sizing: border-box;
+}
+
+/* Make buttons take full width on small screens */
+.buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;        /* allow wrapping on small screens */
+  justify-content: center; /* center the buttons */
 }
 
 button {
-  width: 100px;
+  flex: 1 1 100px;         /* flexible width with min of 100px */
   padding: 10px 0;
   color: #fff;
   border: none;
@@ -15,6 +25,8 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  min-width: 100px;
+  max-width: 200px;        /* optional: prevent too large on wide screens */
 }
 
 button.cancel {
@@ -35,7 +47,19 @@ button.delete:focus {
   background: #D32F2F;
 }
 
-.buttons {
-  display: flex;
-  gap: 10px;
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  button {
+    flex: 1 1 50px;  
+    width: 100%;        /* full width on very small screens */
+    max-width: 100%;
+  }
 }

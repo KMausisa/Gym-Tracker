@@ -12,11 +12,13 @@ import {
 } from '@angular/router';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
 
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 import { User } from '../../profile/user.model';
 import { Exercise } from '../../../models/exercise.model';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-workout-day-list',
@@ -45,7 +47,8 @@ export class WorkoutDayListComponent implements OnInit {
     private router: Router,
     private location: Location,
     private workoutService: WorkoutService,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private dialog: MatDialog
   ) {}
 
   async ngOnInit() {
@@ -101,10 +104,23 @@ export class WorkoutDayListComponent implements OnInit {
   }
 
   onDeleteExercise(exerciseId: string) {
-    this.workoutService.deleteExercise(exerciseId, this.user.id).then(() => {
-      this.loadExercisesForDay(this.dayId);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { message: 'Are you sure you want to delete this exercise?' },
     });
-    this.router.navigate([`/workouts/${this.workoutId}/${this.selectedDay}`]);
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.workoutService
+          .deleteExercise(exerciseId, this.user.id)
+          .then(() => {
+            this.loadExercisesForDay(this.dayId);
+          });
+        this.router.navigate([
+          `/workouts/${this.workoutId}/${this.selectedDay}`,
+        ]);
+      }
+    });
   }
 
   goBack() {

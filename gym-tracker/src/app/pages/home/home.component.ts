@@ -41,7 +41,7 @@ export class HomeComponent {
   currentExerciseIndex: number = 0;
   inWorkout: boolean = false;
   workoutCompleted: boolean = false;
-  workoutsCompleted: number = 0;
+  workoutsCompletedCount: number = 0;
 
   exerciseProgress: {
     [exerciseId: string]: {
@@ -62,9 +62,14 @@ export class HomeComponent {
     private dialog: MatDialog
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.supabaseService.currentUser.subscribe(async (user) => {
       this.user = user;
+
+      this.workoutsCompletedCount =
+        await this.workoutService.getUserWorkoutCount(this.user.id);
+
+      console.log('Total workouts: ', this.workoutsCompletedCount);
     });
 
     const daysOfWeek = [
@@ -93,8 +98,6 @@ export class HomeComponent {
     } else {
       this.workoutCompleted = false;
     }
-
-    console.log('The workout is completed: ', this.workoutCompleted);
 
     if (this.activeWorkoutId) {
       this.workoutService
@@ -244,9 +247,9 @@ export class HomeComponent {
     this.nextExercise(); // Move to next exercise
   }
 
-  onFinishWorkout() {
-    this.onSubmit(); // Save current form data
-    this.finishWorkout(); // Finish the workout
+  async onFinishWorkout() {
+    await this.onSubmit(); // Save current form data
+    await this.finishWorkout(); // Finish the workout
     this.inWorkout = false; // Reset workout state
     // Get existing completed data or initialize empty object
     const completedRaw = localStorage.getItem('completedWorkout');
@@ -265,8 +268,11 @@ export class HomeComponent {
     localStorage.setItem('completedWorkout', JSON.stringify(completed));
 
     this.workoutCompleted = true;
-    this.workoutsCompleted++;
-    this.workoutService.setWorkoutsCompleted(this.workoutsCompleted);
+    this.workoutsCompletedCount++;
+    this.workoutService.updateTotalWorkoutCount(
+      this.user.id,
+      this.workoutsCompletedCount
+    );
   }
 
   get sets() {

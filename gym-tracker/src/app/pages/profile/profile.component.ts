@@ -1,17 +1,18 @@
 import { Component } from '@angular/core';
-import { SupabaseService } from '../../services/supabase.service';
+import { RouterModule } from '@angular/router';
 
+import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
 export class ProfileComponent {
   user: any;
-  profile: any = {};
+  profile!: { name: string; birthday: string };
   isLoading = true;
 
   constructor(private supabaseService: SupabaseService) {}
@@ -23,15 +24,14 @@ export class ProfileComponent {
       if (user) {
         // Load user profile data including name and birthday
         try {
-          const profileData = await this.supabaseService.getUserProfile(
-            user.id
-          );
+          const profileData = await this.supabaseService.getUserInfo(user.id);
           if (profileData) {
             this.profile = profileData;
+            console.log(this.profile);
           } else {
             // Fallback to metadata if profile doesn't exist in the profiles table
             this.profile = {
-              full_name: user.user_metadata?.full_name || 'User',
+              name: user.user_metadata?.full_name || 'User',
               birthday: user.user_metadata?.birthday || 'Not provided',
             };
           }
@@ -48,13 +48,8 @@ export class ProfileComponent {
   formatDate(dateString: string): string {
     if (!dateString) return 'Not provided';
 
-    const date = new Date(dateString);
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      return dateString;
-    }
-
-    return date.toLocaleDateString('en-US', {
+    const localDate = new Date(dateString + 'T00:00:00');
+    return localDate.toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',

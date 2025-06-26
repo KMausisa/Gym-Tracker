@@ -32,8 +32,6 @@ export class WorkoutPlanDetailComponent implements OnInit {
     this.workoutPlan = await this.workoutService.getWorkoutPlanById(
       this.selectedWorkoutId
     );
-
-    console.log("User's selected workout plan: ", this.workoutPlan);
   }
 
   goBack() {

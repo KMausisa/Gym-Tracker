@@ -50,7 +50,9 @@
         {{ submitFormText }}
       </button>
       @if (editMode == true) {
-      <button class="cancel" onclick="cancelEdit()">Cancel Edit</button>
+      <button class="cancel" (click)="cancel()">Cancel Edit</button>
+      } @else {
+      <button class="cancel" (click)="cancel()">Cancel Workout</button>
       } @if (errorMessage) {
       <div class="error">
         {{ errorMessage }}

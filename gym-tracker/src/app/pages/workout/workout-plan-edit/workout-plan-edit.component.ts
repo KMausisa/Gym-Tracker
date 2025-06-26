@@ -105,7 +105,7 @@ export class WorkoutEditComponent implements OnInit {
     this.workoutForm.patchValue({ days: this.selectedDays });
   }
 
-  cancelEdit() {
+  cancel() {
     this.workoutForm.reset();
     this.successMessage = '';
     this.errorMessage = '';

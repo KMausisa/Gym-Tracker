@@ -231,6 +231,53 @@ export class SupabaseService {
   }
 
   /**
+   * Gets the users full name and birthday based on their ID.
+   * @param userId - The ID of the user.
+   * @returns A Promise that resolves to an object. The object contains the user's full name and birthday.
+   * @throws an error if the fetch operation wasn't successful.
+   */
+  async getUserInfo(
+    userId: string
+  ): Promise<{ name: string; birthday: string }> {
+    const { data, error } = await this.supabase
+      .from('profiles')
+      .select('full_name, birthday')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return { name: '', birthday: '' };
+    }
+
+    return {
+      name: data.full_name,
+      birthday: data.birthday, // ISO string like '2001-01-01'
+    };
+  }
+
+  /**
+   * Get the User's total workout count
+   * @param userId  - The ID of the user whose count are to be fetched.
+   * @returns Promise that resolves to a number.
+   */
+  async getWorkoutCount(userId: string): Promise<number> {
+    try {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('workouts_completed')
+        .eq('id', userId)
+        .single();
+
+      if (error || !data) return 0;
+      return data.workouts_completed;
+    } catch (error) {
+      console.error("Error fetching user's total workout count:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Get User Workouts by User ID
    * @param userId - The ID of the user whose workouts are to be fetched.
    * @returns {Array<WorkoutPlan>} Promise that resolves to an array of workout plans or an empty array if not found.
@@ -439,18 +486,18 @@ export class SupabaseService {
    * @return {number} Promise that resolves to the total count of workouts or 0 if not found.
    * @throws Error if there is an issue fetching the data.
    * */
-  async getTotalWorkoutCount(workout_id: string) {
+  async getTotalWorkoutCount(userId: string): Promise<number> {
     try {
-      const { count, error } = await this.supabase
-        .from('exercise_progress')
-        .select('*', { count: 'exact', head: true })
-        .eq('workout_id', workout_id);
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select('workouts_completed')
+        .eq('id', userId)
+        .single();
 
       if (error) {
         throw error;
       }
-
-      return count || 0; // Return 0 if count is null
+      return data?.workouts_completed ?? 0; // Return 0 if count is null
     } catch (error) {
       console.error('Error fetching total workout count:', error);
       throw error;
@@ -549,6 +596,37 @@ export class SupabaseService {
     } catch (error) {
       console.error('Error saving workout progress:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Update the user's name and birthday based on their id.
+   * @param userId - ID of the user.
+   * @param info - The info to be updated in the user's profile. The user can update their name and birthday.
+   * @returns - A Promise that resolves into an object that tells the user if the operation was successful.
+   * @throws an error if the update was not successful.
+   */
+  async updateProfileInfo(
+    userId: string,
+    info: { full_name: string; birthday: string }
+  ): Promise<{ success: boolean; data?: any; error?: any }> {
+    try {
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .update(info)
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase update profile error: ', error);
+        return { success: false, error };
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error updating user information: ', error);
+      return { success: false, error };
     }
   }
 
@@ -664,6 +742,16 @@ export class SupabaseService {
       throw new Error('Exercise update succeeded but returned no data.');
     }
     return data;
+  }
+
+  async updateTotalWorkoutCount(userId: string, count: number): Promise<void> {
+    const { error } = await this.supabase
+      .from('profiles')
+      .upsert({ id: userId, workouts_completed: count });
+
+    if (error) {
+      console.error('Update error:', error);
+    }
   }
 
   /***** DELETE METHODS *****/
