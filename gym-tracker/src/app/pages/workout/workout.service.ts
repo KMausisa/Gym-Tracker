@@ -42,6 +42,12 @@ export class WorkoutService {
     }
   }
 
+  /**
+   * get total workout count of user based on their id.
+   * @param userId - ID of the user.
+   * @returns A promise that resolves to a number.
+   * @throws An error if the service was unable to fetch the count.
+   */
   async getUserWorkoutCount(userId: string): Promise<number> {
     try {
       const userWorkoutCount = await this.supabaseService.getTotalWorkoutCount(

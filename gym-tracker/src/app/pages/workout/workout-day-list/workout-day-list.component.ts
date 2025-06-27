@@ -1,6 +1,13 @@
-import { filter } from 'rxjs';
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { Location } from '@angular/common';
+import { filter, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -27,7 +34,7 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
   templateUrl: './workout-day-list.component.html',
   styleUrl: './workout-day-list.component.css',
 })
-export class WorkoutDayListComponent implements OnInit {
+export class WorkoutDayListComponent implements OnInit, OnDestroy {
   user!: User;
   workoutId: string = '';
   dayId: string = '';
@@ -42,6 +49,8 @@ export class WorkoutDayListComponent implements OnInit {
   weight: number = 0;
   notes: string = '';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -52,18 +61,28 @@ export class WorkoutDayListComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.supabaseService.currentUser.subscribe((user) => {
-      this.user = user;
-    });
+    this.supabaseService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
+      });
 
     this.loadFromParams();
 
     // Listen for navigation events so you can reload exercises when this route is re-activated
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
       .subscribe(() => {
         this.loadFromParams();
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async loadFromParams() {

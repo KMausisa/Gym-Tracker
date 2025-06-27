@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from '../workout/workout.service';
@@ -8,7 +9,9 @@ import { WorkoutService } from '../workout/workout.service';
 import { User } from '../profile/user.model';
 import { WorkoutPlan } from '../../models/workout_plan.model';
 import { Exercise } from '../../models/exercise.model';
+import { ExerciseProgress } from '../../models/exercise_progress.model';
 
+import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 import {
@@ -19,7 +22,6 @@ import {
   ReactiveFormsModule,
   FormArray,
 } from '@angular/forms';
-import { ExerciseProgress } from '../../models/exercise_progress.model';
 
 @Component({
   selector: 'app-home',
@@ -28,7 +30,7 @@ import { ExerciseProgress } from '../../models/exercise_progress.model';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   user!: User;
   activeWorkout!: WorkoutPlan | null;
   activeWorkoutId: string = '';
@@ -54,6 +56,8 @@ export class HomeComponent {
 
   workoutDayHeader: string = 'This is your routine for the day:';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private supabaseService: SupabaseService,
     private workoutService: WorkoutService,
@@ -63,14 +67,14 @@ export class HomeComponent {
   ) {}
 
   async ngOnInit() {
-    this.supabaseService.currentUser.subscribe(async (user) => {
-      this.user = user;
+    this.supabaseService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async (user) => {
+        this.user = user;
 
-      this.workoutsCompletedCount =
-        await this.workoutService.getUserWorkoutCount(this.user.id);
-
-      console.log('Total workouts: ', this.workoutsCompletedCount);
-    });
+        this.workoutsCompletedCount =
+          await this.workoutService.getUserWorkoutCount(this.user.id);
+      });
 
     const daysOfWeek = [
       'Sunday',
@@ -292,5 +296,10 @@ export class HomeComponent {
     } else {
       console.warn('Current exercise or its id is undefined:', currentExercise);
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

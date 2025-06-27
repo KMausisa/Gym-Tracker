@@ -56,7 +56,7 @@ export class ProgressComponent implements OnInit, OnDestroy {
 
     // Subscribe to workouts completed count
     // Subscribe to current user and fetch data
-    this.supabaseService.currentUser
+    this.supabaseService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe((user) => {
         this.user = user;
@@ -87,11 +87,6 @@ export class ProgressComponent implements OnInit, OnDestroy {
       .subscribe((count) => {
         this.workoutsCompletedCount = count;
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   search(value: string) {
@@ -153,5 +148,10 @@ export class ProgressComponent implements OnInit, OnDestroy {
       },
       { exercise: '', weight: 0, reps: 0 }
     );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

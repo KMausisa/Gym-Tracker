@@ -2,14 +2,13 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from './workout.service';
 
 import { User } from '../profile/user.model';
-import { WorkoutListComponent } from './workout-plan-list/workout-plan-list.component';
-import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.component';
 
 @Component({
   selector: 'app-workout',
@@ -21,7 +20,8 @@ import { WorkoutDayListComponent } from './workout-day-list/workout-day-list.com
 export class WorkoutComponent implements OnInit, OnDestroy {
   user!: User;
   isLoading = true;
-  private subscriptions = new Subscription();
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private supabaseService: SupabaseService,
@@ -31,15 +31,15 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subscriptions.add(
-      this.supabaseService.currentUser.subscribe((user) => {
+    this.supabaseService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
         this.user = user;
         this.isLoading = false;
         if (this.user) {
           this.workoutService.getUserWorkoutPlans(this.user.id);
         }
-      })
-    );
+      });
   }
 
   get isOnNewRoute() {
@@ -54,6 +54,7 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptions.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

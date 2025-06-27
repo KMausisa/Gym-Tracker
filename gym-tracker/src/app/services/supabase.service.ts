@@ -16,6 +16,7 @@ import { WorkoutDay } from '../models/workout_day.model';
 export class SupabaseService {
   private supabase: SupabaseClient;
   private _currentUser = new BehaviorSubject<any>(null);
+  currentUser$ = this._currentUser.asObservable();
 
   private sessionReadyResolver!: () => void;
   public sessionReady: Promise<void>;

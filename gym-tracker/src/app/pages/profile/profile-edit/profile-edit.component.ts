@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -9,6 +9,9 @@ import {
   Validators,
 } from '@angular/forms';
 
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { SupabaseService } from '../../../services/supabase.service';
 import { User } from '../user.model';
 
@@ -18,7 +21,7 @@ import { User } from '../user.model';
   templateUrl: './profile-edit.component.html',
   styleUrl: './profile-edit.component.css',
 })
-export class ProfileEditComponent implements OnInit {
+export class ProfileEditComponent implements OnInit, OnDestroy {
   user!: User;
   userInfo!: { name: string; birthday: string };
   profileEditForm: FormGroup;
@@ -26,6 +29,8 @@ export class ProfileEditComponent implements OnInit {
   maxDate: string;
 
   loading: boolean = false;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -50,9 +55,11 @@ export class ProfileEditComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.supabaseService.currentUser.subscribe(async (user) => {
-      this.user = user;
-    });
+    this.supabaseService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async (user) => {
+        this.user = user;
+      });
 
     this.loadProfile();
   }
@@ -86,5 +93,10 @@ export class ProfileEditComponent implements OnInit {
     } catch (error: any) {
       this.errorMessage = error.message || 'User Info could not be updated';
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { min, Subscription } from 'rxjs';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartType, plugins } from 'chart.js';
+
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 import { SupabaseService } from '../../../services/supabase.service';
 import { WorkoutService } from '../../workout/workout.service';
@@ -30,7 +32,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   maxWeightChartOptions: any = {};
   term: string = '';
 
-  private routeSub!: Subscription;
+  destroy$ = new Subject<void>();
 
   constructor(
     private supabaseService: SupabaseService,
@@ -39,30 +41,33 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.routeSub = this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.exerciseId = params.get('exerciseId')!;
 
-      console.log(this.exerciseId);
       // Fetch data for the new exerciseId here
-      this.supabaseService.currentUser.subscribe((user) => {
-        this.user = user;
-        if (this.user) {
-          this.workoutService.getExerciseProgress(
-            this.user.id,
-            this.exerciseId
-          );
-        }
-      });
-      this.workoutService.exerciseProgressChanged.subscribe((progress) => {
-        this.exerciseProgress = progress;
-        console.log('Exercise Progress: ', this.exerciseProgress);
-        this.prepareChartData();
-      });
+      this.supabaseService.currentUser
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((user) => {
+          this.user = user;
+          if (this.user) {
+            this.workoutService.getExerciseProgress(
+              this.user.id,
+              this.exerciseId
+            );
+          }
+        });
+      this.workoutService.exerciseProgressChanged
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((progress) => {
+          this.exerciseProgress = progress;
+          this.prepareChartData();
+        });
     });
   }
 
   ngOnDestroy() {
-    if (this.routeSub) this.routeSub.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   prepareChartData() {
