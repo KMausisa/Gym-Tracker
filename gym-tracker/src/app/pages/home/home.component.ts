@@ -13,6 +13,7 @@ import { ExerciseProgress } from '../../models/exercise_progress.model';
 
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { SkipWorkoutDialogComponent } from '../../shared/skip-workout-dialog/skip-workout-dialog.component';
 
 import {
   FormGroup,
@@ -44,6 +45,9 @@ export class HomeComponent implements OnDestroy {
   inWorkout: boolean = false;
   workoutCompleted: boolean = false;
   workoutsCompletedCount: number = 0;
+
+  showSkipModal = false;
+  skipReason: string = '';
 
   exerciseProgress: {
     [exerciseId: string]: {
@@ -296,6 +300,12 @@ export class HomeComponent implements OnDestroy {
     } else {
       console.warn('Current exercise or its id is undefined:', currentExercise);
     }
+  }
+
+  openSkipDialog() {
+    const dialogRef = this.dialog.open(SkipWorkoutDialogComponent, {
+      width: '400px',
+    });
   }
 
   ngOnDestroy() {
