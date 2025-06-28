@@ -48,6 +48,7 @@ export class HomeComponent implements OnDestroy {
 
   showSkipModal = false;
   skipReason: string = '';
+  workoutSkipped: boolean = false;
 
   exerciseProgress: {
     [exerciseId: string]: {
@@ -106,6 +107,23 @@ export class HomeComponent implements OnDestroy {
     } else {
       this.workoutCompleted = false;
     }
+
+    this.skipReason = localStorage.getItem('skipReason') ?? '';
+
+    const skippedRaw = localStorage.getItem('skippedWorkout');
+    if (skippedRaw) {
+      const skipped = JSON.parse(skippedRaw);
+      this.workoutSkipped =
+        skipped.workoutId === this.activeWorkoutId &&
+        skipped.day === this.currentDay;
+      this.skipReason = skipped.reason || '';
+    } else {
+      this.workoutSkipped = false;
+      this.skipReason = '';
+    }
+
+    console.log('Workout completed:', this.workoutCompleted);
+    console.log('Workout skipped:', this.workoutSkipped);
 
     if (this.activeWorkoutId) {
       this.workoutService
@@ -231,6 +249,7 @@ export class HomeComponent implements OnDestroy {
           weights: progress.weight,
           maxVolume: 0,
           notes: progress.notes,
+          note: this.skipReason,
         };
         this.workoutService
           .saveWorkoutProgress(progressToSave)
@@ -305,6 +324,48 @@ export class HomeComponent implements OnDestroy {
   openSkipDialog() {
     const dialogRef = this.dialog.open(SkipWorkoutDialogComponent, {
       width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe((reason: string | undefined) => {
+      if (reason !== undefined) {
+        // Log skipped workout with reason
+        if (this.todaysExercises && this.todaysExercises.length > 0) {
+          // Initialize progress for each exercise
+          this.todaysExercises.forEach((ex) => {
+            if (typeof ex.id === 'string' && ex.id) {
+              if (!this.exerciseProgress[ex.id]) {
+                this.exerciseProgress[ex.id] = {
+                  sets: ex.sets,
+                  reps: Array(ex.sets).fill(0), // User will enter actual reps
+                  weight: Array(ex.sets).fill(0), // User will enter actual weight
+                  notes: Array(ex.sets).fill(''), // User will enter notes
+                };
+              }
+            } else {
+              console.warn('Exercise has undefined or non-string id:', ex);
+            }
+          });
+
+          this.skipReason = reason;
+          this.workoutSkipped = true;
+          this.finishWorkout();
+          localStorage.setItem(
+            'skippedWorkout',
+            JSON.stringify({
+              workoutId: this.activeWorkoutId,
+              day: this.currentDay,
+              reason: this.skipReason,
+            })
+          );
+        } else {
+          console.error('No exercises for today.');
+        }
+
+        console.log(
+          'Exercise progress before skipping:',
+          this.exerciseProgress
+        );
+      }
     });
   }
 

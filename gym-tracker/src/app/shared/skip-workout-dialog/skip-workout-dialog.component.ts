@@ -5,6 +5,7 @@ import {
   MatDialogContent,
   MatDialogActions,
 } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
@@ -16,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatDialogContent,
     MatDialogActions,
     MatFormFieldModule,
+    MatInputModule,
   ],
 })
 export class SkipWorkoutDialogComponent {

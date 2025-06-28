@@ -10,7 +10,8 @@
   <div class="workout-day-list card">
     <div class="workout-day-header">
       <h2>Today is {{ currentDay }}. {{ workoutDayHeader }}</h2>
-      @if (!workoutCompleted && todaysExercises.length != 0) {
+      @if (!workoutCompleted && !workoutSkipped && todaysExercises.length != 0)
+      {
       <div class="button-group">
         <button class="btn btn-start" (click)="startWorkout()">
           Start Workout
@@ -20,10 +21,13 @@
           Did Not Do
         </button>
       </div>
-      } @else if (workoutCompleted){
+      } @else if (workoutCompleted && !workoutSkipped) {
       <p class="workout-completed">Workout Completed!</p>
+      } @else if (workoutSkipped) {
+      <p class="workout-skipped">Workout skipped.</p>
       }
     </div>
+
     @if (todaysExercises.length != 0) {
     <ul class="exercise-list">
       @for (exercise of todaysExercises; track exercise) {
