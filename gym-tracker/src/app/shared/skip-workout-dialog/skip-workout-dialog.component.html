@@ -1,0 +1,22 @@
+<div class="container">
+  <h2 mat-dialog-title>Skip Workout</h2>
+  <mat-dialog-content>
+    <p>Why did you skip today’s workout? (optional)</p>
+    <mat-form-field appearance="outline" class="full-width">
+      <textarea
+        matInput
+        [(ngModel)]="reason"
+        placeholder="e.g. Felt sick, had a busy day..."
+      ></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button class="cancel" (click)="dialogRef.close()">
+      Cancel
+    </button>
+    <button mat-flat-button class="confirm" (click)="submit()">
+      Skip Workout
+    </button>
+  </mat-dialog-actions>
+</div>

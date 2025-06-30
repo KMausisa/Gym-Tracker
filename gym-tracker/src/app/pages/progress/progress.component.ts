@@ -50,25 +50,20 @@ export class ProgressComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     // Get the active workout id from local storage
     this.activeWorkoutId = localStorage.getItem('activeWorkoutId') || '';
 
     // Subscribe to workouts completed count
-    this.workoutService.workoutsCompleted$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((count) => {
-        this.workoutsCompletedCount = count;
-      });
-
     // Subscribe to current user and fetch data
-    this.supabaseService.currentUser
+    this.supabaseService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe((user) => {
         this.user = user;
         if (!this.user) return;
 
         // Fetch user exercises and workout progress
+        this.workoutService.getUserWorkoutCount(this.user.id);
         this.workoutService.getUserExercises(this.user.id);
         this.workoutService.getWorkoutProgress(this.user.id);
       });
@@ -86,11 +81,12 @@ export class ProgressComponent implements OnInit, OnDestroy {
       .subscribe((exerciseList) => {
         this.exerciseList = exerciseList;
       });
-  }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.workoutService.workoutsCompleted$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((count) => {
+        this.workoutsCompletedCount = count;
+      });
   }
 
   search(value: string) {
@@ -152,5 +148,10 @@ export class ProgressComponent implements OnInit, OnDestroy {
       },
       { exercise: '', weight: 0, reps: 0 }
     );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

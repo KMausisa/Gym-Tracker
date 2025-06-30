@@ -1,14 +1,25 @@
+/* Define color variables for easy theme changes */
+:root {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --danger-color: #F44336;
+  --danger-hover: #D32F2F;
+  --white: #fff;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --border-radius: 12px;
+}
+
 .container {
-  padding: 24px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  max-width: 90vw;      /* prevents overflowing on small screens */
+  padding: 2rem;
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  max-width: 90vw;
   box-sizing: border-box;
 }
 
 /* Make buttons take full width on small screens */
-.buttons {
+mat-dialog-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;        /* allow wrapping on small screens */
@@ -18,7 +29,7 @@
 button {
   flex: 1 1 100px;         /* flexible width with min of 100px */
   padding: 10px 0;
-  color: #fff;
+  color: var(--white);
   border: none;
   border-radius: 6px;
   font-size: 1.1rem;
@@ -29,37 +40,41 @@ button {
   max-width: 200px;        /* optional: prevent too large on wide screens */
 }
 
+button.confirm {
+  background: var(--primary-color);
+}
+
+button.confirm:hover,
+button.confirm:focus {
+  background: var(--primary-hover);
+}
+
 button.cancel {
-  background: #007bff;
+  background: var(--danger-color);
 }
 
 button.cancel:hover,
 button.cancel:focus {
-  background: #0056b3;
+  background: var(--danger-hover);
 }
 
-button.delete {
-  background: #F44336;
-}
-
-button.delete:hover,
-button.delete:focus {
-  background: #D32F2F;
+mat-form-field.full-width {
+  width: 100%;
 }
 
 @media (max-width: 480px) {
   .container {
-    padding: 16px;
+    padding: 1rem;
   }
 
-  .buttons {
+  mat-dialog-actions {
     flex-direction: column;
     gap: 8px;
   }
 
   button {
-    flex: 1 1 50px;  
-    width: 100%;        /* full width on very small screens */
+    width: 100%;
     max-width: 100%;
+    min-width: 50px;
   }
 }

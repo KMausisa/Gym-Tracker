@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { SupabaseService } from '../../services/supabase.service';
 import { WorkoutService } from '../workout/workout.service';
@@ -6,6 +9,11 @@ import { WorkoutService } from '../workout/workout.service';
 import { User } from '../profile/user.model';
 import { WorkoutPlan } from '../../models/workout_plan.model';
 import { Exercise } from '../../models/exercise.model';
+import { ExerciseProgress } from '../../models/exercise_progress.model';
+
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { SkipWorkoutDialogComponent } from '../../shared/skip-workout-dialog/skip-workout-dialog.component';
 
 import {
   FormGroup,
@@ -15,7 +23,6 @@ import {
   ReactiveFormsModule,
   FormArray,
 } from '@angular/forms';
-import { ExerciseProgress } from '../../models/exercise_progress.model';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +31,7 @@ import { ExerciseProgress } from '../../models/exercise_progress.model';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   user!: User;
   activeWorkout!: WorkoutPlan | null;
   activeWorkoutId: string = '';
@@ -37,7 +44,11 @@ export class HomeComponent {
   currentExerciseIndex: number = 0;
   inWorkout: boolean = false;
   workoutCompleted: boolean = false;
-  workoutsCompleted: number = 0;
+  workoutsCompletedCount: number = 0;
+
+  showSkipModal = false;
+  skipReason: string = '';
+  workoutSkipped: boolean = false;
 
   exerciseProgress: {
     [exerciseId: string]: {
@@ -50,16 +61,25 @@ export class HomeComponent {
 
   workoutDayHeader: string = 'This is your routine for the day:';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private supabaseService: SupabaseService,
     private workoutService: WorkoutService,
-    private fb: FormBuilder
+    private router: Router,
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {}
 
-  ngOnInit() {
-    this.supabaseService.currentUser.subscribe(async (user) => {
-      this.user = user;
-    });
+  async ngOnInit() {
+    this.supabaseService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async (user) => {
+        this.user = user;
+
+        this.workoutsCompletedCount =
+          await this.workoutService.getUserWorkoutCount(this.user.id);
+      });
 
     const daysOfWeek = [
       'Sunday',
@@ -88,7 +108,22 @@ export class HomeComponent {
       this.workoutCompleted = false;
     }
 
-    console.log('The workout is completed: ', this.workoutCompleted);
+    this.skipReason = localStorage.getItem('skipReason') ?? '';
+
+    const skippedRaw = localStorage.getItem('skippedWorkout');
+    if (skippedRaw) {
+      const skipped = JSON.parse(skippedRaw);
+      this.workoutSkipped =
+        skipped.workoutId === this.activeWorkoutId &&
+        skipped.day === this.currentDay;
+      this.skipReason = skipped.reason || '';
+    } else {
+      this.workoutSkipped = false;
+      this.skipReason = '';
+    }
+
+    console.log('Workout completed:', this.workoutCompleted);
+    console.log('Workout skipped:', this.workoutSkipped);
 
     if (this.activeWorkoutId) {
       this.workoutService
@@ -119,6 +154,21 @@ export class HomeComponent {
       .catch((error) => {
         console.error('Error fetching exercises for day:', error);
       });
+  }
+
+  confirmCancelWorkout() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { message: 'Are you sure you want to cancel your workout?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Reset state or navigate
+        this.inWorkout = false;
+        this.router.navigate(['/dashboard']); // or wherever is appropriate
+      }
+    });
   }
 
   startWorkout() {
@@ -199,6 +249,7 @@ export class HomeComponent {
           weights: progress.weight,
           maxVolume: 0,
           notes: progress.notes,
+          note: this.skipReason,
         };
         this.workoutService
           .saveWorkoutProgress(progressToSave)
@@ -223,9 +274,9 @@ export class HomeComponent {
     this.nextExercise(); // Move to next exercise
   }
 
-  onFinishWorkout() {
-    this.onSubmit(); // Save current form data
-    this.finishWorkout(); // Finish the workout
+  async onFinishWorkout() {
+    await this.onSubmit(); // Save current form data
+    await this.finishWorkout(); // Finish the workout
     this.inWorkout = false; // Reset workout state
     // Get existing completed data or initialize empty object
     const completedRaw = localStorage.getItem('completedWorkout');
@@ -244,8 +295,11 @@ export class HomeComponent {
     localStorage.setItem('completedWorkout', JSON.stringify(completed));
 
     this.workoutCompleted = true;
-    this.workoutsCompleted++;
-    this.workoutService.setWorkoutsCompleted(this.workoutsCompleted);
+    this.workoutsCompletedCount++;
+    this.workoutService.updateTotalWorkoutCount(
+      this.user.id,
+      this.workoutsCompletedCount
+    );
   }
 
   get sets() {
@@ -265,5 +319,58 @@ export class HomeComponent {
     } else {
       console.warn('Current exercise or its id is undefined:', currentExercise);
     }
+  }
+
+  openSkipDialog() {
+    const dialogRef = this.dialog.open(SkipWorkoutDialogComponent, {
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe((reason: string | undefined) => {
+      if (reason !== undefined) {
+        // Log skipped workout with reason
+        if (this.todaysExercises && this.todaysExercises.length > 0) {
+          // Initialize progress for each exercise
+          this.todaysExercises.forEach((ex) => {
+            if (typeof ex.id === 'string' && ex.id) {
+              if (!this.exerciseProgress[ex.id]) {
+                this.exerciseProgress[ex.id] = {
+                  sets: ex.sets,
+                  reps: Array(ex.sets).fill(0), // User will enter actual reps
+                  weight: Array(ex.sets).fill(0), // User will enter actual weight
+                  notes: Array(ex.sets).fill(''), // User will enter notes
+                };
+              }
+            } else {
+              console.warn('Exercise has undefined or non-string id:', ex);
+            }
+          });
+
+          this.skipReason = reason;
+          this.workoutSkipped = true;
+          this.finishWorkout();
+          localStorage.setItem(
+            'skippedWorkout',
+            JSON.stringify({
+              workoutId: this.activeWorkoutId,
+              day: this.currentDay,
+              reason: this.skipReason,
+            })
+          );
+        } else {
+          console.error('No exercises for today.');
+        }
+
+        console.log(
+          'Exercise progress before skipping:',
+          this.exerciseProgress
+        );
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

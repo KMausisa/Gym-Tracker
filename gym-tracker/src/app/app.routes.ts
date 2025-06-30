@@ -97,6 +97,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'profile/:userId/edit',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/profile/profile-edit/profile-edit.component').then(
+        (m) => m.ProfileEditComponent
+      ),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./login/login.component').then((m) => m.LoginComponent),
@@ -104,6 +112,6 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/home/home.component').then((m) => m.HomeComponent),
+      import('./login/login.component').then((m) => m.LoginComponent),
   },
 ];

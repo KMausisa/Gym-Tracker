@@ -1,5 +1,13 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { Location } from '@angular/common';
+import { filter, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,26 +15,32 @@ import {
   RouterModule,
   RouterOutlet,
   Router,
+  NavigationEnd,
 } from '@angular/router';
+
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
 
 import { WorkoutService } from '../workout.service';
 import { SupabaseService } from '../../../services/supabase.service';
 import { User } from '../../profile/user.model';
 import { Exercise } from '../../../models/exercise.model';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-workout-day-list',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, MatProgressSpinnerModule],
   templateUrl: './workout-day-list.component.html',
   styleUrl: './workout-day-list.component.css',
 })
-export class WorkoutDayListComponent implements OnInit {
+export class WorkoutDayListComponent implements OnInit, OnDestroy {
   user!: User;
   workoutId: string = '';
   dayId: string = '';
   exercises: Exercise[] = [];
   selectedDay: string = '';
+  isLoading: boolean = false;
   @Output() workoutSelected = new EventEmitter<any[]>();
 
   exerciseName: string = '';
@@ -35,33 +49,53 @@ export class WorkoutDayListComponent implements OnInit {
   weight: number = 0;
   notes: string = '';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
     private workoutService: WorkoutService,
-    private supabaseService: SupabaseService
+    private supabaseService: SupabaseService,
+    private dialog: MatDialog
   ) {}
 
   async ngOnInit() {
-    this.supabaseService.currentUser.subscribe((user) => {
-      this.user = user;
-    });
+    this.supabaseService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
+      });
 
-    this.route.params.subscribe(async (params) => {
-      this.workoutId = params['id'];
-      this.selectedDay = params['day'];
+    this.loadFromParams();
 
-      this.dayId = await this.supabaseService.getDayId(
-        this.workoutId,
-        this.selectedDay
-      );
-      this.loadExercisesForDay(this.dayId);
-    });
+    // Listen for navigation events so you can reload exercises when this route is re-activated
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.loadFromParams();
+      });
+  }
 
-    this.workoutService.exerciseListChanged.subscribe((exercises) => {
-      this.exercises = exercises;
-    });
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  async loadFromParams() {
+    const params = this.route.snapshot.params;
+    this.workoutId = params['id'];
+    this.selectedDay = params['day'];
+
+    this.dayId = await this.supabaseService.getDayId(
+      this.workoutId,
+      this.selectedDay
+    );
+
+    this.loadExercisesForDay(this.dayId);
   }
 
   selectWorkout(workout: any) {
@@ -78,17 +112,41 @@ export class WorkoutDayListComponent implements OnInit {
   }
 
   async loadExercisesForDay(dayId: string) {
-    await this.workoutService.getRoutineById(dayId);
+    this.isLoading = true;
+    this.exercises = []; // Reset to prevent flicker
+
+    const routine = await this.workoutService.getRoutineById(dayId);
+
+    // Only update exercises if routine was fetched
+    this.exercises = routine ?? [];
+    this.isLoading = false;
   }
 
   onDeleteExercise(exerciseId: string) {
-    this.workoutService.deleteExercise(exerciseId, this.user.id).then(() => {
-      this.loadExercisesForDay(this.dayId);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '300px',
+      data: { message: 'Are you sure you want to delete this exercise?' },
     });
-    this.router.navigate([`/workouts/${this.workoutId}/${this.selectedDay}`]);
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.workoutService
+          .deleteExercise(exerciseId, this.user.id)
+          .then(() => {
+            this.loadExercisesForDay(this.dayId);
+          });
+        this.router.navigate([
+          `/workouts/${this.workoutId}/${this.selectedDay}`,
+        ]);
+      }
+    });
   }
 
   goBack() {
-    this.location.back();
+    if (this.router.url === `/workouts/${this.workoutId}/${this.selectedDay}`) {
+      this.router.navigate(['/workouts']);
+    } else {
+      this.location.back();
+    }
   }
 }

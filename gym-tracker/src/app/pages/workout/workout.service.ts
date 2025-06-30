@@ -43,6 +43,25 @@ export class WorkoutService {
   }
 
   /**
+   * get total workout count of user based on their id.
+   * @param userId - ID of the user.
+   * @returns A promise that resolves to a number.
+   * @throws An error if the service was unable to fetch the count.
+   */
+  async getUserWorkoutCount(userId: string): Promise<number> {
+    try {
+      const userWorkoutCount = await this.supabaseService.getTotalWorkoutCount(
+        userId
+      );
+      this._workoutsCompleted.next(userWorkoutCount);
+      return userWorkoutCount;
+    } catch (error) {
+      console.error("Error fetching User's total workout count: ", error);
+      return 0;
+    }
+  }
+
+  /**
    * Get a specific workout plan by its ID.
    * @param workoutId - The ID of the workout plan to be fetched.
    * @returns {Promise<WorkoutPlan | null>} A promise that resolves to a WorkoutPlan object or null if an error occurs.
@@ -232,10 +251,26 @@ export class WorkoutService {
       const savedProgress = await this.supabaseService.saveWorkoutProgress(
         exerciseProgress
       );
+
       return savedProgress;
     } catch (error) {
       console.error('Error saving workout progress:', error);
       return null;
+    }
+  }
+
+  /**
+   * Update the total workout count based on the user id.
+   * @param userId - The id of the user
+   * @param count  - The updated workout count
+   * @throws Error if there is an issue updating the workout count.
+   */
+  async updateTotalWorkoutCount(userId: string, count: number) {
+    try {
+      await this.supabaseService.updateTotalWorkoutCount(userId, count);
+      this._workoutsCompleted.next(count);
+    } catch (error) {
+      console.error('Error updating total workout count:', error);
     }
   }
 
@@ -320,9 +355,5 @@ export class WorkoutService {
       this.exerciseListChanged.next([]);
       return null;
     }
-  }
-
-  setWorkoutsCompleted(count: number) {
-    this._workoutsCompleted.next(count);
   }
 }

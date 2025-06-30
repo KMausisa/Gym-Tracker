@@ -1,0 +1,43 @@
+<div class="profile-edit-container">
+  <div class="profile-edit-card">
+    <h2>Edit Account Info</h2>
+
+    <form [formGroup]="profileEditForm" (ngSubmit)="onSubmit()">
+      <!-- Full Name field - Only shown in signup mode -->
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input
+          type="text"
+          id="full_name"
+          formControlName="full_name"
+          placeholder="Enter your full name"
+        />
+        @if (profileEditForm.get('full_name')?.invalid &&
+        profileEditForm.get('full_name')?.touched) {
+        <div class="error">Full name is required</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="birthday">Birthday</label>
+        <input
+          type="date"
+          id="birthday"
+          formControlName="birthday"
+          [max]="maxDate"
+        />
+        @if (profileEditForm.get('birthday')?.invalid &&
+        profileEditForm.get('birthday')?.touched) {
+        <div class="error">Birthday is required</div>
+        }
+      </div>
+      @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+      }
+
+      <button type="submit" [disabled]="profileEditForm.invalid || loading">
+        {{ loading ? "Processing..." : "Edit Profile" }}
+      </button>
+    </form>
+  </div>
+</div>

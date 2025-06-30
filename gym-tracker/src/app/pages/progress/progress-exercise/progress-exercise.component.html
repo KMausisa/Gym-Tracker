@@ -1,10 +1,12 @@
-<!-- Display exercise chart -->
-<div class="exercise-chart" *ngIf="chartDataList.length > 0">
+@if (exerciseProgress.length > 0) {
+<div class="exercise-chart">
   <div class="chart-header">
-    <!-- <h2>{{ exerciseProgress[0].name || "Exercise Progress" }}</h2> -->
+    <h2>{{ exerciseProgress[0]?.name || "Exercise Progress" }}</h2>
   </div>
+
   <div class="chart-flex-container">
     <div class="chart-container">
+      <h3 class="chart-title">Total Volume</h3>
       <canvas
         baseChart
         [data]="chartDataList[0]"
@@ -13,7 +15,9 @@
         [legend]="true"
       ></canvas>
     </div>
+
     <div class="chart-container">
+      <h3 class="chart-title">Max Weight</h3>
       <canvas
         baseChart
         [data]="maxWeightChartDataList[0]"
@@ -24,7 +28,8 @@
     </div>
   </div>
 </div>
-
-<div *ngIf="chartDataList.length === 0">
+} @else {
+<div class="no-data-message">
   <p>No progress data available for this exercise.</p>
 </div>
+}

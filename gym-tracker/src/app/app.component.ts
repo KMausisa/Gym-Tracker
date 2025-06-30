@@ -1,9 +1,12 @@
 import { Component, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SupabaseService } from './services/supabase.service';
-import { HeaderComponent } from './header/header.component';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { User } from './pages/profile/user.model';
+import { SupabaseService } from './services/supabase.service';
+
+import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 
 @Component({
@@ -21,9 +24,10 @@ export class AppComponent implements OnDestroy {
   userId: string = '';
   userProfile: User | null = null;
 
-  private authSub?: Subscription;
+  private destroy$ = new Subject<void>();
 
   constructor(private supabaseService: SupabaseService) {
+    this.supabaseService.loadUser();
     this.supabaseService.sessionReady.then(() => {
       this.isSessionReady = true;
       this.subscribeToAuth();
@@ -31,16 +35,18 @@ export class AppComponent implements OnDestroy {
   }
 
   subscribeToAuth() {
-    this.authSub = this.supabaseService.currentUser.subscribe((user) => {
-      this.isAuthenticated = !!user;
-      this.userId = user?.id || null;
+    this.supabaseService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.isAuthenticated = !!user;
+        this.userId = user?.id || null;
 
-      if (this.isAuthenticated) {
-        this.loadUserProfile();
-      } else {
-        this.userProfile = null;
-      }
-    });
+        if (this.isAuthenticated) {
+          this.loadUserProfile();
+        } else {
+          this.userProfile = null;
+        }
+      });
   }
 
   async loadUserProfile() {
@@ -56,6 +62,7 @@ export class AppComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.authSub?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

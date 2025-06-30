@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { NgChartsModule } from 'ng2-charts';
-import { ChartConfiguration, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartType, plugins } from 'chart.js';
+
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 import { SupabaseService } from '../../../services/supabase.service';
 import { WorkoutService } from '../../workout/workout.service';
@@ -20,9 +22,8 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   user!: User;
   exerciseId!: string;
 
-  exerciseList: ExerciseProgress[] = [];
-
   exerciseProgress: ExerciseProgress[] = [];
+  exerciseHasProgress: boolean = false;
 
   chartType: 'scatter' = 'scatter';
   chartDataList: any[] = [];
@@ -31,7 +32,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   maxWeightChartOptions: any = {};
   term: string = '';
 
-  private routeSub!: Subscription;
+  destroy$ = new Subject<void>();
 
   constructor(
     private supabaseService: SupabaseService,
@@ -40,33 +41,37 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.routeSub = this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.exerciseId = params.get('exerciseId')!;
 
-      console.log(this.exerciseId);
       // Fetch data for the new exerciseId here
-      this.supabaseService.currentUser.subscribe((user) => {
-        this.user = user;
-        if (this.user) {
-          this.workoutService.getExerciseProgress(
-            this.user.id,
-            this.exerciseId
-          );
-        }
-      });
-      this.workoutService.exerciseProgressChanged.subscribe((progress) => {
-        this.exerciseList = progress;
-        this.prepareChartData();
-      });
+      this.supabaseService.currentUser
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((user) => {
+          this.user = user;
+          if (this.user) {
+            this.workoutService.getExerciseProgress(
+              this.user.id,
+              this.exerciseId
+            );
+          }
+        });
+      this.workoutService.exerciseProgressChanged
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((progress) => {
+          this.exerciseProgress = progress;
+          this.prepareChartData();
+        });
     });
   }
 
   ngOnDestroy() {
-    if (this.routeSub) this.routeSub.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   prepareChartData() {
-    const totalVolume = this.exerciseList.map((exercise) => {
+    const totalVolume = this.exerciseProgress.map((exercise) => {
       const weights: number[] = Array.isArray(exercise.weights)
         ? exercise.weights
         : [exercise.weights];
@@ -79,7 +84,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
       );
     });
 
-    const dataPoints = this.exerciseList.map((s, i) => ({
+    const dataPoints = this.exerciseProgress.map((s, i) => ({
       x: s.created_at,
       y: totalVolume[i],
     }));
@@ -93,25 +98,34 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
             data: dataPoints,
             borderColor: 'black',
             backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            showLine: false, // No connecting line
+            showLine: false,
+            spanGaps: false,
             pointRadius: 5,
+            pointBorderWidth: 1,
+            pointStyle: 'circle', // Ensure it’s a dot, not a vertical bar
           },
         ],
       },
     ];
 
     // Chart options for time x-axis
-    const singleDate = new Date(this.exerciseList[0]?.created_at ?? '');
-    const minDate = new Date(singleDate);
+    const dates = this.exerciseProgress
+      .map((e) => (e.created_at ? new Date(e.created_at) : null))
+      .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+
+    // Add padding — e.g. 1 day before and after
     minDate.setDate(minDate.getDate() - 1);
-    const maxDate = new Date(singleDate);
-    maxDate.setDate(maxDate.getDate() + 1);
+    maxDate.setDate(maxDate.getDate() + 2);
 
     this.chartOptions = {
       responsive: true,
       scales: {
         x: {
           type: 'time',
+          min: minDate,
+          max: maxDate,
           time: {
             unit: 'day',
             tooltipFormat: 'MMM dd, yyyy',
@@ -122,15 +136,23 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
           title: {
             display: true,
             text: 'Date',
+            color: '#000000',
+          },
+          grid: {
+            drawTicks: true,
+            drawOnChartArea: false, // disables vertical gridlines (if you want to try)
           },
           ticks: {
             source: 'data',
             autoSkip: false,
             maxTicksLimit: 1,
-            // Optionally, format the tick label
+            color: '#000000',
             callback: function (value: any) {
-              // value is a timestamp, format as date string
-              return new Date(value).toLocaleDateString();
+              const date = new Date(value);
+              return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+              });
             },
           },
         },
@@ -138,6 +160,10 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
           title: {
             display: true,
             text: 'Total Volume',
+            color: '#000000',
+          },
+          ticks: {
+            color: '#000000',
           },
           beginAtZero: true,
         },
@@ -146,18 +172,20 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         legend: {
           display: true,
           position: 'top',
+          labels: {
+            color: '#000000',
+          },
         },
         title: {
           display: true,
           text: 'Exercise Volume Over Time',
+          color: '#000000',
         },
         tooltip: {
           callbacks: {
             label: (context: any) => {
-              // Find the original exercise session
               const idx = context.dataIndex;
-              const exercise = this.exerciseList[idx];
-              // Format weights and reps for display
+              const exercise = this.exerciseProgress[idx];
               const weights = Array.isArray(exercise.weights)
                 ? exercise.weights
                 : [exercise.weights];
@@ -167,21 +195,98 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
               const sets = weights.map(
                 (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
               );
-              const formattedDate = exercise.created_at
-                ? new Date(exercise.created_at).toLocaleDateString()
-                : 'Unknown date';
-              return [
-                `Volume: ${context.parsed.y}`,
-                `Date: ${formattedDate}`,
-                ...sets,
-              ];
+              return [`Volume: ${context.parsed.y}`, ...sets];
             },
           },
         },
       },
     };
 
-    const maxWeightPerSession = this.exerciseList.map((exercise) => {
+    this.maxWeightChartOptions = {
+      responsive: true,
+      scales: {
+        x: {
+          type: 'time',
+          min: minDate,
+          max: maxDate,
+          time: {
+            unit: 'day',
+            tooltipFormat: 'MMM dd, yyyy',
+            displayFormats: {
+              day: 'MMM dd',
+            },
+          },
+          title: {
+            display: true,
+            text: 'Date',
+            color: '#000000',
+          },
+          grid: {
+            drawTicks: true,
+            drawOnChartArea: false,
+          },
+          ticks: {
+            color: '#000000',
+            source: 'data',
+            autoSkip: true, // ✅ let Chart.js skip overlapping ticks
+            maxTicksLimit: 10, // ✅ limit how many labels are shown
+            callback: function (value: any) {
+              const date = new Date(value);
+              return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+              });
+            },
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Max Weight (lbs)',
+            color: '#000000',
+          },
+          ticks: {
+            color: '#000000',
+          },
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#000000',
+          },
+        },
+        title: {
+          display: true,
+          text: 'Best Set (Max Weight) Per Session',
+          color: '#000000',
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const idx = context.dataIndex;
+              const exercise = this.exerciseProgress[idx];
+              const weights = Array.isArray(exercise.weights)
+                ? exercise.weights
+                : [exercise.weights];
+              const reps = Array.isArray(exercise.reps)
+                ? exercise.reps
+                : [exercise.reps];
+              const maxWeight = Math.max(...weights, 0);
+              const sets = [maxWeight].map(
+                (w, i) => `Set ${i + 1}: ${w} lbs x ${reps[i] ?? 0} reps`
+              );
+              return [`Max Weight: ${maxWeight} lbs`, ...sets];
+            },
+          },
+        },
+      },
+    };
+
+    const maxWeightPerSession = this.exerciseProgress.map((exercise) => {
       const weights: number[] = Array.isArray(exercise.weights)
         ? exercise.weights
         : [exercise.weights];
@@ -189,7 +294,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
       return Math.max(...weights, 0);
     });
 
-    const maxWeightDataPoints = this.exerciseList.map((s, i) => ({
+    const maxWeightDataPoints = this.exerciseProgress.map((s, i) => ({
       x: s.created_at,
       y: maxWeightPerSession[i],
     }));
@@ -208,26 +313,5 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
         ],
       },
     ];
-
-    this.maxWeightChartOptions = {
-      ...this.chartOptions,
-      scales: {
-        ...this.chartOptions.scales,
-        y: {
-          ...this.chartOptions.scales.y,
-          title: {
-            display: true,
-            text: 'Max Weight (lbs)',
-          },
-        },
-      },
-      plugins: {
-        ...this.chartOptions.plugins,
-        title: {
-          display: true,
-          text: 'Best Set (Max Weight) Per Session',
-        },
-      },
-    };
   }
 }

@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { User } from '../../profile/user.model';
 import { WorkoutPlan } from '../../../models/workout_plan.model';
@@ -15,13 +17,14 @@ import { SupabaseService } from '../../../services/supabase.service';
   templateUrl: './workout-plan-list.component.html',
   styleUrl: './workout-plan-list.component.css',
 })
-export class WorkoutListComponent implements OnInit {
+export class WorkoutListComponent implements OnInit, OnDestroy {
   user!: User;
   userWorkouts: WorkoutPlan[] = [];
   activeWorkoutId: string = '';
   showActions: boolean = false; // Flag to control visibility of action buttons
 
-  isLoading = true;
+  isLoading = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private supaBaseService: SupabaseService,
@@ -31,20 +34,28 @@ export class WorkoutListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.supaBaseService.currentUser.subscribe((user) => {
-      this.user = user;
-      this.isLoading = false;
+    this.supaBaseService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
 
-      if (this.user) {
-        this.workoutService.getUserWorkoutPlans(this.user.id);
-      }
-    });
+        if (this.user) {
+          this.workoutService.getUserWorkoutPlans(this.user.id);
+        }
+      });
 
-    this.workoutService.workoutListChanged.subscribe((workouts) => {
-      this.userWorkouts = workouts;
-    });
+    this.workoutService.workoutListChanged
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((workouts) => {
+        this.userWorkouts = workouts;
+      });
 
     this.activeWorkoutId = localStorage.getItem('activeWorkoutId') || '';
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get sortedWorkouts(): WorkoutPlan[] {

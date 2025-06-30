@@ -3,12 +3,12 @@
     background-color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     padding: 16px 0;
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 1000;
   }
   
-  .header-content {
+.header-content {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
@@ -17,13 +17,13 @@
     align-items: center;
   }
   
-  .logo {
+.logo {
     font-size: 24px;
     font-weight: 600;
     color: #4285f4;
   }
   
-  .nav-links {
+.nav-links {
     list-style: none;
     display: flex;
     gap: 24px;
@@ -32,19 +32,19 @@
     padding: 0;
   }
   
-  .nav-links a {
+.nav-links a {
     text-decoration: none;
     color: #333;
     font-weight: 500;
     transition: color 0.2s;
   }
   
-  .nav-links a:hover,
-  .nav-links a.active {
+.nav-links a:hover,
+.nav-links a.active {
     color: #4285f4;
   }
   
-  .nav-links button {
+.nav-links button {
     background-color: #4285f4;
     color: white;
     border: none;
@@ -55,6 +55,44 @@
     transition: background-color 0.2s;
   }
   
-  .nav-links button:hover {
+.nav-links button:hover {
     background-color: #3367d6;
   }
+
+.hamburger {
+  display: none;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0; /* 💡 ADD THIS */
+    padding: 15px 0;
+    background-color: white;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Optional: drop shadow */
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .nav-links.active {
+    display: flex;
+    max-height: 500px; /* adjust based on expected content size */
+    opacity: 1;
+  }
+
+  .hamburger {
+    display: block;
+    color: #333;
+  }
+}

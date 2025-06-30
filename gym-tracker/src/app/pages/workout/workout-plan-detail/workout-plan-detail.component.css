@@ -72,3 +72,13 @@ button {
   color: #333;  /* slightly darker on hover */
 }
 
+@media (max-width: 600px) {
+  .workout-plan-detail {
+    margin: 25px 15px;
+  }
+
+  .btn-back {
+    margin-left: 25px;
+  }
+}
+

@@ -3,18 +3,14 @@
     <h2>Account Details</h2>
 
     @if (isLoading) {
-      <div class="loading">
-        Loading user information...
-      </div>
+    <div class="loading">Loading user information...</div>
+    } @if (user && !isLoading) {
+    <div class="user-info">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Full Name:</strong> {{ profile.name || "Not provided" }}</p>
+      <p><strong>Birthday:</strong> {{ formatDate(profile.birthday) }}</p>
+    </div>
     }
-
-    @if (user && !isLoading) {
-      <div class="user-info">
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Full Name:</strong> {{ profile?.full_name || 'Not provided' }}</p>
-        <p><strong>Birthday:</strong> {{ formatDate(profile?.birthday) }}</p>
-      </div>
-    }
-
+    <button title="Edit" [routerLink]="[user.id, 'edit']">Edit Info</button>
   </div>
 </div>

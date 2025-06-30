@@ -11,6 +11,7 @@ export class ExerciseProgress {
     public weights: number[],
     public maxVolume: number,
     public notes?: string[],
+    public note?: string,
     public created_at?: Date
   ) {}
 }

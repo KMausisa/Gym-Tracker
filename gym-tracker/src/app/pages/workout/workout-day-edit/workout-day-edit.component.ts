@@ -1,6 +1,8 @@
 import { ActivatedRoute, Router, Params } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { Component, OnInit } from '@angular/core';
 import {
   FormsModule,
   FormBuilder,
@@ -21,7 +23,7 @@ import { Exercise } from '../../../models/exercise.model';
   templateUrl: './workout-day-edit.component.html',
   styleUrl: './workout-day-edit.component.css',
 })
-export class WorkoutDayEditComponent {
+export class WorkoutDayEditComponent implements OnInit, OnDestroy {
   user!: User;
   exerciseForm: FormGroup;
   workoutId: string = '';
@@ -34,6 +36,8 @@ export class WorkoutDayEditComponent {
   formHeading: string = 'Add Exercise'; // Default heading for the form
   errorMessage = '';
   successMessage = '';
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -52,13 +56,16 @@ export class WorkoutDayEditComponent {
   }
 
   ngOnInit(): void {
-    this.supabaseService.currentUser.subscribe((user) => {
-      this.user = user;
-      this.isLoading = false;
-    });
+    this.supabaseService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
+        this.isLoading = false;
+      });
 
-    combineLatest([this.route.parent!.params, this.route.params]).subscribe(
-      async ([parentParams, childParams]) => {
+    combineLatest([this.route.parent!.params, this.route.params])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async ([parentParams, childParams]) => {
         this.workoutId = parentParams['id'];
         this.selectedDay = parentParams['day'];
         this.exerciseId = childParams['exerciseId'];
@@ -92,8 +99,12 @@ export class WorkoutDayEditComponent {
           weight: this.originalExercise.weight,
           notes: this.originalExercise.notes || '',
         });
-      }
-    );
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async onSubmit() {
@@ -126,7 +137,6 @@ export class WorkoutDayEditComponent {
         notes: notes,
       };
 
-      // Call the Supabase function to add the exercise
       try {
         if (this.editMode == false) {
           await this.workoutService.addExerciseToWorkoutDay(exerciseToAdd);

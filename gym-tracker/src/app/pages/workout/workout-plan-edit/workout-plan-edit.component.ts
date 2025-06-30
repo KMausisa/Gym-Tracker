@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -21,7 +23,7 @@ import { User } from '../../profile/user.model';
   templateUrl: './workout-plan-edit.component.html',
   styleUrl: './workout-plan-edit.component.css',
 })
-export class WorkoutEditComponent implements OnInit {
+export class WorkoutEditComponent implements OnInit, OnDestroy {
   workoutForm: FormGroup;
   workoutId: string = '';
   originalWorkout!: WorkoutPlan | null;
@@ -43,6 +45,8 @@ export class WorkoutEditComponent implements OnInit {
   ];
   selectedDays: string[] = []; // Array to store selected days
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private fb: FormBuilder,
     private supabaseService: SupabaseService,
@@ -58,36 +62,45 @@ export class WorkoutEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.supabaseService.currentUser.subscribe((user) => {
-      this.user = user;
-      this.isLoading = false;
-    });
+    this.supabaseService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
+        this.isLoading = false;
+      });
 
-    this.route.params.subscribe(async (params) => {
-      this.workoutId = params['id'];
+    this.route.params
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async (params) => {
+        this.workoutId = params['id'];
 
-      if (!this.workoutId) {
-        this.editMode = false;
-        return;
-      }
-      this.originalWorkout = await this.workoutService.getWorkoutPlanById(
-        this.workoutId
-      );
-      if (!this.originalWorkout) {
-        return;
-      }
-      this.editMode = true;
-      this.formHeading = 'Edit Workout Plan'; // Change form heading for edit mode
-      this.submitFormText = 'Edit Workout';
-      if (this.editMode && this.originalWorkout) {
-        this.workoutForm.patchValue({
-          name: this.originalWorkout.title,
-          description: this.originalWorkout.description,
-          days: this.originalWorkout.days,
-        });
-        this.selectedDays = [...this.originalWorkout.days]; // <-- Add this line
-      }
-    });
+        if (!this.workoutId) {
+          this.editMode = false;
+          return;
+        }
+        this.originalWorkout = await this.workoutService.getWorkoutPlanById(
+          this.workoutId
+        );
+        if (!this.originalWorkout) {
+          return;
+        }
+        this.editMode = true;
+        this.formHeading = 'Edit Workout Plan'; // Change form heading for edit mode
+        this.submitFormText = 'Edit Workout';
+        if (this.editMode && this.originalWorkout) {
+          this.workoutForm.patchValue({
+            name: this.originalWorkout.title,
+            description: this.originalWorkout.description,
+            days: this.originalWorkout.days,
+          });
+          this.selectedDays = [...this.originalWorkout.days]; // <-- Add this line
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onDayChange(event: any) {
@@ -105,7 +118,7 @@ export class WorkoutEditComponent implements OnInit {
     this.workoutForm.patchValue({ days: this.selectedDays });
   }
 
-  cancelEdit() {
+  cancel() {
     this.workoutForm.reset();
     this.successMessage = '';
     this.errorMessage = '';
