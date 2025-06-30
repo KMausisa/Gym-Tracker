@@ -22,6 +22,7 @@ textarea {
   transition: border 0.2s;
   box-sizing: border-box;
 }
+
 input:focus,
 textarea:focus {
   border-color: #007bff;

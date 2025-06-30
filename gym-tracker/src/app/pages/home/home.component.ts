@@ -92,6 +92,7 @@ export class HomeComponent implements OnDestroy {
     ];
 
     const today = new Date();
+    const todayDate = today.toISOString().slice(0, 10);
     this.currentDay = daysOfWeek[today.getDay()];
     this.activeWorkoutId = localStorage.getItem('activeWorkoutId') ?? '';
 
@@ -102,8 +103,8 @@ export class HomeComponent implements OnDestroy {
       // Check if current workout ID is in the completed object and
       // if the current day is included for that workout.
       const completedDaysForWorkout = completed[this.activeWorkoutId] || [];
-
-      this.workoutCompleted = completedDaysForWorkout.includes(this.currentDay);
+      // this.workoutCompleted = completedDaysForWorkout.includes(todayDate);
+      this.workoutCompleted = false;
     } else {
       this.workoutCompleted = false;
     }
@@ -121,9 +122,6 @@ export class HomeComponent implements OnDestroy {
       this.workoutSkipped = false;
       this.skipReason = '';
     }
-
-    console.log('Workout completed:', this.workoutCompleted);
-    console.log('Workout skipped:', this.workoutSkipped);
 
     if (this.activeWorkoutId) {
       this.workoutService
@@ -287,9 +285,11 @@ export class HomeComponent implements OnDestroy {
       completed[this.activeWorkoutId] = [];
     }
 
+    const today = new Date();
+    const todayDate = today.toISOString().slice(0, 10);
     // Add current day if not already recorded
-    if (!completed[this.activeWorkoutId].includes(this.currentDay)) {
-      completed[this.activeWorkoutId].push(this.currentDay);
+    if (!completed[this.activeWorkoutId].includes(todayDate)) {
+      completed[this.activeWorkoutId].push(todayDate);
     }
 
     localStorage.setItem('completedWorkout', JSON.stringify(completed));
