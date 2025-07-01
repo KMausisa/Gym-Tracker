@@ -47,11 +47,18 @@ export class WorkoutDayEditComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.exerciseForm = this.fb.group({
-      exerciseName: ['', Validators.required],
+      exerciseName: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(50),
+        ],
+      ],
       sets: [0, [Validators.required, Validators.min(1)]],
       reps: [0, [Validators.required, Validators.min(1)]],
-      weight: [0, [Validators.required, Validators.min(1)]],
-      notes: [''],
+      weight: [0, [Validators.required, Validators.min(0)]],
+      notes: ['', [Validators.maxLength(200)]],
     });
   }
 

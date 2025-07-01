@@ -1,8 +1,9 @@
 <div class="dashboard-container">
+  @if (!inWorkout) {
   <div class="banner">
     <h1>Welcome to your Gym Tracker!</h1>
   </div>
-  @if (activeWorkout) { @if (!inWorkout) {
+  } @if (activeWorkout) { @if (!inWorkout) {
   <div class="active-workout-card card">
     <h2>Active Workout: {{ activeWorkout.title }}</h2>
     <p>Description: {{ activeWorkout.description }}</p>

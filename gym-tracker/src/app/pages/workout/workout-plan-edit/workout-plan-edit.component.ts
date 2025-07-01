@@ -55,9 +55,23 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.workoutForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      days: [this.selectedDays, Validators.required], // Bind selectedDays to the form
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(5),
+          Validators.maxLength(50),
+        ],
+      ],
+      description: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(200),
+        ],
+      ],
+      days: [this.selectedDays, [Validators.required, Validators.minLength(1)]], // At least one day
     });
   }
 
@@ -116,6 +130,8 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     }
     // Update the form control value
     this.workoutForm.patchValue({ days: this.selectedDays });
+    this.workoutForm.get('days')?.updateValueAndValidity();
+    this.workoutForm.get('days')?.markAsTouched();
   }
 
   cancel() {

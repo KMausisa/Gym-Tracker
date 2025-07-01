@@ -369,6 +369,16 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
+  resetWorkoutProgress() {
+    this.inWorkout = false;
+    this.currentExerciseIndex = 0;
+    this.exerciseProgress = {};
+    this.exerciseProgressForm = this.fb.group({}); // or null if you prefer
+    this.skipReason = '';
+    this.workoutSkipped = false;
+    // Optionally reset other state like workoutCompleted, etc.
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
