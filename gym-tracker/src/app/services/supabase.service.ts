@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 
 import { Profile } from '../models/profile.model';
 import { WorkoutPlan } from '../models/workout_plan.model';
 import { Exercise } from '../models/exercise.model';
 import { ExerciseProgress } from '../models/exercise_progress.model';
-import { WorkoutDay } from '../models/workout_day.model';
 
 @Injectable({
   providedIn: 'root',
