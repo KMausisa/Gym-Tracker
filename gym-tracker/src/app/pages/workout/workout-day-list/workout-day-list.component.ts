@@ -36,10 +36,13 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
 })
 export class WorkoutDayListComponent implements OnInit, OnDestroy {
   user!: User;
+
   workoutId: string = '';
-  dayId: string = '';
   exercises: Exercise[] = [];
+
+  dayId: string = '';
   selectedDay: string = '';
+
   isLoading: boolean = false;
   @Output() workoutSelected = new EventEmitter<any[]>();
 
@@ -85,6 +88,10 @@ export class WorkoutDayListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Loads workout and day information from route parameters.
+   * Fetches the day ID and exercises for the selected day.
+   */
   async loadFromParams() {
     const params = this.route.snapshot.params;
     this.workoutId = params['id'];
@@ -102,15 +109,11 @@ export class WorkoutDayListComponent implements OnInit, OnDestroy {
     this.workoutSelected.emit(workout);
   }
 
-  // Helper getter to check if on 'add' route
-  get isOnAddRoute(): boolean {
-    return this.router.url.endsWith('/add');
-  }
-
-  get isOnEditRoute(): boolean {
-    return this.router.url.includes('/edit');
-  }
-
+  /**
+   * Loads exercises for the specified workout day.
+   * @param dayId - The ID of the workout day to load exercises for.
+   * Fetches the routine for the specified day and updates the exercises list.
+   */
   async loadExercisesForDay(dayId: string) {
     this.isLoading = true;
     this.exercises = []; // Reset to prevent flicker
@@ -122,6 +125,12 @@ export class WorkoutDayListComponent implements OnInit, OnDestroy {
     this.isLoading = false;
   }
 
+  /**
+   * Submits a new exercise to the workout service.
+   * Validates the form, constructs the exercise object, and adds it to the workout.
+   * @returns {Promise<void>} - Resolves when the exercise is added.
+   * @throws {Error} If exercise submission fails, sets error message.
+   */
   onDeleteExercise(exerciseId: string) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '300px',
@@ -142,11 +151,34 @@ export class WorkoutDayListComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Navigates back to the previous page or workout list.
+   * If the current URL is for a specific workout day, it navigates to the workout list.
+   * Otherwise, it uses the browser's back functionality.
+   */
   goBack() {
     if (this.router.url === `/workouts/${this.workoutId}/${this.selectedDay}`) {
       this.router.navigate(['/workouts']);
     } else {
       this.location.back();
     }
+  }
+
+  /**
+   * Checks if the current route is for adding a new workout or editing an existing one.
+   * This is determined by checking if the URL ends with '/add' or includes '/edit'.
+   * @returns {boolean} - True if on an add route, false otherwise.
+   */
+  get isOnAddRoute(): boolean {
+    return this.router.url.endsWith('/add');
+  }
+
+  /**
+   * Checks if the current route is for editing a workout.
+   * This is determined by checking if the URL includes '/edit'.
+   * @returns {boolean} - True if on an edit route, false otherwise.
+   */
+  get isOnEditRoute(): boolean {
+    return this.router.url.includes('/edit');
   }
 }

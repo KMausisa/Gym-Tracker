@@ -33,7 +33,6 @@ export class ProfileComponent implements OnDestroy {
             const profileData = await this.supabaseService.getUserInfo(user.id);
             if (profileData) {
               this.profile = profileData;
-              console.log(this.profile);
             } else {
               // Fallback to metadata if profile doesn't exist in the profiles table
               this.profile = {

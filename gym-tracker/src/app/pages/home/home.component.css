@@ -132,6 +132,12 @@ li.exercise-item > strong {
   box-shadow: 0 0 5px rgba(25, 118, 210, 0.4);
 }
 
+.button-group {
+  display: flex;
+  gap: 1rem; /* or 8px, 16px, etc. */
+  flex-wrap: wrap; /* optional, for responsiveness */
+}
+
 .buttons {
   display: flex;
   justify-content: center;
@@ -181,6 +187,14 @@ li.exercise-item > strong {
   background-color: #2e7030;
 }
 
+.btn-skip {
+  background: #F44336;
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
 .no-active-message {
   background: #fff;
   padding: 1.5rem;
@@ -192,4 +206,20 @@ li.exercise-item > strong {
   max-width: 600px;
   margin: 2rem auto;
 }
+
+@media (max-width: 600px) {
+  .button-group {
+    flex-direction: column;
+    flex: auto;
+    gap: 0.5rem;
+  }
+
+  button {
+    width: 100%;
+    padding: 1.2rem;      /* Increase padding for bigger buttons */
+    font-size: 1.2rem;    /* Increase font size */
+    border-radius: 10px;  /* Optional: make corners rounder */
+  }
+}
+
 

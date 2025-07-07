@@ -1,7 +1,7 @@
 <div class="exercise-form">
   <h4>{{ formHeading }}</h4>
   <form (ngSubmit)="onSubmit()" [formGroup]="exerciseForm">
-    <div>
+    <div class="form-group">
       <label for="exerciseName">Exercise Name:</label>
       <input
         type="text"
@@ -11,11 +11,16 @@
         required
       />
       @if (exerciseForm.get('exerciseName')?.invalid &&
-      exerciseForm.get('exerciseName')?.touched) {
-      <div class="error">Exercise name is required.</div>
-      }
+      exerciseForm.get('exerciseName')?.touched) { @if
+      (exerciseForm.get('exerciseName')?.errors?.['minlength']) {
+      <span class="error">Exercise name must be at least 2 characters.</span>
+      } @if(exerciseForm.get('exerciseName')?.errors?.['maxlength']) {
+      <span class="error">Exercise name cannot exceed 50 characters.</span>
+      } @if (exerciseForm.get('exerciseName')?.errors?.['required']) {
+      <span class="error">Exercise name is required.</span>
+      } }
     </div>
-    <div>
+    <div class="form-group">
       <label for="sets">Sets:</label>
       <input
         type="number"
@@ -27,10 +32,13 @@
       />
       @if (exerciseForm.get('sets')?.invalid &&
       exerciseForm.get('sets')?.touched) {
-      <div class="error">Number of sets is required.</div>
-      }
+      @if(exerciseForm.get('sets')?.errors?.['min']) {
+      <span class="error">Sets must be at least 1.</span>
+      } @if(exerciseForm.get('sets')?.errors?.['required']) {
+      <span class="error">Sets are required.</span>
+      } }
     </div>
-    <div>
+    <div class="form-group">
       <label for="reps">Reps:</label>
       <input
         type="number"
@@ -41,21 +49,28 @@
         required
       />
       @if (exerciseForm.get('reps')?.invalid &&
-      exerciseForm.get('reps')?.touched) {
-      <div class="error">Number of reps is required.</div>
-      }
+      exerciseForm.get('reps')?.touched) { @if
+      (exerciseForm.get('reps')?.errors?.['required']) {
+      <span class="error">Reps are required.</span>
+      } @if (exerciseForm.get('reps')?.errors?.['min']) {
+      <span class="error">Reps must be at least 1.</span> } }
     </div>
-    <div>
-      <label for="weight">Recommended Weight (lbs):</label>
+    <div class="form-group">
+      <label for="weight">Recommended Weight (lbs, can be zero):</label>
       <input
         type="number"
         id="weight"
         name="weight"
         formControlName="weight"
         min="0"
+        required
       />
     </div>
-    <div>
+    @if (exerciseForm.get('weight')?.invalid &&
+    exerciseForm.get('weight')?.touched) { @if
+    (exerciseForm.get('weight')?.errors?.['required']) {
+    <span class="error">Weight is required.</span>}}
+    <div class="form-group">
       <label for="notes">Notes:</label>
       <textarea
         id="notes"

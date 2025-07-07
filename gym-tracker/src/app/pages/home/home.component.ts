@@ -35,9 +35,11 @@ export class HomeComponent implements OnDestroy {
   user!: User;
   activeWorkout!: WorkoutPlan | null;
   activeWorkoutId: string = '';
+  dataLoaded: boolean = false;
 
   currentDay: string = '';
-  todaysExercises: Exercise[] = []; // Array to hold today's exercises
+  currentDayId: string = '';
+  todaysExercises: Exercise[] = [];
 
   exerciseProgressForm!: FormGroup;
 
@@ -92,6 +94,7 @@ export class HomeComponent implements OnDestroy {
     ];
 
     const today = new Date();
+    const todayDate = today.toISOString().slice(0, 10);
     this.currentDay = daysOfWeek[today.getDay()];
     this.activeWorkoutId = localStorage.getItem('activeWorkoutId') ?? '';
 
@@ -102,9 +105,9 @@ export class HomeComponent implements OnDestroy {
       // Check if current workout ID is in the completed object and
       // if the current day is included for that workout.
       const completedDaysForWorkout = completed[this.activeWorkoutId] || [];
-
-      this.workoutCompleted = completedDaysForWorkout.includes(this.currentDay);
+      this.workoutCompleted = completedDaysForWorkout.includes(todayDate);
     } else {
+      // If no completed workout data exists or no active workout ID, reset state
       this.workoutCompleted = false;
     }
 
@@ -112,18 +115,18 @@ export class HomeComponent implements OnDestroy {
 
     const skippedRaw = localStorage.getItem('skippedWorkout');
     if (skippedRaw) {
+      // Parse the skipped workout data
+      // and check if it matches the current workout and day.
       const skipped = JSON.parse(skippedRaw);
       this.workoutSkipped =
         skipped.workoutId === this.activeWorkoutId &&
         skipped.day === this.currentDay;
       this.skipReason = skipped.reason || '';
     } else {
+      // Reset skipped state if no skipped workout data exists
       this.workoutSkipped = false;
       this.skipReason = '';
     }
-
-    console.log('Workout completed:', this.workoutCompleted);
-    console.log('Workout skipped:', this.workoutSkipped);
 
     if (this.activeWorkoutId) {
       this.workoutService
@@ -131,31 +134,39 @@ export class HomeComponent implements OnDestroy {
         .then((workout) => {
           this.activeWorkout = workout;
         });
-
       this.getExercisesForDay(this.activeWorkoutId, this.currentDay);
+    }
+
+    this.dataLoaded = true;
+  }
+
+  /**
+   * Fetches exercises for the current day based on the active workout ID.
+   * @param activeWorkoutId - The ID of the active workout plan.
+   * @param currentDay - The current day of the week.
+   */
+  async getExercisesForDay(activeWorkoutId: string, currentDay: string) {
+    try {
+      this.currentDayId = await this.workoutService.getDayId(
+        activeWorkoutId,
+        currentDay
+      );
+      if (!this.currentDayId) {
+        this.workoutDayHeader = 'You have no exercises for today.';
+        return;
+      }
+      this.todaysExercises = await this.workoutService.getRoutineById(
+        this.currentDayId
+      );
+    } catch (error) {
+      console.error('Error fetching exercises for day:', error);
     }
   }
 
-  getExercisesForDay(activeWorkoutId: string, currentDay: string) {
-    this.workoutService
-      .getDayId(this.activeWorkoutId ?? '', currentDay)
-      .then((dayId) => {
-        if (dayId) {
-          this.workoutService.getRoutineById(dayId).then((exercises) => {
-            this.todaysExercises = exercises ?? [];
-            if (this.todaysExercises.length == 0) {
-              this.workoutDayHeader = 'You have no exercises for today.';
-            }
-          });
-        } else {
-          console.log('No exercises found for', currentDay);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching exercises for day:', error);
-      });
-  }
-
+  /**
+   * Confirms if the user wants to cancel the workout.
+   * Opens a confirmation dialog and resets the workout state if confirmed.
+   */
   confirmCancelWorkout() {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '300px',
@@ -164,13 +175,16 @@ export class HomeComponent implements OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Reset state or navigate
+        // Reset workout state
         this.inWorkout = false;
-        this.router.navigate(['/dashboard']); // or wherever is appropriate
+        this.router.navigate(['/dashboard']);
       }
     });
   }
 
+  /**
+   * Starts the workout by initializing the first exercise and setting the workout state.
+   */
   startWorkout() {
     if (this.todaysExercises && this.todaysExercises.length > 0) {
       this.inWorkout = true;
@@ -181,9 +195,9 @@ export class HomeComponent implements OnDestroy {
           if (!this.exerciseProgress[ex.id]) {
             this.exerciseProgress[ex.id] = {
               sets: ex.sets,
-              reps: Array(ex.sets).fill(0), // User will enter actual reps
-              weight: Array(ex.sets).fill(0), // User will enter actual weight
-              notes: Array(ex.sets).fill(''), // User will enter notes
+              reps: Array(ex.sets).fill(0),
+              weight: Array(ex.sets).fill(0),
+              notes: Array(ex.sets).fill(''),
             };
           }
         } else {
@@ -198,6 +212,10 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Initializes the exercise progress form for the current exercise.
+   * @param exercise - The current exercise to track progress for.
+   */
   initExerciseProgressForm(exercise: Exercise) {
     this.exerciseProgressForm = this.fb.group({
       sets: this.fb.array(
@@ -214,6 +232,10 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
+  /**
+   * Moves to the next exercise in the workout.
+   * If there are no more exercises, finishes the workout.
+   */
   nextExercise() {
     if (
       this.todaysExercises &&
@@ -225,13 +247,15 @@ export class HomeComponent implements OnDestroy {
       );
     } else {
       this.inWorkout = false;
-      this.finishWorkout(); // <-- Send all progress here
+      this.finishWorkout();
     }
   }
 
+  /**
+   * Finishes the workout by saving the progress for each exercise.
+   * Sends the exercise progress to the backend/database.
+   */
   finishWorkout() {
-    // Send this.exerciseProgress to your backend/database here
-    console.log('Finishing workout with progress:', this.exerciseProgress);
     for (const exerciseId in this.exerciseProgress) {
       const progress = this.exerciseProgress[exerciseId];
       const currentExercise = this.todaysExercises.find(
@@ -253,10 +277,6 @@ export class HomeComponent implements OnDestroy {
         };
         this.workoutService
           .saveWorkoutProgress(progressToSave)
-          .then(() => {
-            console.log('Workout progress saved!');
-            // Optionally show a success message or redirect
-          })
           .catch((error) => {
             console.error('Error saving workout progress:', error);
           });
@@ -274,10 +294,15 @@ export class HomeComponent implements OnDestroy {
     this.nextExercise(); // Move to next exercise
   }
 
+  /**
+   * Handles the finish workout action.
+   * Saves the current form data, finishes the workout, and updates the completed status.
+   */
   async onFinishWorkout() {
     await this.onSubmit(); // Save current form data
     await this.finishWorkout(); // Finish the workout
     this.inWorkout = false; // Reset workout state
+
     // Get existing completed data or initialize empty object
     const completedRaw = localStorage.getItem('completedWorkout');
     let completed = completedRaw ? JSON.parse(completedRaw) : {};
@@ -287,9 +312,11 @@ export class HomeComponent implements OnDestroy {
       completed[this.activeWorkoutId] = [];
     }
 
+    const today = new Date();
+    const todayDate = today.toISOString().slice(0, 10);
     // Add current day if not already recorded
-    if (!completed[this.activeWorkoutId].includes(this.currentDay)) {
-      completed[this.activeWorkoutId].push(this.currentDay);
+    if (!completed[this.activeWorkoutId].includes(todayDate)) {
+      completed[this.activeWorkoutId].push(todayDate);
     }
 
     localStorage.setItem('completedWorkout', JSON.stringify(completed));
@@ -302,10 +329,10 @@ export class HomeComponent implements OnDestroy {
     );
   }
 
-  get sets() {
-    return this.exerciseProgressForm.get('sets') as FormArray;
-  }
-
+  /**
+   * Submits the current exercise progress form.
+   * Saves the progress for the current exercise and updates the exerciseProgress object.
+   */
   onSubmit() {
     const formValue = this.exerciseProgressForm.value;
     const currentExercise = this.todaysExercises[this.currentExerciseIndex];
@@ -321,6 +348,10 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Opens the skip workout dialog.
+   * If the user confirms, logs the skipped workout with the reason and resets the workout state.
+   */
   openSkipDialog() {
     const dialogRef = this.dialog.open(SkipWorkoutDialogComponent, {
       width: '400px',
@@ -336,9 +367,9 @@ export class HomeComponent implements OnDestroy {
               if (!this.exerciseProgress[ex.id]) {
                 this.exerciseProgress[ex.id] = {
                   sets: ex.sets,
-                  reps: Array(ex.sets).fill(0), // User will enter actual reps
-                  weight: Array(ex.sets).fill(0), // User will enter actual weight
-                  notes: Array(ex.sets).fill(''), // User will enter notes
+                  reps: Array(ex.sets).fill(0),
+                  weight: Array(ex.sets).fill(0),
+                  notes: Array(ex.sets).fill(''),
                 };
               }
             } else {
@@ -360,13 +391,25 @@ export class HomeComponent implements OnDestroy {
         } else {
           console.error('No exercises for today.');
         }
-
-        console.log(
-          'Exercise progress before skipping:',
-          this.exerciseProgress
-        );
       }
     });
+  }
+
+  /**
+   * Resets the workout progress state.
+   * Clears the current exercise index, exercise progress, and other related states.
+   */
+  resetWorkoutProgress() {
+    this.inWorkout = false;
+    this.currentExerciseIndex = 0;
+    this.exerciseProgress = {};
+    this.exerciseProgressForm = this.fb.group({});
+    this.skipReason = '';
+    this.workoutSkipped = false;
+  }
+
+  get sets() {
+    return this.exerciseProgressForm.get('sets') as FormArray;
   }
 
   ngOnDestroy() {

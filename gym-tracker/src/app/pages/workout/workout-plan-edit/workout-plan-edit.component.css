@@ -22,6 +22,7 @@ textarea {
   transition: border 0.2s;
   box-sizing: border-box;
 }
+
 input:focus,
 textarea:focus {
   border-color: #007bff;
@@ -60,7 +61,7 @@ textarea:focus {
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 
@@ -71,9 +72,9 @@ textarea {
   box-sizing: border-box;
 }
 
-.form-group textarea {
-  margin-bottom: 8px; /* Adds space below the textarea */
-}
+/* .form-group textarea {
+  margin-bottom: 8px; 
+} */
 
 .form-group .error {
   color: #d32f2f;
@@ -109,6 +110,11 @@ button.cancel {
 button.cancel:hover,
 button.cancel:focus {
   background: #D32F2F;
+}
+
+button[type="submit"]:disabled {
+    background-color: #b3b3b3;
+    cursor: not-allowed;
 }
 
 .buttons {

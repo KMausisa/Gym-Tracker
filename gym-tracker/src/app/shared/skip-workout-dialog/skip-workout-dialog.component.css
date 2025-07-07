@@ -1,5 +1,5 @@
 /* Define color variables for easy theme changes */
-:root {
+:host {
   --primary-color: #007bff;
   --primary-hover: #0056b3;
   --danger-color: #F44336;
@@ -10,12 +10,17 @@
 }
 
 .container {
-  padding: 2rem;
+  /* padding: 2rem; */ /* Remove or reduce this */
+  width: 100%;
   background: var(--white);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  max-width: 90vw;
+  /* max-width: 90vw; */
   box-sizing: border-box;
+}
+
+h2 {
+  margin: 24px;
 }
 
 /* Make buttons take full width on small screens */
@@ -41,21 +46,26 @@ button {
 }
 
 button.confirm {
-  background: var(--primary-color);
+  background-color: var(--primary-color);
 }
 
 button.confirm:hover,
 button.confirm:focus {
-  background: var(--primary-hover);
+  background-color: var(--primary-hover);
 }
 
 button.cancel {
-  background: var(--danger-color);
+  background-color: var(--danger-color);
 }
 
 button.cancel:hover,
 button.cancel:focus {
-  background: var(--danger-hover);
+  background-color: var(--danger-hover);
+}
+
+button.confirm:disabled {
+    background-color: #b3b3b3;
+    cursor: not-allowed;
 }
 
 mat-form-field.full-width {
@@ -75,6 +85,9 @@ mat-form-field.full-width {
   button {
     width: 100%;
     max-width: 100%;
-    min-width: 50px;
+    min-width: 40px;      /* even smaller on mobile if desired */
+    max-height: 60px;
+    padding: 8px 0;
+    font-size: 0.95rem;
   }
 }

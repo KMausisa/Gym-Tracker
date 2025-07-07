@@ -1,93 +1,86 @@
 <div class="login-container">
-  <div class="login-card" [ngClass]="{'signup-mode': isSignUp}">
-    <h2>{{ isSignUp ? 'Create Account' : 'Login' }}</h2>
+  <div class="login-card" [ngClass]="{ 'signup-mode': isSignUp }">
+    <h2>{{ isSignUp ? "Create Account" : "Login" }}</h2>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <!-- Full Name field - Only shown in signup mode -->
       @if (isSignUp) {
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input
-            type="text"
-            id="fullName"
-            formControlName="fullName"
-            placeholder="Enter your full name"
-            >
-            @if (loginForm.get('fullName')?.invalid && loginForm.get('fullName')?.touched) {
-              <div class="error">
-                Full name is required
-              </div>
-            }
-          </div>
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input
+          type="text"
+          id="fullName"
+          formControlName="fullName"
+          placeholder="Enter your full name"
+        />
+        @if (loginForm.get('fullName')?.invalid &&
+        loginForm.get('fullName')?.touched) {
+        <div class="error">Full name is required</div>
         }
+      </div>
+      }
 
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            formControlName="email"
-            placeholder="Enter your email"
-            >
-            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-              <div class="error">
-                Please enter a valid email
-              </div>
-            }
-          </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched)
+        {
+        <div class="error">Please enter a valid email</div>
+        }
+      </div>
 
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              formControlName="password"
-              placeholder="Enter your password"
-              >
-              @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-                <div class="error">
-                  Password must be at least 6 characters
-                </div>
-              }
-            </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Enter your password"
+        />
+        @if (loginForm.get('password')?.invalid &&
+        loginForm.get('password')?.touched) {
+        <div class="error">Password must be at least 6 characters</div>
+        }
+      </div>
 
-            <!-- Birthday field - Only shown in signup mode -->
-            @if (isSignUp) {
-              <div class="form-group">
-                <label for="birthday">Birthday</label>
-                <input
-                  type="date"
-                  id="birthday"
-                  formControlName="birthday"
-                  [max]="maxDate"
-                  >
-                  @if (loginForm.get('birthday')?.invalid && loginForm.get('birthday')?.touched) {
-                    <div class="error">
-                      Birthday is required
-                    </div>
-                  }
-                </div>
-              }
+      <!-- Birthday field - Only shown in signup mode -->
+      @if (isSignUp) {
+      <div class="form-group">
+        <label for="birthday">Birthday</label>
+        <input
+          type="date"
+          id="birthday"
+          formControlName="birthday"
+          [max]="maxDate"
+        />
+        @if (loginForm.get('birthday')?.invalid &&
+        loginForm.get('birthday')?.touched) {
+        <div class="error">Birthday is required</div>
+        }
+      </div>
+      } @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+      }
 
-              @if (errorMessage) {
-                <div class="error-message">{{ errorMessage }}</div>
-              }
+      <button type="submit" [disabled]="loginForm.invalid || loading">
+        {{ loading ? "Processing..." : isSignUp ? "Sign Up" : "Login" }}
+      </button>
 
-              <button type="submit" [disabled]="loginForm.invalid || loading">
-                {{ loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login' }}
-              </button>
-
-              <div class="toggle-mode">
-                @if (!isSignUp) {
-                  <span>Don't have an account? </span>
-                }
-                @if (isSignUp) {
-                  <span>Already have an account? </span>
-                }
-                <a href="javascript:void(0)" (click)="toggleAuthMode()">
-                  {{ isSignUp ? 'Login' : 'Sign Up' }}
-                </a>
-              </div>
-            </form>
-          </div>
-        </div>
+      <div class="toggle-mode">
+        @if (!isSignUp) {
+        <span>Don't have an account? </span>
+        } @if (isSignUp) {
+        <span>Already have an account? </span>
+        }
+        <a href="javascript:void(0)" (click)="toggleAuthMode()">
+          {{ isSignUp ? "Login" : "Sign Up" }}
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

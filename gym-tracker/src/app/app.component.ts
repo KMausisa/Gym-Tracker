@@ -49,6 +49,12 @@ export class AppComponent implements OnDestroy {
       });
   }
 
+  /**
+   * Loads the user profile data from Supabase.
+   * This includes fetching the user's name and birthday.
+   * @returns {Promise<void>} - A promise that resolves when the profile is loaded.
+   * @throws {Error} - Throws an error if there is an issue fetching the profile data.
+   */
   async loadUserProfile() {
     try {
       this.userProfile = await this.supabaseService.getUserProfile(this.userId);

@@ -58,6 +58,11 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Returns the list of workouts sorted by the active workout.
+   * The active workout is always placed at the top of the list.
+   * * @returns {WorkoutPlan[]} - Sorted list of workout plans.
+   */
   get sortedWorkouts(): WorkoutPlan[] {
     return this.userWorkouts.slice().sort((a, b) => {
       if (a.id === this.activeWorkoutId) return -1;
@@ -72,7 +77,11 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
     localStorage.setItem('activeWorkoutId', workoutId);
   }
 
-  // Reset and remove active workout
+  /**
+   * Deactivates the current active workout by removing it from local storage.
+   * If the provided workout ID matches the active workout ID, it clears the active workout.
+   * @param {string} workoutId - The ID of the workout plan to deactivate.
+   */
   deactivateWorkout(workoutId: string) {
     if (this.activeWorkoutId === workoutId) {
       this.activeWorkoutId = '';
@@ -80,11 +89,23 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Deletes a workout plan by its ID.
+   * @param {string} workoutId - The ID of the workout plan to delete.
+   */
   deleteWorkout(workoutId: string) {
     this.workoutService.deleteWorkout(this.user.id, workoutId);
     this.router.navigate(['/workouts']);
   }
 
+  /**
+   * Handles the selection of an action from the dropdown menu.
+   * Depending on the selected action, it navigates to the edit page,
+   * opens a confirmation dialog for deletion, or activates/deactivates the workout.
+   * @param event - The event triggered by the action selection.
+   * @param workout - The workout plan associated with the selected action.
+   * @returns {void}
+   */
   onActionSelect(event: Event, workout: WorkoutPlan) {
     const selectedElement = event.target as HTMLSelectElement;
     const value = selectedElement.value;
@@ -113,7 +134,6 @@ export class WorkoutListComponent implements OnInit, OnDestroy {
         break;
     }
 
-    // ✅ Reset the select after other actions
     selectedElement.selectedIndex = 0;
   }
 }

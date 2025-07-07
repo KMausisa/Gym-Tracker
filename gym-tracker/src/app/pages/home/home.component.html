@@ -1,8 +1,9 @@
 <div class="dashboard-container">
+  @if (dataLoaded) { @if (!inWorkout) {
   <div class="banner">
     <h1>Welcome to your Gym Tracker!</h1>
   </div>
-  @if (activeWorkout) { @if (!inWorkout) {
+  } @if (activeWorkout) { @if (!inWorkout) {
   <div class="active-workout-card card">
     <h2>Active Workout: {{ activeWorkout.title }}</h2>
     <p>Description: {{ activeWorkout.description }}</p>
@@ -118,9 +119,9 @@
       }
     </form>
   </div>
-  } } @else {
+  } } @else if (dataLoaded && !activeWorkout && !inWorkout) {
   <div class="no-active-message">
     <p>No active workout selected. Go to your workout plans to activate one!</p>
   </div>
-  }
+  } }
 </div>

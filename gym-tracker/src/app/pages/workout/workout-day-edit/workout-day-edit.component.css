@@ -15,7 +15,6 @@ input,
 textarea {
   width: 100%;
   padding: 10px 12px;
-  margin-bottom: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
@@ -23,6 +22,7 @@ textarea {
   transition: border 0.2s;
   box-sizing: border-box;
 }
+
 input:focus,
 textarea:focus {
   border-color: #007bff;
@@ -61,7 +61,7 @@ textarea:focus {
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 
@@ -103,6 +103,11 @@ button[type="submit"]:focus {
   background: #0056b3;
 }
 
+button[type="submit"]:disabled {
+  background-color: #b3b3b3;
+  cursor: not-allowed;
+}
+
 button.cancel {
   background: #F44336;
 }
@@ -134,7 +139,7 @@ button.cancel:focus {
 
 .error {
   color: #d32f2f;
-  text-align: center;
+  text-align: center; 
   margin-top: 12px;
 }
 

@@ -10,9 +10,15 @@
         required
       />
       @if (workoutForm.get('name')?.invalid && workoutForm.get('name')?.touched)
-      {
-      <div class="error">Workout name is required.</div>
-      }
+      { @if (workoutForm.get('name')?.hasError('required')) {
+      <span class="error">Workout name is required.</span>
+      } @if(workoutForm.get('name')?.hasError('minlength')) {
+      <span class="error"
+        >Workout name must be at least 5 characters long.</span
+      >
+      } @if(workoutForm.get('name')?.hasError('maxlength')) {
+      <span class="error">Workout name cannot exceed 50 characters.</span>
+      } }
     </div>
     <div class="form-group">
       <label for="description">Description</label>
@@ -22,9 +28,16 @@
         required
       ></textarea>
       @if (workoutForm.get('description')?.invalid &&
-      workoutForm.get('description')?.touched) {
-      <div class="error">Description is required.</div>
-      }
+      workoutForm.get('description')?.touched) { @if
+      (workoutForm.get('description')?.hasError('required')) {
+      <span class="error">Description is required.</span>
+      } @if (workoutForm.get('description')?.hasError('minlength')) {
+      <span class="error"
+        >Description must be at least 10 characters long.</span
+      >
+      } @if (workoutForm.get('description')?.hasError('maxlength')) {
+      <span class="error">Description cannot exceed 200 characters.</span>
+      } }
     </div>
     <!-- Checkbox of the days user will workout -->
     <div class="form-group">
@@ -42,6 +55,10 @@
         </div>
         }
       </div>
+      @if (workoutForm.get('days')?.invalid && workoutForm.get('days')?.touched)
+      {
+      <span class="error">Please select at least one day.</span>
+      }
     </div>
 
     <!-- Validate and Submit -->

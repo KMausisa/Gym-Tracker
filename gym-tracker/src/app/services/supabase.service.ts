@@ -411,7 +411,7 @@ export class SupabaseService {
    * @returns {Array<{Exercise}>} An array of exercises for that day or an empty list if not found.
    * @throws Error if there is an issue fetching the data.
    */
-  async getRoutineById(dayId: string): Promise<Exercise[]> {
+  async getRoutineById(dayId: string): Promise<Exercise[] | []> {
     try {
       const { data, error } = await this.supabase
         .from('exercises')
@@ -567,7 +567,6 @@ export class SupabaseService {
       const { data, error } = await this.supabase
         .from('exercises')
         .insert([exercise]);
-      console.log('Insert result: ', { data, error });
       return data;
     } catch (error) {
       console.error('Error adding exercise to workout day:', error);

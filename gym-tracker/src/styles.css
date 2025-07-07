@@ -2,3 +2,11 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+input,
+textarea,
+mat-form-field input,
+mat-form-field textarea {
+  font-family: inherit;
+  font-size: 1rem; /* or your preferred size */
+}

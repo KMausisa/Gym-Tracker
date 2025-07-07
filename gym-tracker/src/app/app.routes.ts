@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './services/auth.guard';
+import { CanExitWorkoutGuard } from './services/can-exit-workout.guard';
 
 export const routes: Routes = [
   {
     path: 'dashboard',
     canActivate: [AuthGuard],
+    canDeactivate: [CanExitWorkoutGuard],
     loadComponent: () =>
       import('./pages/home/home.component').then((m) => m.HomeComponent),
   },

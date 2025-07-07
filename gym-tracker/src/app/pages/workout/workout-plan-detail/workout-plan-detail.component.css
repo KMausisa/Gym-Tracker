@@ -82,3 +82,18 @@ button {
   }
 }
 
+@media (min-width: 600px) and (max-width: 1000px) {
+  .workout-plan-detail {
+    padding: 1rem;
+    margin: auto 25px;
+  }
+
+  .btn-container {
+    margin: 15px auto;
+  }
+
+  .btn-back {
+    margin-left: 25px;
+  }
+}
+

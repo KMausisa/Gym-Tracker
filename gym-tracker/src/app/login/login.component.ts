@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -6,8 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { SupabaseService } from '../services/supabase.service';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -39,13 +40,20 @@ export class LoginComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // Wait for Supabase session to be ready
     await this.supabaseService.sessionReady;
+
+    // If user is already authenticated, redirect to dashboard
     if (this.supabaseService.isAuthenticated) {
       this.router.navigate(['/dashboard']);
     }
     this.updateFormFields();
   }
 
+  /**
+   * Dynamically updates form fields based on the authentication mode.
+   * If in sign-up mode, adds 'fullName' and 'birthday' fields.
+   */
   updateFormFields() {
     if (this.isSignUp) {
       // Add name and birthday fields for signup
@@ -68,6 +76,12 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  /**
+   * Submits the login or sign-up form.
+   * Validates the form, shows loading state, and handles authentication.
+   * @returns {Promise<void>} - Resolves when authentication is complete.
+   * @throws {Error} If authentication fails, sets error message.
+   */
   async onSubmit() {
     if (this.loginForm.invalid) {
       return;

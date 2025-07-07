@@ -17,13 +17,21 @@ export class AuthGuard implements CanActivate {
     private router: Router
   ) {}
 
+  /**
+   * Activate method to check if the user is authenticated
+   * @param route - ActivatedRouteSnapshot
+   * @param state - RouterStateSnapshot
+   * @returns {Promise<boolean | UrlTree>}  A promise that resolves to true if authenticated, or a UrlTree to redirect to the login page
+   * @throws {Error} - Throws an error if the session is not ready or if
+   */
   async canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean | UrlTree> {
     await this.supabaseService.sessionReady;
     if (!this.supabaseService.isAuthenticated) {
-      // Only redirect if session is ready and user is not authenticated
+      console.warn('User is not authenticated, redirecting to login page');
+      // Redirect to the login page
       return this.router.createUrlTree(['/login']);
     }
     return true;
