@@ -44,6 +44,3 @@ Thumbs.db
 
 # Ignore all .env files
 .env*
-
-# Ignore all environment files in Angular
-/src/environments/*.ts
