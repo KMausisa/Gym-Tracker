@@ -74,11 +74,11 @@
     flex-direction: column;
     position: absolute;
     top: 100%;
-    left: 0; /* 💡 ADD THIS */
+    left: 0; 
     padding: 15px 0;
     background-color: white;
     width: 100%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Optional: drop shadow */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
     transition: max-height 0.3s ease, opacity 0.3s ease;
     overflow: hidden;
     max-height: 0;
@@ -87,7 +87,7 @@
 
   .nav-links.active {
     display: flex;
-    max-height: 500px; /* adjust based on expected content size */
+    max-height: 500px; 
     opacity: 1;
   }
 

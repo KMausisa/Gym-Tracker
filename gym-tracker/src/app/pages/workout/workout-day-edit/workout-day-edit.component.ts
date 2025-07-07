@@ -25,14 +25,19 @@ import { Exercise } from '../../../models/exercise.model';
 })
 export class WorkoutDayEditComponent implements OnInit, OnDestroy {
   user!: User;
-  exerciseForm: FormGroup;
+
   workoutId: string = '';
   exerciseId: string = '';
+
+  exerciseForm: FormGroup;
   originalExercise!: Exercise | null;
-  selectedDay: string = '';
+
   DayId: string = '';
+  selectedDay: string = '';
+
   isLoading: boolean = true;
   editMode: boolean = false;
+
   formHeading: string = 'Add Exercise'; // Default heading for the form
   errorMessage = '';
   successMessage = '';
@@ -46,6 +51,7 @@ export class WorkoutDayEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    // Initialize the form with validation rules
     this.exerciseForm = this.fb.group({
       exerciseName: [
         '',
@@ -109,11 +115,13 @@ export class WorkoutDayEditComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
+  /**
+   * Navigates back to the previous page or workout list.
+   * If the current URL is for a specific workout day, it navigates to the workout list.
+   * Otherwise, it uses the browser's back functionality.
+   * @returns {void} - Does not return anything.
+   * @throws {Error} - If navigation fails, it will log the error to the console.
+   */
   async onSubmit() {
     if (this.exerciseForm.valid) {
       let { exerciseName, sets, reps, weight, notes } = this.exerciseForm.value;
@@ -159,5 +167,10 @@ export class WorkoutDayEditComponent implements OnInit, OnDestroy {
         this.errorMessage = 'Error adding workout. Please try again.';
       }
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -34,9 +34,14 @@ export class WorkoutPlanDetailComponent implements OnInit {
     );
   }
 
+  /**
+   * Navigates back to the previous page or workout list.
+   * If the previous URL is a workout add/edit page, it navigates to the workout detail page.
+   * Otherwise, it uses the browser's back functionality.
+   */
   goBack() {
     const prevUrl = this.navService.getPreviousUrl();
-    const workoutId = this.workoutPlan?.id; // assuming you have this available
+    const workoutId = this.workoutPlan?.id;
 
     if (prevUrl && /\/workouts\/\d+\/(add|edit)/.test(prevUrl)) {
       this.router.navigate(['/workouts', workoutId]);

@@ -89,6 +89,11 @@ export class ProgressComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Search for exercises based on the input value.
+   * Filters the exercise list and deduplicates by exercise name.
+   * @param value - The search term to filter exercises.
+   */
   search(value: string) {
     this.term = value;
     if (value) {
@@ -106,19 +111,21 @@ export class ProgressComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Select an exercise from the filtered list.
+   * Sets the term to the selected exercise name and clears the filtered list.
+   * @param exercise - The selected exercise object.
+   */
   selectExercise(exercise: any) {
-    // Do what you want with the selected exercise
-    // For example, display its details or set the search box value
     this.term = exercise.name;
     this.filteredExercises = [];
-    // Optionally, show exercise details somewhere
   }
 
-  get isOnNewRoute() {
-    let child = this.route.firstChild;
-    return !!child && !!child.snapshot.paramMap.get('exerciseId');
-  }
-
+  /**
+   * Prepares the data for display in the progress component.
+   * Calculates max volume for each exercise, sorts them, and finds the top 3 exercises.
+   * Also finds the heaviest lift across all exercises.
+   */
   async prepareData() {
     // find max volume for each exercise
     this.userProgress.forEach((exercise) => {
@@ -148,6 +155,16 @@ export class ProgressComponent implements OnInit, OnDestroy {
       },
       { exercise: '', weight: 0, reps: 0 }
     );
+  }
+
+  /**
+   * Checks if the current route is a new exercise route.
+   * This is determined by checking if the first child of the route has an 'exerciseId' parameter.
+   * @returns {boolean} - True if on a new exercise route, false otherwise.
+   */
+  get isOnNewRoute() {
+    let child = this.route.firstChild;
+    return !!child && !!child.snapshot.paramMap.get('exerciseId');
   }
 
   ngOnDestroy(): void {

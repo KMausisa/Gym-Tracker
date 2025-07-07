@@ -2,18 +2,17 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  /* No need for height: 100% unless doing specific viewport layouts */
 }
 
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f0f4fa; /* ✅ your desired background */
+  background-color: #f0f4fa; 
 }
 
 app-footer {
-  margin-top: auto; /* push footer to bottom */
+  margin-top: auto; 
   text-align: center;
   background-color: white;
 }

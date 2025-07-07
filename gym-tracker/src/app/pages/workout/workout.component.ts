@@ -42,6 +42,11 @@ export class WorkoutComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Checks if the current route is a new workout route.
+   * This is determined by checking if the route path is 'new' or if it has an ':id' parameter.
+   * @returns {boolean} - True if on a new workout route, false otherwise.
+   */
   get isOnNewRoute() {
     return (
       this.route.snapshot.routeConfig?.path === 'new' ||
@@ -49,6 +54,11 @@ export class WorkoutComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Checks if the current route is an edit route.
+   * This is determined by checking if the URL ends with '/edit'.
+   * @returns {boolean} - True if on an edit route, false otherwise.
+   */
   get isOnEditRoute() {
     return this.router.url.endsWith('/edit');
   }

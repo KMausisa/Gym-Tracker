@@ -38,17 +38,16 @@ export class SkipWorkoutDialogComponent {
     private fb: FormBuilder
   ) {
     this.form = this.fb.group({
-      reason: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(200),
-          // this.sensibleReason, // Custom validator
-        ],
-      ],
+      reason: ['', [Validators.required, Validators.maxLength(200)]],
     });
   }
 
+  /**
+   * Checks if the reason provided is sensible.
+   * Validates that the reason is not just numbers or too short.
+   * @param control - The form control containing the reason input.
+   * @returns - ValidationErrors | null - Returns an error object if the reason is invalid, otherwise null.
+   */
   sensibleReason(control: AbstractControl): ValidationErrors | null {
     const value = control.value || '';
     // Disallow only numbers or only special characters

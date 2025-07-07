@@ -37,6 +37,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     private supabaseService: SupabaseService,
     private router: Router
   ) {
+    // Initialize the form with validation rules
     this.profileEditForm = this.fb.group({
       full_name: [
         '',
@@ -44,7 +45,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(50),
-          Validators.pattern(/^[a-zA-ZÀ-ÿ.'\- ]+$/),
+          Validators.pattern(/^[a-zA-ZÀ-ÿ.'\- ]+$/), // Allows letters, spaces, apostrophes, and hyphens
         ],
       ],
       birthday: ['', [Validators.required]],
@@ -64,6 +65,10 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     this.loadProfile();
   }
 
+  /**
+   * Loads the user's profile information from Supabase.
+   * Populates the form with the user's name and birthday.
+   */
   async loadProfile() {
     this.userInfo = await this.supabaseService.getUserInfo(this.user.id);
 
@@ -73,6 +78,12 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Submits the profile edit form.
+   * Validates the form, shows loading state, and updates user info in Supabase.
+   * @returns {Promise<void>} - Resolves when update is complete.
+   * @throws {Error} If update fails, sets error message.
+   */
   async onSubmit() {
     if (this.profileEditForm.invalid) {
       return;
@@ -83,8 +94,6 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
     try {
       const { full_name, birthday } = this.profileEditForm.value;
-      console.log("User's updated name: ", full_name);
-      console.log("User's updated birthday: ", birthday);
       await this.supabaseService.updateProfileInfo(this.user.id, {
         full_name,
         birthday,

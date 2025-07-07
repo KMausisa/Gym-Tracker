@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { NgChartsModule } from 'ng2-charts';
-import { ChartConfiguration, ChartType, plugins } from 'chart.js';
+// import { ChartConfiguration, ChartType, plugins } from 'chart.js';
 
 import { Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
 import { SupabaseService } from '../../../services/supabase.service';
 import { WorkoutService } from '../../workout/workout.service';
@@ -70,6 +70,10 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Filters the exercise progress based on the search term.
+   * @returns {ExerciseProgress[]} - Filtered exercise progress.
+   */
   prepareChartData() {
     const totalVolume = this.exerciseProgress.map((exercise) => {
       const weights: number[] = Array.isArray(exercise.weights)
@@ -228,8 +232,8 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
           ticks: {
             color: '#000000',
             source: 'data',
-            autoSkip: true, // ✅ let Chart.js skip overlapping ticks
-            maxTicksLimit: 10, // ✅ limit how many labels are shown
+            autoSkip: true,
+            maxTicksLimit: 10,
             callback: function (value: any) {
               const date = new Date(value);
               return date.toLocaleDateString(undefined, {

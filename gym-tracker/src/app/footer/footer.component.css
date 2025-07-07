@@ -40,22 +40,22 @@
 
 @media (max-width: 600px) {
   .footer-content {
-    flex-direction: column;      /* stack items vertically */
-    justify-content: center;     /* center items */
-    align-items: center;         /* center horizontally */
-    max-width: 100%;             /* no width constraint on small screens */
-    gap: 1rem;                   /* add spacing between stacked items */
+    flex-direction: column;      
+    justify-content: center;     
+    align-items: center;        
+    max-width: 100%;             
+    gap: 1rem;                   
   }
 
   .footer-links {
-    flex-wrap: wrap;             /* wrap links if too long */
+    flex-wrap: wrap;             
     justify-content: center;
-    gap: 0.75rem;                /* slightly smaller gap on small screens */
+    gap: 0.75rem;                
   }
 
   .footer-quote {
-    max-width: 280px;            /* limit quote width for readability */
-    text-align: center;          /* center the quote text */
+    max-width: 280px;            
+    text-align: center;          
   }
 }
 

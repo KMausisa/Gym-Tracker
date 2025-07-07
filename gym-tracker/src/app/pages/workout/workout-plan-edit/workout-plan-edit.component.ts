@@ -24,16 +24,21 @@ import { User } from '../../profile/user.model';
   styleUrl: './workout-plan-edit.component.css',
 })
 export class WorkoutEditComponent implements OnInit, OnDestroy {
-  workoutForm: FormGroup;
-  workoutId: string = '';
-  originalWorkout!: WorkoutPlan | null;
-  editMode: boolean = false;
-  formHeading: string = 'Add Workout Plan'; // Default heading for the form
-  submitFormText: string = 'Create Workout';
   user!: User;
+
+  workoutForm: FormGroup;
+  originalWorkout!: WorkoutPlan | null;
+  workoutId: string = '';
+
+  editMode: boolean = false;
   isLoading = true;
+
+  formHeading: string = 'Add Workout Plan';
+  submitFormText: string = 'Create Workout';
   errorMessage = '';
   successMessage = '';
+
+  selectedDays: string[] = [];
   daysOrder = [
     'Monday',
     'Tuesday',
@@ -43,7 +48,6 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     'Saturday',
     'Sunday',
   ];
-  selectedDays: string[] = []; // Array to store selected days
 
   private destroy$ = new Subject<void>();
 
@@ -54,6 +58,7 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    // Initialize the form with validation rules
     this.workoutForm = this.fb.group({
       name: [
         '',
@@ -99,15 +104,18 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
           return;
         }
         this.editMode = true;
-        this.formHeading = 'Edit Workout Plan'; // Change form heading for edit mode
+
+        // Change form heading and submit text for edit mode
+        this.formHeading = 'Edit Workout Plan';
         this.submitFormText = 'Edit Workout';
+
         if (this.editMode && this.originalWorkout) {
           this.workoutForm.patchValue({
             name: this.originalWorkout.title,
             description: this.originalWorkout.description,
             days: this.originalWorkout.days,
           });
-          this.selectedDays = [...this.originalWorkout.days]; // <-- Add this line
+          this.selectedDays = [...this.originalWorkout.days];
         }
       });
   }
@@ -117,6 +125,11 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Handles the change event for day checkboxes.
+   * Updates the selectedDays array and form control value based on checkbox state.
+   * @param event - The change event from the checkbox input.
+   */
   onDayChange(event: any) {
     const selectedDay = event.target.value;
     if (event.target.checked) {
@@ -134,6 +147,10 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     this.workoutForm.get('days')?.markAsTouched();
   }
 
+  /**
+   * Cancels the workout creation or editing.
+   * Resets the form and navigates back to the workout list.
+   */
   cancel() {
     this.workoutForm.reset();
     this.successMessage = '';
@@ -141,6 +158,11 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
     this.router.navigate(['/workouts']);
   }
 
+  /**
+   * Submits the workout form.
+   * Validates the form, constructs the workout plan object, and either adds or updates it.
+   * Displays success or error messages based on the operation outcome.
+   */
   async onSubmit() {
     if (this.workoutForm.valid) {
       let { name, description, days } = this.workoutForm.value;
@@ -152,7 +174,7 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
         user_id: this.user.id,
         title: name,
         description: description,
-        days: days, // Include selected days in the submission
+        days: days,
       };
 
       const workoutPlanToUpdate: WorkoutPlan = {
@@ -160,7 +182,7 @@ export class WorkoutEditComponent implements OnInit, OnDestroy {
         user_id: this.user.id,
         title: name,
         description: description,
-        days: days, // Include selected days in the update
+        days: days,
       };
 
       try {

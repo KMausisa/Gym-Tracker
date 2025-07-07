@@ -84,13 +84,13 @@ export class WorkoutService {
    * @returns {Promise<string | null>} A promise that resolves to the ID of the day or null if an error occurs.
    * @throws Error if there is an issue fetching the day ID.
    */
-  async getDayId(workoutId: string, day: string): Promise<string | null> {
+  async getDayId(workoutId: string, day: string): Promise<string | ''> {
     try {
       const dayId = await this.supabaseService.getDayId(workoutId, day);
       return dayId;
     } catch (error) {
       console.error('Error fetching day ID:', error);
-      return null;
+      return '';
     }
   }
 
@@ -101,7 +101,7 @@ export class WorkoutService {
    * @returns {Promise<Exercise[] | null>} A promise that resolves to an array of Exercise objects or null if an error occurs.
    * @throws Error if there is an issue fetching the routine.
    */
-  async getRoutineById(dayId: string): Promise<Exercise[] | null> {
+  async getRoutineById(dayId: string): Promise<Exercise[] | []> {
     try {
       const routine = await this.supabaseService.getRoutineById(dayId);
       this.exerciseListChanged.next(routine ?? []);
@@ -109,7 +109,7 @@ export class WorkoutService {
     } catch (error) {
       console.error('Error fetching workout by ID:', error);
       this.exerciseListChanged.next([]);
-      return null;
+      return [];
     }
   }
 
