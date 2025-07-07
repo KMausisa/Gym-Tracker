@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration production && cp _redirects dist/gym-tracker/",
+    "build": "ng build --configuration production && cp ./_redirects dist/gym-tracker/browser/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
