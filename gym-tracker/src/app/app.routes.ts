@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './services/auth.guard';
+import { AuthRedirectGuard } from './services/auth-redirect.guard';
 import { CanExitWorkoutGuard } from './services/can-exit-workout.guard';
 
 export const routes: Routes = [
@@ -108,6 +109,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
+    canActivate: [AuthRedirectGuard],
     loadComponent: () =>
       import('./login/login.component').then((m) => m.LoginComponent),
   },
