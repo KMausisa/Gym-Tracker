@@ -109,7 +109,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    canActivate: [AuthRedirectGuard],
+    // canActivate: [AuthRedirectGuard],
     loadComponent: () =>
       import('./login/login.component').then((m) => m.LoginComponent),
   },
