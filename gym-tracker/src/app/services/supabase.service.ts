@@ -49,6 +49,14 @@ export class SupabaseService {
   }
 
   /**
+   * This method returns the current session from Supabase.
+   * @returns Promise that resolves to the current session.
+   */
+  getSession() {
+    return this.supabase.auth.getSession();
+  }
+
+  /**
    * This method loads the current user from Supabase and updates the BehaviorSubject.
    * @returns Promise that resolves to the current user or null if not logged in.
    */
