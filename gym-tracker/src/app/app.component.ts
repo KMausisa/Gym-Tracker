@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -26,7 +26,10 @@ export class AppComponent implements OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private supabaseService: SupabaseService) {
+  constructor(
+    private supabaseService: SupabaseService,
+    private router: Router
+  ) {
     this.supabaseService.loadUser();
     this.supabaseService.sessionReady.then(() => {
       this.isSessionReady = true;
@@ -45,6 +48,7 @@ export class AppComponent implements OnDestroy {
           this.loadUserProfile();
         } else {
           this.userProfile = null;
+          this.router.navigate(['/login']);
         }
       });
   }
