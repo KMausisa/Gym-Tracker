@@ -48,7 +48,7 @@ export class AppComponent implements OnDestroy {
           this.loadUserProfile();
         } else {
           this.userProfile = null;
-          this.router.navigate(['/login']);
+          // this.router.navigate(['/login']);
         }
       });
   }
