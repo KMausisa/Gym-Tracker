@@ -42,11 +42,16 @@
       <div class="progress-item">
         <h2>Heaviest Lift performed</h2>
         <div class="exercise-item">
+          @if (heaviestLift.exercise) {
           <h3>{{ heaviestLift.exercise }}</h3>
+          } @else {
+          <h3>No lifts recorded yet</h3>
+          } @if (heaviestLift.weight && heaviestLift.reps) {
           <p>
             Weight (lbs): {{ heaviestLift.weight }} lbs,
             {{ heaviestLift.reps }} reps
           </p>
+          }
         </div>
       </div>
     </div>
