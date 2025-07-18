@@ -73,6 +73,7 @@ export class ProgressComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((progress) => {
         this.userProgress = progress;
+        console.log('User Progress:', this.userProgress);
         this.prepareData();
       });
 
@@ -106,6 +107,7 @@ export class ProgressComponent implements OnInit, OnDestroy {
           seen.add(ex.name);
           return true;
         });
+      console.log('Filtered Exercises:', this.filteredExercises);
     } else {
       this.filteredExercises = [];
     }
