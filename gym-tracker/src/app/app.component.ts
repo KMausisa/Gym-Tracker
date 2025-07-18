@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import { FooterComponent } from './footer/footer.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Gym Tracker';
 
   isAuthenticated: boolean = false;
@@ -34,6 +34,12 @@ export class AppComponent implements OnDestroy {
     this.supabaseService.sessionReady.then(() => {
       this.isSessionReady = true;
       this.subscribeToAuth();
+    });
+  }
+
+  ngOnInit(): void {
+    this.supabaseService.sessionReady.then(() => {
+      console.log('Session is ready');
     });
   }
 
