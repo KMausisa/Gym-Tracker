@@ -75,6 +75,7 @@ export class ExerciseProgressComponent implements OnInit, OnDestroy {
    * @returns {ExerciseProgress[]} - Filtered exercise progress.
    */
   prepareChartData() {
+    this.exerciseHasProgress = this.exerciseProgress.length > 0;
     const totalVolume = this.exerciseProgress.map((exercise) => {
       const weights: number[] = Array.isArray(exercise.weights)
         ? exercise.weights

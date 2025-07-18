@@ -151,6 +151,7 @@ export class HomeComponent implements OnDestroy {
         activeWorkoutId,
         currentDay
       );
+      console.log(this.currentDayId);
       if (!this.currentDayId) {
         this.workoutDayHeader = 'You have no exercises for today.';
         return;
@@ -158,6 +159,9 @@ export class HomeComponent implements OnDestroy {
       this.todaysExercises = await this.workoutService.getRoutineById(
         this.currentDayId
       );
+      if (this.todaysExercises.length === 0) {
+        this.workoutDayHeader = 'You have no exercises for today.';
+      }
     } catch (error) {
       console.error('Error fetching exercises for day:', error);
     }
