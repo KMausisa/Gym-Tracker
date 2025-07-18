@@ -1,14 +1,10 @@
 <body>
   <div class="app-container">
-    @if (isSessionReady) { @if (isAuthenticated) {
+    @if (isSessionReady && isAuthenticated) {
     <app-header></app-header>
-    }
-
     <router-outlet></router-outlet>
-
-    @if (isAuthenticated) {
     <app-footer></app-footer>
-    } } @else {
+    } @else {
     <!-- Optional loading spinner -->
     <div class="loading">Loading session...</div>
     }
