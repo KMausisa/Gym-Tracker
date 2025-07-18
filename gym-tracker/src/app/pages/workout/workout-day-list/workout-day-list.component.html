@@ -16,9 +16,7 @@
       <span>
         <strong>{{ exercise.name }}</strong
         >: {{ exercise.sets }} sets x {{ exercise.reps }} reps,
-        {{ exercise.weight }} lbs @if (exercise.notes) {
-        <span>- {{ exercise.notes }}</span>
-        }
+        {{ exercise.weight }} lbs @if (exercise.notes) { }
       </span>
       <span class="exercise-actions">
         <button title="Edit" [routerLink]="[exercise.id, 'edit']">✏️</button>
