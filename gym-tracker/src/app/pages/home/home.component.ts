@@ -83,11 +83,6 @@ export class HomeComponent implements OnDestroy {
           await this.workoutService.getUserWorkoutCount(this.user.id);
       });
 
-    const data = localStorage.getItem('completedWorkout');
-    const dataParsed = data ? JSON.parse(data) : {};
-    dataParsed['31f67e2a-4948-430e-b90a-7b48a07bb202'] = ['2025-07-17'];
-    localStorage.setItem('completedWorkout', JSON.stringify(dataParsed));
-
     const daysOfWeek = [
       'Sunday',
       'Monday',
@@ -328,8 +323,6 @@ export class HomeComponent implements OnDestroy {
     if (!completed[this.activeWorkoutId].includes(todayDate)) {
       completed[this.activeWorkoutId].push(todayDate);
     }
-
-    console.log(completed);
 
     localStorage.setItem('completedWorkout', JSON.stringify(completed));
 
