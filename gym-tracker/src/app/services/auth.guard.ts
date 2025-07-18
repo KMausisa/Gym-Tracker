@@ -29,6 +29,8 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Promise<boolean | UrlTree> {
     await this.supabaseService.sessionReady;
+    console.log('AuthGuard: Checking authentication status');
+    console.log('Is authenticated:', this.supabaseService.isAuthenticated);
     if (!this.supabaseService.isAuthenticated) {
       console.warn('User is not authenticated, redirecting to login page');
       // Redirect to the login page
