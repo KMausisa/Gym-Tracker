@@ -37,11 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {
-    this.supabaseService.sessionReady.then(() => {
-      console.log('Session is ready');
-    });
-  }
+  ngOnInit(): void {}
 
   subscribeToAuth() {
     this.supabaseService.currentUser$
