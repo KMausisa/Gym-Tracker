@@ -101,7 +101,6 @@ export class HomeComponent implements OnDestroy {
     const completedRaw = localStorage.getItem('completedWorkout');
     if (completedRaw && this.activeWorkoutId) {
       const completed = JSON.parse(completedRaw);
-      console.log(completed);
 
       // Check if current workout ID is in the completed object and
       // if the current day is included for that workout.
@@ -152,7 +151,6 @@ export class HomeComponent implements OnDestroy {
         activeWorkoutId,
         currentDay
       );
-      console.log(this.currentDayId);
       if (!this.currentDayId) {
         this.workoutDayHeader = 'You have no exercises for today.';
         return;

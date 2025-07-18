@@ -4,7 +4,8 @@
     <a routerLink="new" class="btn btn-primary">Create New Workout</a>
   </div>
   <div class="workout-list">
-    @for (workout of sortedWorkouts; track workout) {
+    @if (sortedWorkouts.length > 0) { @for (workout of sortedWorkouts; track
+    workout) {
     <div
       class="workout-plan-item"
       [class.active]="activeWorkoutId === workout.id"
@@ -28,6 +29,10 @@
         <option value="deactivate">Deactivate</option>
         }
       </select>
+    </div>
+    } } @else {
+    <div class="no-workouts">
+      <p>No workout plans available. Create a new one to get started!</p>
     </div>
     }
   </div>
