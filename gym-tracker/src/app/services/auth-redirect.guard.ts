@@ -8,10 +8,8 @@ export class AuthRedirectGuard implements CanActivate {
   constructor(private supabase: SupabaseService, private router: Router) {}
 
   async canActivate(): Promise<boolean | UrlTree> {
-    const {
-      data: { session },
-    } = await this.supabase.getSession();
-    if (session) {
+    await this.supabase.sessionReady; // Wait for session init
+    if (this.supabase.isAuthenticated) {
       return this.router.createUrlTree(['/dashboard']);
     }
     return true;
